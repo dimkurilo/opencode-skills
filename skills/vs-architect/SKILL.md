@@ -1,65 +1,9 @@
 ---
 name: vs-architect
-description: "VS Architect — a skill for opencode agents that uses Verbalized Sampling (arXiv 2510.01171) to overcome LLM mode collapse. Generates diverse solution variants with probability estimates for architecture decisions, debugging, strategy, creative work, and data generation."
+description: "Generate diverse solution variants with probability estimates using Verbalized Sampling (arXiv 2510.01171). Use when choosing between multiple approaches, debugging with unknown root cause, generating hypotheses or synthetic data, or when direct prompts produce repetitive mode-collapsed responses. Do NOT use for trivial scripts, factual queries, or stable production code."
 ---
 
-# VS Architect — Distribution-Level Prompting
-
-## What is Verbalized Sampling?
-
-Когда вы просите LLM «сделай X», модель выдаёт самый типичный ответ (mode prototype).
-Это называется **mode collapse** — модель каждый раз сходится к одному и тому же шаблонному решению,
-даже если есть много хороших альтернатив.
-
-**Verbalized Sampling (VS)** — метод, который решает эту проблему.
-Вместо `"сделай X"` мы просим: `"дай 5 вариантов решения X с вероятностями успеха"`.
-Модель перестаёт схлопываться в один прототип и начинает выдавать распределение вариантов,
-приближенное к реальному разнообразию возможных решений.
-
-Основан на статье arXiv 2510.01171v3 (ICLR 2026):
-*"Verbalized Sampling: How to Mitigate Mode Collapse and Unlock LLM Diversity."*
-
-## Why "VS Architect"?
-
-- **VS** = Verbalized Sampling — научный метод, лёгший в основу скилла
-- **Architect** = архитектор — скилл не просто генерирует варианты, а проектирует структуру промпта:
-  классифицирует задачу, выбирает оптимальный VS-паттерн, строит distribution-level промпт,
-  а затем превращает выбранный вариант в готовый execution prompt
-
-Скилл выступает архитектором процесса принятия решений с помощью LLM.
-
-## What problem does it solve?
-
-| Проблема | Как VS решает |
-|----------|--------------|
-| LLM всегда даёт одно и то же решение | Distribution-level промпт «вскрывает» разнообразие |
-| Не знаешь, какой подход выбрать | VS генерирует варианты с вероятностями — видно, что перспективнее |
-| Сложная диагностика без единой гипотезы | VS-CoT паттерн строит дерево гипотез с проверками |
-| Мурашки при выборе архитектуры | VS-Standard — сравнение подходов с pros/cons |
-| Нужно много идей или данных | VS-Multi — итеративная генерация, 10+ вариантов |
-
-## What results to expect?
-
-- От 3 до 10+ вариантов решения с оценкой вероятности успеха для каждого
-- Чёткая классификация задачи, понятная пользователю
-- Готовый execution prompt для выбранного варианта — бери и делай
-- Экономия времени: не нужно переспрашивать LLM 5 раз, hoping for a different answer
-
-## When to use
-
-- Выбор архитектуры или подхода из нескольких вариантов
-- Прямой промпт даёт однотипные ответы (mode collapse)
-- Диагностика с неизвестной причиной проблемы
-- Генерация гипотез, синтетических данных, тест-кейсов
-- Креативные задачи, где нужно разнообразие
-
-## When NOT to use
-
-- Простые скрипты с очевидным решением (проще написать напрямую)
-- Фактические запросы (2+2, столица Франции)
-- Стабильный продакшн-код — прямой промпт надёжнее
-
----
+# VS Architect — Agent Instructions
 
 ## Two-Phase Workflow
 
