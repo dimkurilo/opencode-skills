@@ -2,9 +2,9 @@
 
 🇷🇺 [Русская версия](README.ru.md)
 
-A collection of skills for [opencode](https://github.com/opencode-ai/opencode) agents (DeepSeek V4, Claude, GPT).
+A collection of skills for [opencode](https://github.com/opencode-ai/opencode) agents.
 
-Each skill is a set of instructions, prompt patterns, and reference materials that teach an AI agent how to perform a specific task effectively.
+Each skill is a set of instructions, prompt patterns, and reference materials that teach an AI agent how to perform a specific task effectively. Skills are model-agnostic and work with any LLM backend supported by opencode (OpenAI-compatible API).
 
 ## Skills
 

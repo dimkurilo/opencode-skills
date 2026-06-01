@@ -1,9 +1,9 @@
 ---
 name: vs-architect
-description: "VS Architect — a skill for DeepSeek V4 / opencode agents that uses Verbalized Sampling (arXiv 2510.01171) to overcome LLM mode collapse. Generates diverse solution variants with probability estimates for architecture decisions, debugging, strategy, creative work, and data generation."
+description: "VS Architect — a skill for opencode agents that uses Verbalized Sampling (arXiv 2510.01171) to overcome LLM mode collapse. Generates diverse solution variants with probability estimates for architecture decisions, debugging, strategy, creative work, and data generation."
 ---
 
-# VS Architect — Distribution-Level Prompting for DeepSeek V4
+# VS Architect — Distribution-Level Prompting
 
 ## What is Verbalized Sampling?
 
