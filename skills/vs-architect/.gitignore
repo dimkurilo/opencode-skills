@@ -1,0 +1,8 @@
+# OS files
+.DS_Store
+
+# User config (contains personal API keys, paths)
+config/.env
+
+# Cache
+cache/
