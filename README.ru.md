@@ -10,6 +10,7 @@
 
 | Скилл | Описание |
 |-------|----------|
+| [project-bootstrap](skills/project-bootstrap/) | Создаёт полную агентскую инфраструктуру для новых проектов по стандарту Agent Playbook. Анализирует описание задачи, ищет в интернете CLI-синтаксис и лучшие практики, переиспользует контекст из существующих проектов, генерирует AGENTS.md, memory, rules, skills и commands. |
 | [vs-architect](skills/vs-architect/) | Distribution-level промптинг через Verbalized Sampling (arXiv 2510.01171). Генерирует разнообразные варианты решений с оценкой вероятности для архитектурных решений, отладки, стратегии, креативной работы и генерации данных. |
 
 ## Установка
@@ -20,7 +21,8 @@
 # Клонировать репозиторий
 git clone git@github.com:YOUR_USERNAME/opencode-skills.git ~/Projects/opencode-skills
 
-# Симлинк скилла в конфиг opencode
+# Симлинк нужных скиллов в конфиг opencode
+ln -sf ~/Projects/opencode-skills/skills/project-bootstrap ~/.config/opencode/skills/project-bootstrap
 ln -sf ~/Projects/opencode-skills/skills/vs-architect ~/.config/opencode/skills/vs-architect
 ```
 
@@ -29,6 +31,7 @@ ln -sf ~/Projects/opencode-skills/skills/vs-architect ~/.config/opencode/skills/
 Просто скопировать папку скилла:
 
 ```bash
+cp -r skills/project-bootstrap ~/.config/opencode/skills/project-bootstrap
 cp -r skills/vs-architect ~/.config/opencode/skills/vs-architect
 ```
 
@@ -39,6 +42,7 @@ cp -r skills/vs-architect ~/.config/opencode/skills/vs-architect
 ```bash
 # В корне проекта
 mkdir -p .opencode/skills
+cp -r skills/project-bootstrap .opencode/skills/project-bootstrap
 cp -r skills/vs-architect .opencode/skills/vs-architect
 ```
 
@@ -51,8 +55,18 @@ opencode-skills/
 ├── LICENSE                 # MIT
 ├── .gitignore
 └── skills/
-    └── vs-architect/       # Конкретный скилл
+    ├── project-bootstrap/  # Генератор инфраструктуры по Agent Playbook
+    │   ├── SKILL.md
+    │   ├── README.md
+    │   ├── README.ru.md
+    │   ├── references/
+    │   │   └── playbook.md
+    │   └── assets/
+    │       └── templates/
+    └── vs-architect/       # Verbalized Sampling промптинг
         ├── SKILL.md
+        ├── README.md
+        ├── README.ru.md
         ├── references/
         │   ├── vs-theory.md
         │   └── examples.md

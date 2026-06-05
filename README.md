@@ -10,6 +10,7 @@ Each skill is a set of instructions, prompt patterns, and reference materials th
 
 | Skill | Description |
 |-------|-------------|
+| [project-bootstrap](skills/project-bootstrap/) | Bootstraps complete agent infrastructure for new projects following the Agent Playbook standard. Analyzes task descriptions, searches the web for CLI syntax and best practices, reuses context from existing projects, and generates AGENTS.md, memory, rules, skills, and commands. |
 | [vs-architect](skills/vs-architect/) | Distribution-level prompting via Verbalized Sampling (arXiv 2510.01171). Generates diverse solution variants with probability estimates for architecture decisions, debugging, strategy, creative work, and data generation. |
 
 ## Installation
@@ -20,7 +21,8 @@ Each skill is a set of instructions, prompt patterns, and reference materials th
 # Clone the repo
 git clone git@github.com:YOUR_USERNAME/opencode-skills.git ~/Projects/opencode-skills
 
-# Symlink a skill into your opencode config
+# Symlink the skills you need
+ln -sf ~/Projects/opencode-skills/skills/project-bootstrap ~/.config/opencode/skills/project-bootstrap
 ln -sf ~/Projects/opencode-skills/skills/vs-architect ~/.config/opencode/skills/vs-architect
 ```
 
@@ -29,6 +31,7 @@ ln -sf ~/Projects/opencode-skills/skills/vs-architect ~/.config/opencode/skills/
 Copy the skill folder directly:
 
 ```bash
+cp -r skills/project-bootstrap ~/.config/opencode/skills/project-bootstrap
 cp -r skills/vs-architect ~/.config/opencode/skills/vs-architect
 ```
 
@@ -39,6 +42,7 @@ After copying, the opencode agent will automatically discover the skill on next 
 ```bash
 # In your project root
 mkdir -p .opencode/skills
+cp -r skills/project-bootstrap .opencode/skills/project-bootstrap
 cp -r skills/vs-architect .opencode/skills/vs-architect
 ```
 
@@ -51,8 +55,18 @@ opencode-skills/
 ├── LICENSE                 # MIT
 ├── .gitignore
 └── skills/
-    └── vs-architect/       # Individual skill
+    ├── project-bootstrap/  # Agent Playbook infrastructure generator
+    │   ├── SKILL.md
+    │   ├── README.md
+    │   ├── README.ru.md
+    │   ├── references/
+    │   │   └── playbook.md
+    │   └── assets/
+    │       └── templates/
+    └── vs-architect/       # Verbalized Sampling prompting
         ├── SKILL.md
+        ├── README.md
+        ├── README.ru.md
         ├── references/
         │   ├── vs-theory.md
         │   └── examples.md
