@@ -10,8 +10,8 @@ Each skill is a set of instructions, prompt patterns, and reference materials th
 
 | Skill | Description |
 |-------|-------------|
-| [project-bootstrap](skills/project-bootstrap/) | Генератор агентской инфраструктуры по [Agent Playbook](https://agents.md). Два режима: создание с нуля и расширение существующего проекта. DeepSeek-оптимизации: Closing Anchors, Progressive Context (L1/L2/L3), Anti-Rationalization, Adversarial Verification, Capture step. Создаёт AGENTS.md, SESSION_HANDOFF.md, MEMORY.md (append-only), правила с Gotchas, скиллы, персоны агентов, слеш-команды. 9 шаблонов, 52 переменные, каталог из 6 workflow-паттернов. [Подробнее →](skills/project-bootstrap/README.md) |
-| [vs-architect](skills/vs-architect/) | Distribution-level промптинг через Verbalized Sampling (arXiv 2510.01171). Генерирует варианты решений с вероятностными оценками для архитектуры, отладки, стратегии и креативных задач. |
+| [project-bootstrap](skills/project-bootstrap/) | Agent infrastructure generator following [Agent Playbook](https://agents.md). Two modes: create from scratch and extend existing. DeepSeek optimizations: Closing Anchors, Progressive Context (L1/L2/L3), Anti-Rationalization, Adversarial Verification, Capture step. Creates AGENTS.md, SESSION_HANDOFF.md, MEMORY.md (append-only), rules with Gotchas, skills, agent personas, slash commands. 9 templates, 52 variables, 6 workflow patterns. [Details →](skills/project-bootstrap/README.md) |
+| [vs-architect](skills/vs-architect/) | Distribution-level prompting via Verbalized Sampling (arXiv 2510.01171). Generates solution variants with probability estimates for architecture, debugging, strategy, and creative tasks. |
 
 ## Installation
 
