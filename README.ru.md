@@ -10,8 +10,8 @@
 
 | Скилл | Описание |
 |-------|----------|
-| [project-bootstrap](skills/project-bootstrap/) | Создаёт полную агентскую инфраструктуру для проектов любого типа по стандарту Agent Playbook. Анализирует задачи, ищет лучшие практики в интернете, переиспользует контекст существующих проектов. Создаёт AGENTS.md с Closing Anchors + Progressive Context, SESSION_HANDOFF.md, MEMORY.md (append-only), правила с Anti-Rationalization, скиллы с Gotchas, персоны агентов, слеш-команды. Два режима: с нуля и расширение. Оптимизирован под DeepSeek V4, модель-независим. |
-| [vs-architect](skills/vs-architect/) | Distribution-level промптинг через Verbalized Sampling (arXiv 2510.01171). Генерирует варианты решений с вероятностными оценками для архитектурных решений, отладки, стратегии и креативных задач. |
+| [project-bootstrap](skills/project-bootstrap/) | Генератор агентской инфраструктуры по [Agent Playbook](https://agents.md). Два режима: создание с нуля и расширение существующего проекта. DeepSeek-оптимизации: Closing Anchors, Progressive Context (L1/L2/L3), Anti-Rationalization, Adversarial Verification, Capture step. Создаёт AGENTS.md, SESSION_HANDOFF.md, MEMORY.md (append-only), правила с Gotchas, скиллы, персоны агентов, слеш-команды. 9 шаблонов, 52 переменные, каталог из 6 workflow-паттернов. [Подробнее →](skills/project-bootstrap/README.ru.md) |
+| [vs-architect](skills/vs-architect/) | Distribution-level промптинг через Verbalized Sampling (arXiv 2510.01171). Генерирует варианты решений с вероятностными оценками для архитектуры, отладки, стратегии и креативных задач. |
 
 ## Установка
 
@@ -45,11 +45,16 @@ opencode-skills/
     ├── project-bootstrap/  # Генератор инфраструктуры (v3)
     │   ├── SKILL.md
     │   ├── README.md / README.ru.md
-    │   ├── references/     # playbook.md, workflow-patterns.md
-    │   └── assets/templates/  # 9 шаблонов
+    │   ├── references/
+    │   │   ├── playbook.md
+    │   │   └── workflow-patterns.md
+    │   └── assets/templates/   # 9 шаблонов
     └── vs-architect/       # Verbalized Sampling промптинг
         ├── SKILL.md
+        ├── README.md / README.ru.md
         └── references/
+            ├── vs-theory.md
+            └── examples.md
 ```
 
 ## Как создать свой скилл

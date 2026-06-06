@@ -10,8 +10,8 @@ Each skill is a set of instructions, prompt patterns, and reference materials th
 
 | Skill | Description |
 |-------|-------------|
-| [project-bootstrap](skills/project-bootstrap/) | Bootstraps complete agent infrastructure for projects of any type following the Agent Playbook standard. Analyzes tasks, searches the web for best practices, reuses existing project context. Creates AGENTS.md with Closing Anchors + Progressive Context, SESSION_HANDOFF.md, MEMORY.md (append-only), rules with Anti-Rationalization, skills with Gotchas, agent personas, slash commands. Two modes: create from scratch or extend existing. Optimized for DeepSeek V4, model-agnostic. |
-| [vs-architect](skills/vs-architect/) | Distribution-level prompting via Verbalized Sampling (arXiv 2510.01171). Generates diverse solution variants with probability estimates for architecture decisions, debugging, strategy, creative work, and data generation. |
+| [project-bootstrap](skills/project-bootstrap/) | Генератор агентской инфраструктуры по [Agent Playbook](https://agents.md). Два режима: создание с нуля и расширение существующего проекта. DeepSeek-оптимизации: Closing Anchors, Progressive Context (L1/L2/L3), Anti-Rationalization, Adversarial Verification, Capture step. Создаёт AGENTS.md, SESSION_HANDOFF.md, MEMORY.md (append-only), правила с Gotchas, скиллы, персоны агентов, слеш-команды. 9 шаблонов, 52 переменные, каталог из 6 workflow-паттернов. [Подробнее →](skills/project-bootstrap/README.md) |
+| [vs-architect](skills/vs-architect/) | Distribution-level промптинг через Verbalized Sampling (arXiv 2510.01171). Генерирует варианты решений с вероятностными оценками для архитектуры, отладки, стратегии и креативных задач. |
 
 ## Installation
 
@@ -45,11 +45,16 @@ opencode-skills/
     ├── project-bootstrap/  # Agent Playbook infrastructure generator (v3)
     │   ├── SKILL.md
     │   ├── README.md / README.ru.md
-    │   ├── references/     # playbook.md, workflow-patterns.md
-    │   └── assets/templates/  # 9 templates
+    │   ├── references/
+    │   │   ├── playbook.md
+    │   │   └── workflow-patterns.md
+    │   └── assets/templates/   # 9 templates
     └── vs-architect/       # Verbalized Sampling prompting
         ├── SKILL.md
+        ├── README.md / README.ru.md
         └── references/
+            ├── vs-theory.md
+            └── examples.md
 ```
 
 ## Creating your own skills
