@@ -10,21 +10,25 @@
 ```
 project-root/
 ├── AGENTS.md                  # Главный манифест + Loaded Context
+├── SESSION_HANDOFF.md         # Динамический контекст между сессиями (.gitignore)
+├── .gitignore                 # Исключения: секреты, SESSION_HANDOFF.md, OS-файлы
 └── .agents/
     ├── rules/                 # Модульные правила
     │   └── <name>.md
     ├── skills/                # Workflow-навыки
     │   └── <name>/
-    │       ├── SKILL.md
-    │       ├── WORKFLOW.md
-    │       ├── scripts/
-    │       └── references/
+    │       ├── SKILL.md       # Обязательно: описание и workflow
+    │       ├── scripts/       # Опционально: детерминированные скрипты
+    │       ├── references/    # Опционально: документация, cheat sheets
+    │       ├── assets/        # Опционально: шаблоны, изображения
+    │       └── agents/        # Опционально: сабагенты навыка
     ├── commands/              # Слеш-команды
     │   └── <name>.md
     ├── agents/                # Сабагент-персоны
     │   └── <role>.md
+    ├── scripts/               # Опционально: общие утилиты (не привязаны к скиллам)
     └── memory/                # Память агента
-        ├── MEMORY.md          # Долговременная
+        ├── MEMORY.md          # Долговременная (append-only)
         └── YYYY-MM-DD.md      # Ежедневные заметки (UTC)
 ```
 
@@ -38,6 +42,7 @@ project-root/
 3. **Loaded Context** — таблица файлов с Auto-load/on-demand
 4. **Критические правила** — 3-5 самых важных
 5. **Протокол работы** — основные сценарии (если есть)
+6. **Session Handoff** — инструкция чтения/обновления SESSION_HANDOFF.md
 
 Формат Loaded Context:
 ```markdown
@@ -45,9 +50,9 @@ project-root/
 
 | File | Purpose | Auto-load |
 |------|---------|-----------|
+| SESSION_HANDOFF.md | Состояние между сессиями | yes (по инструкции) |
 | .agents/memory/MEMORY.md | Долговременная память | yes |
 | .agents/rules/general.md | Базовые правила | yes |
-| .agents/rules/backup.md | Процедуры бекапа | yes |
 | .agents/commands/status.md | /status команда | on-demand |
 ```
 
@@ -69,9 +74,15 @@ priority: high
 
 Правила:
 - Пиши императивами, не предложениями
-- `applies_to` — glob-маски для авто-загрузки
-- `priority`: low | medium | high | critical
+- `applies_to` — glob-маски для авто-загрузки (обязательно)
+- `priority`: low | medium | high | critical (обязательно)
 - Одно правило = одна тема
+
+---
+
+## Workflow Patterns
+
+См. `references/workflow-patterns.md` — каталог из 6 архитектурных паттернов для выбора правильной структуры сложных skills.
 
 ---
 
@@ -83,15 +94,22 @@ priority: high
 ```yaml
 ---
 name: skill-name
-description: What and when. Keep under 1024 chars.
+description: WHEN to use this skill. Describe trigger context, not what it does. Keep under 1024 chars.
 ---
 ```
 
-### WORKFLOW.md (рекомендуется)
-Пошаговый алгоритм. Конкретные шаги, не общие слова.
+**description — для модели, не для человека.** Модель сканирует описания всех скиллов при старте и решает, какой вызвать. Пиши триггер-контекст: «Use when пользователь просит X», а не описание действия «Делает Y из Z».
 
-### scripts/ (опционально)
-Детерминированные Python/Bash скрипты.
+Workflow описывается в теле SKILL.md — конкретные шаги, не общие слова.
+
+### Поддиректории (все опциональны)
+
+| Папка | Назначение |
+|-------|-----------|
+| `scripts/` | Детерминированные Python/Bash скрипты |
+| `references/` | Документация, cheat sheets, языковые гайды |
+| `assets/` | Шаблоны, изображения, HTML, примеры |
+| `agents/` | Сабагенты, используемые workflow навыка |
 
 Правила для скриптов:
 - Без интерактивных prompt'ов — только флаги/env/stdin
@@ -110,7 +128,7 @@ description: What and when. Keep under 1024 chars.
 ```yaml
 ---
 name: command-name
-description: What it does
+description: WHEN to use this command. Describe trigger context.
 argument-hint: "[target]"
 arguments: [target]
 disable-model-invocation: true
@@ -129,7 +147,7 @@ disable-model-invocation: true
 ---
 name: Role Name
 invoke: "@role"
-description: What this subagent does
+description: WHEN to invoke this subagent. Describe trigger context.
 ---
 ```
 
@@ -143,8 +161,10 @@ description: What this subagent does
 ```markdown
 # Memory
 
+> **Append-only:** старые записи не удалять, только дополнять.
+
 ## CONFIRMED_FACTS
-- Факт 1
+- Факт 1 <!-- source: URL, YYYY-MM-DD -->
 - Факт 2
 
 ## Решения
@@ -153,8 +173,8 @@ description: What this subagent does
 **Решение:** ...
 **Пересмотреть если:** ...
 
-## Инструменты и команды
-- `tool --flag` — описание
+## Инструменты и ресурсы
+- `tool --flag` — описание <!-- source: URL --> <!-- source: URL -->
 
 ## Известные ограничения
 - Ограничение 1
@@ -179,8 +199,29 @@ description: What this subagent does
 
 ---
 
+## SESSION_HANDOFF.md — Контекст между сессиями
+
+Файл в корне проекта, **в `.gitignore`**, не коммитится.
+
+```markdown
+# Session Handoff — Project Name
+
+## CONFIRMED_FACTS
+## UNRESOLVED_ISSUES
+## FAILED_APPROACHES
+## ENVIRONMENT_NOTES
+## FILE:LINE_ANCHORS
+```
+
+Агент читает при старте, обновляет при завершении сессии.
+
+---
+
 ## Security
 
 - **Никаких** паролей, токенов, ключей в `.agents/`
 - `.agents/` коммитится в git — это конфигурация, не секреты
+- Секретные файлы (`.env`, `.config`) — в `.gitignore`
+- Для секретных файлов создавай `.example`-заглушки с форматом (без реальных значений)
+- SESSION_HANDOFF.md — в `.gitignore`
 - Subagent permissions ≤ parent agent permissions

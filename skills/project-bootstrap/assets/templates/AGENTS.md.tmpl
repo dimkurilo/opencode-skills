@@ -17,6 +17,8 @@ ${PROJECT_FULL_DESCRIPTION}
 ```
 ${PROJECT_DIR}/
 ├── AGENTS.md                       # этот файл — главная инструкция
+├── SESSION_HANDOFF.md              # [.gitignore] динамический контекст между сессиями
+├── .gitignore                      # исключения (секреты, handoff, OS-файлы)
 └── .agents/
 ${ARCHITECTURE_TREE}
 ```
@@ -27,23 +29,48 @@ ${ARCHITECTURE_NOTES}
 
 ## Loaded Context
 
-| Файл | Назначение | Auto-load |
-|------|-----------|-----------|
-${LOADED_CONTEXT_ROWS}
+<!-- Progressive Context: Level 1 = всегда, Level 2 = по триггеру, Level 3 = on-demand -->
+<!-- Группируй связанные файлы вместе — DeepSeek CSA-бюджет ~4000 токенов -->
 
----
+### Level 1 — Всегда
+| Файл | Назначение |
+|------|-----------|
+${LOADED_CONTEXT_L1}
 
-## Критические правила
+### Level 2 — По задаче
+| Файл | Назначение | Триггер |
+|------|-----------|---------|
+${LOADED_CONTEXT_L2}
 
-${CRITICAL_RULES}
+### Level 3 — On-demand
+| Файл | Назначение |
+|------|-----------|
+${LOADED_CONTEXT_L3}
 
 ---
 
 ## Протокол работы
 
+<!-- Command-first: конкретные команды с флагами, не описания. -->
+<!-- "Done" = проверяемый результат (exit code, созданный файл, полученный ответ). -->
+
 ${WORK_PROTOCOL}
 
+### Session Handoff
+
+При старте сессии прочитай `SESSION_HANDOFF.md`. Используй CONFIRMED_FACTS как проверенные факты, UNRESOLVED_ISSUES как backlog. При завершении сессии обнови SESSION_HANDOFF.md. Файл в `.gitignore` — не коммитится.
+
 ${SETUP_COMMANDS}
+
+---
+
+<!-- CLOSING ANCHORS — правила в конце имеют максимальный вес (DeepSeek recency effect) -->
+<!-- CSA-бюджет: ~4000 токенов. Этот файл + general.md + MEMORY.md должны суммарно укладываться в 2000 токенов -->
+<!-- Если превышен — правила обрезаются, модель теряет инструкции -->
+
+## Критические правила
+
+${CRITICAL_RULES}
 
 ---
 
