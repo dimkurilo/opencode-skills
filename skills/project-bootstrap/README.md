@@ -1,103 +1,107 @@
-# Project Bootstrap — Agent Playbook Infrastructure Generator
+# Project Bootstrap — Agent Infrastructure Generator
 
 🇷🇺 [Русская версия](README.ru.md)
 
-A skill for [opencode](https://github.com/opencode-ai/opencode) agents that bootstraps a complete agent infrastructure for new projects following the [Agent Playbook](https://agents.md) standard (v0.0.5).
+A skill for [opencode](https://github.com/opencode-ai/opencode) agents that bootstraps complete agent infrastructure for projects of any type following the [Agent Playbook](https://agents.md) standard (v0.0.5).
 
-## What is Agent Playbook?
+## Why this exists
 
-Agent Playbook is a standard for organizing AI agent infrastructure in software projects. It defines a consistent structure of `.agents/` directory with modular rules, skills, commands, agent personas, and persistent memory — so agents can work effectively across sessions without losing context.
+When starting a new project with an AI agent, the first few sessions are spent inventing structure: where to store rules, how to preserve context between sessions, where to put scripts. Project-bootstrap handles this in one session — describe your task as a stream of thought, and get a ready-to-use `.agents/` structure with AGENTS.md, memory, rules, and skills.
 
-## What does this skill do?
+The skill is **universal**: works for technical projects (backups, servers, integrations), business projects (marketing digitization), and personal projects (job search, resume building, market analysis).
 
-When you describe a new project (in any form — free text, spec link, voice transcript), this skill:
+## What types of projects it suits
 
-1. **Analyzes** the task for "dark spots" — searches the web for current CLI syntax, API docs, and best practices
-2. **Checks existing projects** — finds and reuses relevant context from your other `.agents/` setups
-3. **Generates the infrastructure** — creates exactly what the project needs:
+| Project type | Examples | What it creates |
+|-------------|---------|-----------------|
+| Technical | Server backups, CI/CD, monitoring | AGENTS.md, procedure rules, skills with scripts, commands |
+| Business | Marketing digitization, CRM integration | AGENTS.md, MEMORY.md with resources, process rules, agent roles |
+| Personal | Job search, resume, market analysis | AGENTS.md + profile, formatting rules, assistant agents |
 
-| Module | What it creates |
-|--------|----------------|
-| `AGENTS.md` | Main manifest with project description, architecture tree, Loaded Context table, critical rules |
-| `.agents/memory/MEMORY.md` | Persistent memory: CONFIRMED_FACTS, tools, limitations, anti-patterns |
-| `.agents/rules/general.md` | Base rules: language, verification, no hallucinations, failure handling |
-| `.agents/rules/*.md` | Domain-specific rules (if the task has repeatable operations) |
-| `.agents/agents/*.md` | Subagent personas (if the task has distinct roles) |
-| `.agents/commands/*.md` | Slash commands (if the task has repeatable commands) |
-| `.agents/skills/*/` | Multi-step workflows with SKILL.md + WORKFLOW.md + scripts |
-| `docs/` | Formal specs (if the user provided a PRD/spec) |
+## Which LLMs it works best with
+
+The skill is optimized for **DeepSeek V4** (Pro for main work, Flash for subagents). DeepSeek-specific features:
+
+- **Closing Anchors** — critical rules placed at the end of AGENTS.md (DeepSeek V4 recency effect)
+- **CSA-aware grouping** — related rules grouped in one section (~4000 token precise context budget)
+- **Progressive Context (Level 1/2/3)** — tiered context instead of flat table
+- **Anti-Rationalization** — table of common agent excuses with rebuttals
+- **Adversarial Verification** — critical artifacts checked by a separate agent
+
+The skill is **model-agnostic**: all templates and rules use standard Markdown with YAML frontmatter, works with any LLM backend (OpenAI, Anthropic, Qwen).
+
+## What it creates
+
+| Module | Purpose |
+|--------|---------|
+| `AGENTS.md` | Main manifest: description, architecture, Progressive Context (L1/L2/L3), Closing Anchors |
+| `SESSION_HANDOFF.md` | Dynamic cross-session context (.gitignore) |
+| `.gitignore` | Exclusions for secrets and SESSION_HANDOFF.md |
+| `.agents/memory/MEMORY.md` | Persistent memory (append-only) with sources |
+| `.agents/memory/YYYY-MM-DD.md` | Daily notes (for long-term projects) |
+| `.agents/rules/general.md` | Base rules: Anti-Rationalization, Adversarial Verification, Gotchas |
+| `.agents/rules/*.md` | Domain rules with frontmatter (applies_to, priority) |
+| `.agents/skills/*/SKILL.md` | Workflow skills with gotchas and verification |
+| `.agents/agents/*.md` | Subagent personas (@role) |
+| `.agents/commands/*.md` | Slash commands (/command) |
+| `.agents/scripts/` | Shared utilities |
+| `readme.md` | Human-readable documentation (optional) |
 
 **Key principle:** creates only what the task actually requires. No bloat.
 
-## When to use
+## Key features (v3)
 
-- Starting a new project and want agent infrastructure from day one
-- Applying Agent Playbook standard to an existing project
-- You have a loose task description and want it turned into a structured agent-ready project
-- User says: "создай структуру", "разверни агента", "настрой проект", "bootstrap"
+### Two operation modes
+- **Create from scratch** — for new projects
+- **Extend** — if AGENTS.md already exists, reads it and adds only new modules
 
-## When NOT to use
+### Capture step
+After generation, records not just WHAT was created but WHY: decisions made, rejected alternatives, deferred tasks. Critical for the next session.
 
-- Small edits or fixes within an already-configured project
-- Auditing existing infrastructure
-- Tasks that don't involve creating new project structure
+### Data discovery
+Before generation, scans the project root (`ls`) and includes existing data folders in the AGENTS.md architecture.
 
-## What results to expect
+### Workflow patterns catalog
+6 architectural patterns (Classify-and-Act, Fan-out-and-Synthesize, Adversarial Verification, Generate-and-Filter, Tournament, Loop Until Done) — helps choose the right architecture for complex skills.
 
-- A complete `.agents/` directory tree with all relevant modules
-- `AGENTS.md` at the project root with Loaded Context table
-- CLI syntax, API endpoints, and best practices fetched from the web and stored in memory
-- Reused context from your other projects (SSH configs, known pitfalls, working procedures)
-- No passwords, tokens, or secrets — ever
+## Inspiration & sources
+
+- **[Agent Playbook v0.0.5](https://github.com/PromptPasture/agent.md)** — `.agents/` structure standard
+- **[Cursor Rules](https://cursor.com/docs/rules)** & **[OpenCode Rules](https://opencode.ai/docs/rules/)** — context loading best practices
+- **[Thariq @ Anthropic](https://x.com/trq212/status/2061907337154367865)** — "A harness for every task" — 6 workflow patterns, adversarial verification, progressive disclosure
+- **[vv-opencode (GRACE)](https://github.com/osovv/vv-opencode)** — semantic anchors, knowledge graph, delegation packet convention
+- **[AGENTS.md Patterns (Blake Crosley)](https://blakecrosley.com/blog/agents-md-patterns)** — command-first, closure-defined, 150-line limit
+- **[DeepSeek V4 Agent Protocol](https://agents.md)** — CSA citation budget, Closing Anchors, Cascade Breaker, Failure Packet
 
 ## Installation
 
 ```bash
-# Clone the skills repo
 git clone git@github.com:dimkurilo/opencode-skills.git ~/Projects/opencode-skills
-
-# Symlink into your opencode config
 ln -sf ~/Projects/opencode-skills/skills/project-bootstrap ~/.config/opencode/skills/project-bootstrap
-```
-
-Or copy the folder:
-
-```bash
-cp -r ~/Projects/opencode-skills/skills/project-bootstrap ~/.config/opencode/skills/project-bootstrap
 ```
 
 ## Usage
 
-Once installed, the opencode agent will automatically discover the skill and offer to load it when you describe a new project or say "создай структуру", "разверни агента", etc.
+Describe your task in any format (stream of thought, file link, voice note) and say "create structure" or "bootstrap". The skill auto-detects project type and creates the right infrastructure.
 
-## Decision Framework
-
-The skill applies this logic when analyzing tasks:
-
-| Situation | Solution | Example |
-|-----------|----------|---------|
-| Frequent/secured operation | MCP (mentioned in AGENTS.md) | Confluence, Jira, GitHub API |
-| Rare/complex operation | CLI command (in commands/) | `gh pr create`, `aws s3 sync` |
-| CLI + MCP chain | Script in `skills/*/scripts/` | yt-dlp → metadata → S3 |
-| Repeatable workflow | Skill with WORKFLOW.md | "server backup" = 5 steps |
-
-## Repository structure
+## Skill structure
 
 ```
 project-bootstrap/
-├── SKILL.md                    # Agent instructions (loaded by opencode)
-├── README.md                   # This file — human-readable description
-├── README.ru.md                # Russian version
+├── SKILL.md                         # Agent instructions
 ├── references/
-│   └── playbook.md             # Agent Playbook v0.0.5 condensed reference
-└── assets/
-    └── templates/
-        ├── AGENTS.md.tmpl       # Main manifest template
-        ├── MEMORY.md.tmpl       # Persistent memory template
-        ├── general-rule.md.tmpl # Base rules template
-        ├── rule.md.tmpl         # Domain rule template
-        ├── agent-persona.md.tmpl # Subagent persona template
-        └── command.md.tmpl      # Slash command template
+│   ├── playbook.md                  # Agent Playbook v0.0.5 specification
+│   └── workflow-patterns.md         # 6 architectural patterns catalog
+└── assets/templates/
+    ├── AGENTS.md.tmpl               # Manifest template (Closing Anchors + L1/L2/L3)
+    ├── SESSION_HANDOFF.md.tmpl      # Cross-session context
+    ├── MEMORY.md.tmpl               # Persistent memory (append-only)
+    ├── general-rule.md.tmpl         # Base rules + Anti-Rationalization
+    ├── rule.md.tmpl                 # Domain rules + Gotchas
+    ├── SKILL.md.tmpl                # Skill template
+    ├── command.md.tmpl              # Slash commands
+    ├── agent-persona.md.tmpl        # Subagents
+    └── YYYY-MM-DD.md.tmpl          # Daily notes
 ```
 
 ## License
