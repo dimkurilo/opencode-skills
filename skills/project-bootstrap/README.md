@@ -72,7 +72,7 @@ Before generation, scans the project root (`ls`) and includes existing data fold
 - **Vladimir Ivanov [@turboproject](https://t.me/turboproject)** — GRACE approach popularization, semantic anchors, knowledge graph
 - **[vv-opencode (GRACE)](https://github.com/osovv/vv-opencode)** — delegation packet convention, three-layer spec-to-code, module contracts
 - **[AGENTS.md Patterns (Blake Crosley)](https://blakecrosley.com/blog/agents-md-patterns)** — command-first, closure-defined, 150-line limit
-- **[Agent1st Protocol v30 (DeepSeek)](https://agents.md)** — CSA citation budget, Closing Anchors, Cascade Breaker, Failure Packet
+- **Agent1st Protocol v30 (DeepSeek)** — CSA citation budget, Closing Anchors, Cascade Breaker, Failure Packet (internal agent protocol)
 
 ## Installation
 
