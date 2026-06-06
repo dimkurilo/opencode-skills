@@ -69,9 +69,9 @@
 - **[Agent Playbook v0.0.5](https://github.com/PromptPasture/agent.md)** — стандарт структуры `.agents/`
 - **[Cursor Rules](https://cursor.com/docs/rules)** и **[OpenCode Rules](https://opencode.ai/docs/rules/)** — лучшие практики загрузки контекста
 - **[Thariq @ Anthropic](https://x.com/trq212/status/2061907337154367865)** — «A harness for every task: dynamic workflows in Claude Code» — 6 паттернов workflow, adversarial verification, progressive disclosure
-- **[vv-opencode (GRACE)](https://github.com/osovv/vv-opencode)** — семантические якоря, knowledge graph, delegation packet convention
+- **[vv-opencode (GRACE)](https://github.com/osovv/vv-opencode)** — семантические якоря, knowledge graph, delegation packet convention (популяризация подхода — Владимир Иванов [@turboproject](https://t.me/turboproject))
 - **[AGENTS.md Patterns (Blake Crosley)](https://blakecrosley.com/blog/agents-md-patterns)** — command-first, closure-defined, 150-line limit
-- **[DeepSeek V4 Agent Protocol](https://agents.md)** — CSA citation budget, Closing Anchors, Cascade Breaker, Failure Packet
+- **[Agent1st Protocol v30 (DeepSeek)](https://agents.md)** — CSA citation budget, Closing Anchors, Cascade Breaker, Failure Packet
 
 ## Установка
 
