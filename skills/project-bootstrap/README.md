@@ -69,7 +69,8 @@ Before generation, scans the project root (`ls`) and includes existing data fold
 - **[Agent Playbook v0.0.5](https://github.com/PromptPasture/agent.md)** — `.agents/` structure standard
 - **[Cursor Rules](https://cursor.com/docs/rules)** & **[OpenCode Rules](https://opencode.ai/docs/rules/)** — context loading best practices
 - **[Thariq @ Anthropic](https://x.com/trq212/status/2061907337154367865)** — "A harness for every task" — 6 workflow patterns, adversarial verification, progressive disclosure
-- **[vv-opencode (GRACE)](https://github.com/osovv/vv-opencode)** — semantic anchors, knowledge graph, delegation packet convention (approach popularized by Vladimir Ivanov [@turboproject](https://t.me/turboproject))
+- **Vladimir Ivanov [@turboproject](https://t.me/turboproject)** — GRACE approach popularization, semantic anchors, knowledge graph
+- **[vv-opencode (GRACE)](https://github.com/osovv/vv-opencode)** — delegation packet convention, three-layer spec-to-code, module contracts
 - **[AGENTS.md Patterns (Blake Crosley)](https://blakecrosley.com/blog/agents-md-patterns)** — command-first, closure-defined, 150-line limit
 - **[Agent1st Protocol v30 (DeepSeek)](https://agents.md)** — CSA citation budget, Closing Anchors, Cascade Breaker, Failure Packet
 
