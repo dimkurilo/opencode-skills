@@ -1,0 +1,35 @@
+---
+name: ${AGENT_NAME}
+description: ${AGENT_DESCRIPTION}
+mode: subagent
+model: ${AGENT_MODEL}
+temperature: ${AGENT_TEMPERATURE}
+tools:
+  read: true
+  glob: true
+  grep: true
+permission:
+  read: allow
+  glob: allow
+  grep: allow
+---
+
+# ${AGENT_ROLE}
+
+${AGENT_ROLE_DESCRIPTION}
+
+## Когда вызывать
+
+${AGENT_WHEN_TO_INVOKE}
+
+## Задачи
+
+${AGENT_RESPONSIBILITIES}
+
+## Протокол
+
+${AGENT_WORKFLOW}
+
+## Формат ответа
+
+${AGENT_OUTPUT_FORMAT}

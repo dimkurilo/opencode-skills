@@ -53,10 +53,30 @@ disable-model-invocation: true
 - Прочитай найденные MEMORY.md — известные грабли, процедуры, инструменты (имена/пути, не пароли).
 - Переиспользуй релевантное.
 
+**1b-extra. Существующая opencode-конфигурация**
+Если в проекте есть `.opencode/` — просканируй:
+- `.opencode/agents/` — существующие сабагенты с model/temperature
+- `glob .opencode/agents/*.md` — не дублируй, дополни при необходимости
+
 **1c. API и протоколы**
 Если задача касается API (REST, GraphQL, S3, Telegram Bot API, SDK):
 - Сделай webfetch документации: эндпоинты, аутентификация, лимиты.
 - Занеси в MEMORY.md с источником.
+
+### Decision Framework — выбери архитектурные решения ПЕРЕД шагом 2
+
+| Ситуация | Решение | Пример |
+|----------|---------|--------|
+| Частая/защищённая операция | MCP (упомянуть в AGENTS.md) | Confluence, Jira, GitHub API |
+| Редкая/сложная операция | CLI-команда (в commands/) | `gh pr create`, `aws s3 sync` |
+| Цепочка действий | Скрипт в `skills/*/scripts/` | обработка → сохранение → отчёт |
+| Повторяемый workflow | Skill с алгоритмом в SKILL.md | «бекап сервера» = 5 шагов |
+| Нужны разнотемпературные/разномодельные агенты | `.opencode/agents/` с model+temp | analyze (t=0.25) + review (t=0.25) |
+| Аналитический проект с неоднозначными выводами | Multi-model cross-validation | 2-3 модели → синтез |
+| Adversarial-проверка результатов | review-агент + цикл review→fix | review → fix → re-review |
+| Чувствительные данные (NDA/PII) | `rules/nda-anonymization.md` + пайплайн | anonymize → nda-check → process → deanon |
+| Обработка бинарных форматов (DOCX, PDF, XML) | `scripts/` для экстракции текста | pandoc, wxml2txt.py |
+| Ключевая внешняя методология (>50 строк) | `.agents/memory/<topic>-research.md` | performia-research.md |
 
 ### 2. Анализ: определение структуры
 
@@ -67,7 +87,8 @@ disable-model-invocation: true
 | `memory/MEMORY.md` | **Всегда** | — |
 | `rules/general.md` | **Всегда** | — |
 | `rules/*.md` | Есть повторяемые операции | «всегда проверяй», «формат такой-то», «безопасность» |
-| `agents/` | Есть роли-исполнители | «один делает X, другой Y», «@роль» |
+| `.opencode/agents/` | Нужны сабагенты с разными моделями/temperature | «разные модели», «один анализирует, другой проверяет», «нужен review-агент» |
+| `agents/` | Нужны role-play персоны (без model/temperature) | «@роль», «один делает X, другой Y» |
 | `commands/` | Есть повторяемые команды | «/status», «/deploy», «/check» |
 | `skills/` | Есть workflow из нескольких шагов | «сначала A, потом B, затем C» |
 | `skills/*/scripts/` | Нужны детерминированные операции | повторяемые цепочки действий |
@@ -99,6 +120,11 @@ disable-model-invocation: true
 # Session state
 SESSION_HANDOFF.md
 
+# NDA / обезличенные данные
+*_clean.txt
+*.anon.*
+mapping*.json
+
 # OS files
 .DS_Store
 Thumbs.db
@@ -120,13 +146,22 @@ Thumbs.db
 
 **ВАЖНО:** append-only. Никаких паролей/токенов. Только имена и пути.
 
+**Внешние методологии:** если методология/концепция занимает >50 строк (например, исследование методики оценки) — создай отдельный файл `.agents/memory/<topic>-research.md` и укажи ссылку из MEMORY.md. Не пытайся уместить всё в MEMORY.md.
+
 #### 3c. `.agents/rules/general.md`
 
 Шаблон `assets/templates/general-rule.md.tmpl`. Базовые правила: язык, протокол, данные, верификация + ошибки (CSA-grouped), безопасность, **Common Rationalizations** (таблица отговорок агента), анти-паттерны, gotchas.
 
 #### 3d. Дополнительные модули
 
+**`rules/*.md`** — `.agents/rules/<name>.md` (шаблон `rule.md.tmpl`).
+Создавай для повторяемых операций и ограничений. Если задача содержит чувствительные данные — создай `rules/nda-anonymization.md` по шаблону `nda-anonymization.md.tmpl`. Правило с priority:critical автоматически попадает в Critical Rules AGENTS.md.
+
+**`.opencode/agents/`** — `.opencode/agents/<role>.md` (шаблон `opencode-agent.md.tmpl`).
+Сабагенты, вызываемые через `task()` с указанием model, provider, temperature, permissions.
+
 **agents/** — `.agents/agents/<role>.md` (шаблон `agent-persona.md.tmpl`).
+Role-play персоны без привязки к конкретной модели.
 **description в frontmatter — для модели:** описывай КОГДА вызывать агента, не ЧТО он делает.
 
 **commands/** — `.agents/commands/<name>.md` (шаблон `command.md.tmpl`).
@@ -136,7 +171,7 @@ Thumbs.db
 - `SKILL.md` — **обязательно**: шаблон `assets/templates/SKILL.md.tmpl`. Frontmatter + workflow + gotchas + верификация.
 - `scripts/`, `references/`, `assets/`, `agents/` — опционально.
 
-**`.agents/scripts/`** — общие утилиты для нескольких скиллов. Отрази в архитектуре.
+**`.agents/scripts/`** — общие утилиты для нескольких скиллов. Отрази в архитектуре. Используй шаблоны `script.py.tmpl` или `script.sh.tmpl`.
 
 **docs/** — `docs/YYYY-MM-DD-task-name/` на основе спецификации.
 
@@ -161,11 +196,11 @@ Thumbs.db
 
 После верификации запиши в MEMORY.md нового проекта:
 - **Принятые решения** — что выбрано и почему (например: «Restic вместо tar.gz: дедупликация 4-6x»)
-- **Отклонённые альтернативы** — что рассматривалось и почему отклонено
+- **Отклонённые альтернативы** — что рассматривалось и почему отклонено. Указывай КОНКРЕТНЫЙ критерий отклонения: «pandoc вместо wxml2txt: pandoc сохраняет структуру таблиц, wxml2txt — нет»
 - **Отложенное** — что решено не делать сейчас и почему (чтобы не забыть и не перерешивать)
 - Формат: `### [${DATE}] Решения при создании проекта`
 
-Это критически важно для следующей сессии: агент должен понимать не только ЧТО создано, но и ПОЧЕМУ.
+Это критически важно для следующей сессии: агент должен понимать не только ЧТО создано, но и ПОЧЕМУ и почему НЕ выбраны альтернативы.
 
 ### 4.6. Сводка
 
@@ -179,7 +214,7 @@ Thumbs.db
 |-----------|--------|---------------|-------------|
 | `${PROJECT_NAME}` | AGENTS.md, MEMORY.md, SESSION_HANDOFF | Название проекта (1-3 слова) | Извлеки из задачи |
 | `${PROJECT_DESCRIPTION}` | AGENTS.md | Краткое описание (1 строка) | Извлеки из задачи |
-| `${DATE}` | Все шаблоны | Текущая дата ISO | Системная дата |
+| `${DATE}` | AGENTS.md, MEMORY.md | Текущая дата ISO | Системная дата |
 | `${PROJECT_FULL_DESCRIPTION}` | AGENTS.md | Полное описание (1 абзац) | Извлеки из задачи |
 | `${PROJECT_DIR}` | AGENTS.md | Имя директории проекта | Текущая директория |
 | `${ARCHITECTURE_TREE}` | AGENTS.md | Древовидная схема `.agents/` + папок данных | Сгенерируй из созданной структуры + `ls` |
@@ -234,16 +269,21 @@ Thumbs.db
 | `${YYYY_MM_DD}` | YYYY-MM-DD.md | Дата ISO | Системная дата |
 | `${NEXT_STEP_1}` | YYYY-MM-DD.md | Следующий шаг | Из контекста сессии |
 
----
-
-## Decision Framework
-
-| Ситуация | Решение | Пример |
-|----------|---------|--------|
-| Частая/защищённая операция | MCP (упомянуть в AGENTS.md) | Confluence, Jira, GitHub API |
-| Редкая/сложная операция | CLI-команда (в commands/) | `gh pr create`, `aws s3 sync` |
-| Цепочка действий | Скрипт в `skills/*/scripts/` | обработка → сохранение → отчёт |
-| Повторяемый workflow | Skill с алгоритмом в SKILL.md | «бекап сервера» = 5 шагов |
+| Переменная | Шаблон | Что подставить | Откуда взять |
+|-----------|--------|---------------|-------------|
+| `${AGENT_MODEL}` | opencode-agent.md | Модель (напр. `neuraldeep/gpt-oss-120b`) | Из задачи: какая модель нужна |
+| `${AGENT_TEMPERATURE}` | opencode-agent.md | Temperature (0.0-1.0) | Из задачи: нужная креативность |
+| `${NDA_WHITELIST}` | nda-anonymization.md | Белый список (markdown-список) | Из задачи: ключевые лица, которые НЕ обезличивать |
+| `${SCRIPT_PURPOSE}` | script.py/sh | Назначение скрипта (1 строка) | Из задачи |
+| `${SCRIPT_NAME}` | script.py/sh | Имя файла скрипта | Из задачи |
+| `${SCRIPT_ENV_VARS}` | script.py | Переменные окружения | Из задачи |
+| `${SCRIPT_ARGPARSE}` | script.py | argparse-аргументы | Из задачи |
+| `${SCRIPT_MAIN_BODY}` | script.py/sh | Тело скрипта | Из задачи |
+| `${SCRIPT_MIN_ARGS}` | script.sh | Минимальное число аргументов | Из задачи |
+| `${SCRIPT_USAGE}` | script.sh | Строка использования | Из задачи |
+| `${API_SERVICE_NAME}` | api-config.example | Название API-сервиса | Из задачи |
+| `${API_CONFIG_FILE}` | api-config.example | Имя конфиг-файла (без .example) | Из задачи |
+| `${API_CONFIG_CONTENT}` | api-config.example | Содержимое конфига | Из задачи |
 
 ---
 
