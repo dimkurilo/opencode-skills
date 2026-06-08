@@ -92,7 +92,7 @@ project-bootstrap/
 ├── SKILL.md                         # Agent instructions
 ├── references/
 │   ├── playbook.md                  # Agent Playbook v0.0.5 specification
-│   └── workflow-patterns.md         # 6 architectural patterns catalog
+    │   └── workflow-patterns.md         # 9 architectural patterns catalog
 └── assets/templates/
     ├── AGENTS.md.tmpl               # Manifest template (Closing Anchors + L1/L2/L3)
     ├── SESSION_HANDOFF.md.tmpl      # Cross-session context
@@ -101,7 +101,12 @@ project-bootstrap/
     ├── rule.md.tmpl                 # Domain rules + Gotchas
     ├── SKILL.md.tmpl                # Skill template
     ├── command.md.tmpl              # Slash commands
-    ├── agent-persona.md.tmpl        # Subagents
+    ├── agent-persona.md.tmpl        # Subagents (role-play)
+    ├── opencode-agent.md.tmpl       # Subagents for task() (model, temperature, permissions)
+    ├── nda-anonymization.md.tmpl    # NDA / data anonymization protocol
+    ├── script.py.tmpl               # Python script template (argparse, stderr logging)
+    ├── script.sh.tmpl               # Bash script template (set -euo pipefail)
+    ├── api-config.example.tmpl      # API config .example template
     └── YYYY-MM-DD.md.tmpl          # Daily notes
 ```
 

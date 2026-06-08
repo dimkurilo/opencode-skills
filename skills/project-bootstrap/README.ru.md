@@ -92,7 +92,7 @@ project-bootstrap/
 ├── SKILL.md                         # Инструкции для агента
 ├── references/
 │   ├── playbook.md                  # Спецификация Agent Playbook v0.0.5
-│   └── workflow-patterns.md         # Каталог 6 архитектурных паттернов
+    │   └── workflow-patterns.md         # Каталог 9 архитектурных паттернов
 └── assets/templates/
     ├── AGENTS.md.tmpl               # Шаблон манифеста (Closing Anchors + L1/L2/L3)
     ├── SESSION_HANDOFF.md.tmpl      # Межсессионный контекст
@@ -101,7 +101,12 @@ project-bootstrap/
     ├── rule.md.tmpl                 # Доменные правила + Gotchas
     ├── SKILL.md.tmpl                # Шаблон навыка
     ├── command.md.tmpl              # Слеш-команды
-    ├── agent-persona.md.tmpl        # Сабагенты
+    ├── agent-persona.md.tmpl        # Сабагенты (role-play)
+    ├── opencode-agent.md.tmpl       # Сабагенты для task() (model, temperature, permissions)
+    ├── nda-anonymization.md.tmpl    # NDA / обезличивание данных
+    ├── script.py.tmpl               # Шаблон Python-скрипта (argparse, stderr-логгинг)
+    ├── script.sh.tmpl               # Шаблон bash-скрипта (set -euo pipefail)
+    ├── api-config.example.tmpl      # Шаблон .example для API-конфигов
     └── YYYY-MM-DD.md.tmpl          # Ежедневные заметки
 ```
 
