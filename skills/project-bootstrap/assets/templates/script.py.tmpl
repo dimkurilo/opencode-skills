@@ -1,0 +1,43 @@
+#!/usr/bin/env python3
+"""${SCRIPT_PURPOSE}
+
+Usage:
+    python ${SCRIPT_NAME} <args>
+
+Environment:
+    ${SCRIPT_ENV_VARS}
+"""
+
+import argparse
+import sys
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    stream=sys.stderr,
+)
+log = logging.getLogger(__name__)
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="${SCRIPT_PURPOSE}")
+    ${SCRIPT_ARGPARSE}
+    return parser.parse_args()
+
+
+def main() -> None:
+    args = parse_args()
+    log.info("Starting ${SCRIPT_NAME}")
+
+    try:
+        ${SCRIPT_MAIN_BODY}
+    except Exception as e:
+        log.error("Fatal error: %s", e)
+        sys.exit(1)
+
+    log.info("Done")
+
+
+if __name__ == "__main__":
+    main()

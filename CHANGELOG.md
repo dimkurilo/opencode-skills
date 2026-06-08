@@ -11,6 +11,35 @@
 ### Changed
 ### Fixed
 
+## [0.2.0] — 2026-06-08
+
+### Added
+- **Сабагенты `.opencode/agents/`** — новый шаблон `opencode-agent.md.tmpl` с `model`, `temperature`, `permissions` для `task()`-вызова
+- **NDA / обезличивание** — новый шаблон `nda-anonymization.md.tmpl` (классификация данных, пайплайн, белый список, верификация)
+- **Шаблоны скриптов** — `script.py.tmpl` (argparse, stderr-логгирование) и `script.sh.tmpl` (set -euo pipefail, проверка аргументов)
+- **Шаблон API-конфига** — `api-config.example.tmpl` для `.example`-файлов API-сервисов
+- **Workflow-паттерны** — `Multi-Model Cross-Validation`, `Review→Fix Loop`, `Data Sanitization Pipeline` (3 новых паттерна)
+- **NDA-паттерны в .gitignore** — `*_clean.txt`, `*.anon.*`, `mapping*.json`
+- **Decision Framework расширен** — с 4 до 10 строк (разнотемпературные агенты, multi-model, adversarial, NDA, бинарные форматы, внешние методологии)
+- **Внешние методологии** — `.agents/memory/<topic>-research.md` для методологий >50 строк
+- **Data Discovery** — сканирование `.opencode/agents/` для существующей конфигурации
+- **Секция «Итерации»** в SESSION_HANDOFF.md.tmpl — трекер review→fix циклов
+
+### Changed
+- **`.agents/agents/` → `.opencode/agents/`** — сабагенты теперь создаются в правильной папке (opencode их видит)
+- **Decision Framework перенесён** — ПЕРЕД шагом 2 (определение структуры), а не после шага 4.6
+- **`rules/*.md` явный шаг** — в шаге 3d описано создание domain-правил с привязкой к NDA-шаблону
+- **agent-persona.md.tmpl** — добавлено примечание о `.opencode/agents/` для model/temperature
+- **MEMORY.md.tmpl** — исправлено смешение языков (англ. фраза → рус.)
+- **Step 4.5 Capture** — добавлен критерий отклонения альтернатив («почему НЕ выбрали»)
+
+### Fixed
+- **Мёртвый код** — удалён `${AGENT_PROVIDER}` из таблицы переменных
+- **`${DATE}` scope** — исправлено «Все шаблоны» → «AGENTS.md, MEMORY.md»
+- **opencode-agent.md.tmpl** — добавлен `name:` во frontmatter (без него opencode не видит агента)
+- **Decision Framework дубликат** — удалён второй экземпляр из конца файла
+- **api-config.example.tmpl** — добавлен формат (yaml/env/json/plain)
+
 ## [0.1.0] — 2026-06-06
 
 Первый публичный релиз.

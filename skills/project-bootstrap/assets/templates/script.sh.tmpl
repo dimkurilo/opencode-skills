@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# ${SCRIPT_PURPOSE}
+# Usage: bash ${SCRIPT_NAME} <args>
+set -euo pipefail
+
+if [ $# -lt ${SCRIPT_MIN_ARGS} ]; then
+    echo "Usage: bash ${SCRIPT_NAME} ${SCRIPT_USAGE}" >&2
+    exit 1
+fi
+
+${SCRIPT_MAIN_BODY}
