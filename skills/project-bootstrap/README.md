@@ -34,10 +34,11 @@ The skill is **model-agnostic**: all templates and rules use standard Markdown w
 
 | Module | Purpose |
 |--------|---------|
+| `plan.md` | Strategic plan for humans: phases (no statuses), decisions, blockers |
 | `AGENTS.md` | Main manifest: description, architecture, Progressive Context (L1/L2/L3), Closing Anchors |
-| `SESSION_HANDOFF.md` | Dynamic cross-session context (.gitignore) |
+| `SESSION_HANDOFF.md` | Operational state: current phase, tasks, environment (.gitignore) |
 | `.gitignore` | Exclusions for secrets and SESSION_HANDOFF.md |
-| `.agents/memory/MEMORY.md` | Persistent memory (append-only) with sources |
+| `.agents/memory/MEMORY.md` | Long-term memory (append-only): CONFIRMED_FACTS, UNRESOLVED_ISSUES, FAILED_APPROACHES, decisions |
 | `.agents/memory/YYYY-MM-DD.md` | Daily notes (for long-term projects) |
 | `.agents/rules/general.md` | Base rules: Anti-Rationalization, Adversarial Verification, Gotchas |
 | `.agents/rules/*.md` | Domain rules with frontmatter (applies_to, priority) |
@@ -92,11 +93,12 @@ project-bootstrap/
 ├── SKILL.md                         # Agent instructions
 ├── references/
 │   ├── playbook.md                  # Agent Playbook v0.0.5 specification
-    │   └── workflow-patterns.md         # 9 architectural patterns catalog
+│   └── workflow-patterns.md         # 9 architectural patterns catalog
 └── assets/templates/
+    ├── plan.md.tmpl                   # Strategic plan (no statuses)
     ├── AGENTS.md.tmpl               # Manifest template (Closing Anchors + L1/L2/L3)
-    ├── SESSION_HANDOFF.md.tmpl      # Cross-session context
-    ├── MEMORY.md.tmpl               # Persistent memory (append-only)
+    ├── SESSION_HANDOFF.md.tmpl      # Operational state (CURRENT_FOCUS, TASK_BACKLOG)
+    ├── MEMORY.md.tmpl               # Long-term memory (CONFIRMED_FACTS, UNRESOLVED_ISSUES, FAILED_APPROACHES)
     ├── general-rule.md.tmpl         # Base rules + Anti-Rationalization
     ├── rule.md.tmpl                 # Domain rules + Gotchas
     ├── SKILL.md.tmpl                # Skill template

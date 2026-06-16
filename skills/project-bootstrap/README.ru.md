@@ -34,10 +34,11 @@
 
 | Модуль | Назначение |
 |--------|-----------|
+| `plan.md` | Стратегический план для человека: фазы (без статусов), решения, блокеры |
 | `AGENTS.md` | Главный манифест: описание, архитектура, Progressive Context (L1/L2/L3), Closing Anchors |
-| `SESSION_HANDOFF.md` | Динамический контекст между сессиями (.gitignore) |
+| `SESSION_HANDOFF.md` | Операционное состояние: текущая фаза, задачи, окружение (.gitignore) |
 | `.gitignore` | Исключения для секретов и SESSION_HANDOFF.md |
-| `.agents/memory/MEMORY.md` | Персистентная память (append-only) с источниками |
+| `.agents/memory/MEMORY.md` | Долговременная память (append-only): CONFIRMED_FACTS, UNRESOLVED_ISSUES, FAILED_APPROACHES, решения |
 | `.agents/memory/YYYY-MM-DD.md` | Ежедневные заметки (для долгосрочных проектов) |
 | `.agents/rules/general.md` | Базовые правила: Anti-Rationalization, Adversarial Verification, Gotchas |
 | `.agents/rules/*.md` | Доменные правила с frontmatter (applies_to, priority) |
@@ -92,11 +93,12 @@ project-bootstrap/
 ├── SKILL.md                         # Инструкции для агента
 ├── references/
 │   ├── playbook.md                  # Спецификация Agent Playbook v0.0.5
-    │   └── workflow-patterns.md         # Каталог 9 архитектурных паттернов
+│   └── workflow-patterns.md         # Каталог 9 архитектурных паттернов
 └── assets/templates/
+    ├── plan.md.tmpl                   # Стратегический план (без статусов)
     ├── AGENTS.md.tmpl               # Шаблон манифеста (Closing Anchors + L1/L2/L3)
-    ├── SESSION_HANDOFF.md.tmpl      # Межсессионный контекст
-    ├── MEMORY.md.tmpl               # Персистентная память (append-only)
+    ├── SESSION_HANDOFF.md.tmpl      # Операционное состояние (CURRENT_FOCUS, TASK_BACKLOG)
+    ├── MEMORY.md.tmpl               # Долговременная память (CONFIRMED_FACTS, UNRESOLVED_ISSUES, FAILED_APPROACHES)
     ├── general-rule.md.tmpl         # Базовые правила + Anti-Rationalization
     ├── rule.md.tmpl                 # Доменные правила + Gotchas
     ├── SKILL.md.tmpl                # Шаблон навыка

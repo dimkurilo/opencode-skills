@@ -17,7 +17,8 @@ ${PROJECT_FULL_DESCRIPTION}
 ```
 ${PROJECT_DIR}/
 ├── AGENTS.md                       # этот файл — главная инструкция
-├── SESSION_HANDOFF.md              # [.gitignore] динамический контекст между сессиями
+├── plan.md                          # стратегический план: фазы, решения, блокеры (без статусов)
+├── SESSION_HANDOFF.md              # [.gitignore] операционное состояние: фаза, задачи, окружение
 ├── .gitignore                      # исключения (секреты, handoff, OS-файлы)
 └── .agents/
 ${ARCHITECTURE_TREE}
@@ -58,14 +59,21 @@ ${WORK_PROTOCOL}
 
 ### Session Handoff
 
-При старте сессии прочитай `SESSION_HANDOFF.md`. Используй CONFIRMED_FACTS как проверенные факты, UNRESOLVED_ISSUES как backlog. При завершении сессии обнови SESSION_HANDOFF.md. Файл в `.gitignore` — не коммитится.
+При старте сессии прочитай:
+1. `SESSION_HANDOFF.md` — текущая фаза, активные задачи, окружение, якоря (в `.gitignore`)
+2. `.agents/memory/MEMORY.md` — CONFIRMED_FACTS, UNRESOLVED_ISSUES, FAILED_APPROACHES (долговременная память, коммитится)
+3. `plan.md` — стратегический план (читается при первом старте и после изменений человеком)
+
+При завершении сессии обнови:
+1. `SESSION_HANDOFF.md` — CURRENT_FOCUS, TASK_BACKLOG, ENVIRONMENT_NOTES, FILE:LINE_ANCHORS
+2. `.agents/memory/MEMORY.md` (append-only) — новые CONFIRMED_FACTS, UNRESOLVED_ISSUES, FAILED_APPROACHES
 
 ${SETUP_COMMANDS}
 
 ---
 
 <!-- CLOSING ANCHORS — правила в конце имеют максимальный вес (DeepSeek recency effect) -->
-<!-- CSA-бюджет: ~4000 токенов. Этот файл + general.md + MEMORY.md должны суммарно укладываться в 2000 токенов -->
+<!-- CSA-бюджет: ~4000 токенов. Этот файл + general.md + MEMORY.md должны суммарно укладываться в ~4000 токенов -->
 <!-- Если превышен — правила обрезаются, модель теряет инструкции -->
 
 ## Критические правила
