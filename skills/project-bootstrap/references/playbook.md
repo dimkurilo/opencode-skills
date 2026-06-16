@@ -10,7 +10,8 @@
 ```
 project-root/
 ├── AGENTS.md                  # Главный манифест + Loaded Context
-├── SESSION_HANDOFF.md         # Динамический контекст между сессиями (.gitignore)
+├── plan.md                     # Стратегический план: фазы, решения, блокеры (без статусов)
+├── SESSION_HANDOFF.md         # Операционное состояние: фаза, задачи, окружение (.gitignore)
 ├── .gitignore                 # Исключения: секреты, SESSION_HANDOFF.md, OS-файлы
 └── .agents/
     ├── rules/                 # Модульные правила
@@ -42,7 +43,7 @@ project-root/
 3. **Loaded Context** — таблица файлов с Auto-load/on-demand
 4. **Критические правила** — 3-5 самых важных
 5. **Протокол работы** — основные сценарии (если есть)
-6. **Session Handoff** — инструкция чтения/обновления SESSION_HANDOFF.md
+6. **Session Handoff** — инструкция чтения/обновления SESSION_HANDOFF.md и `.agents/memory/MEMORY.md`
 
 Формат Loaded Context:
 ```markdown
@@ -199,21 +200,22 @@ description: WHEN to invoke this subagent. Describe trigger context.
 
 ---
 
-## SESSION_HANDOFF.md — Контекст между сессиями
+## SESSION_HANDOFF.md — Операционное состояние между сессиями
 
 Файл в корне проекта, **в `.gitignore`**, не коммитится.
 
 ```markdown
 # Session Handoff — Project Name
 
-## CONFIRMED_FACTS
-## UNRESOLVED_ISSUES
-## FAILED_APPROACHES
-## ENVIRONMENT_NOTES
-## FILE:LINE_ANCHORS
+## CURRENT_FOCUS      # текущая фаза + активная задача
+## TASK_BACKLOG       # очередь задач (из plan.md)
+## ENVIRONMENT_NOTES  # ОС, shell, директории, лимиты API
+## FILE:LINE_ANCHORS  # ключевые точки входа в код
 ```
 
-Агент читает при старте, обновляет при завершении сессии.
+CONFIRMED_FACTS, UNRESOLVED_ISSUES, FAILED_APPROACHES → `.agents/memory/MEMORY.md` (долговременная память, коммитится).
+
+Агент читает при старте (вместе с MEMORY.md), обновляет при завершении сессии.
 
 ---
 
