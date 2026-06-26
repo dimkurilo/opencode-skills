@@ -45,10 +45,9 @@ opencode-skills/
     ├── project-bootstrap/  # Генератор инфраструктуры (v2)
     │   ├── SKILL.md
     │   ├── README.md / README.ru.md
-    │   ├── references/
-    │   │   ├── playbook.md
-    │   │   └── workflow-patterns.md
-    │   └── assets/templates/   # 9 шаблонов
+    │   ├── references/        # 5 файлов: playbook, patterns, Variant E, GRACE anchors, model profiles
+    │   ├── scripts/           # classify_project.sh
+    │   └── assets/templates/  # 15 шаблонов
     └── vs-architect/       # Verbalized Sampling промптинг
         ├── SKILL.md
         ├── README.md / README.ru.md

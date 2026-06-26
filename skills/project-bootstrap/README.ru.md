@@ -94,26 +94,32 @@ ln -sf ~/Projects/opencode-skills/skills/project-bootstrap ~/.config/opencode/sk
 
 ```
 project-bootstrap/
-├── SKILL.md                         # Инструкции для агента
+├── SKILL.md                         # Инструкции для агента (6 фаз)
+├── README.md / README.ru.md
 ├── references/
-│   ├── playbook.md                  # Спецификация Agent Playbook v0.0.5
-│   └── workflow-patterns.md         # Каталог 9 архитектурных паттернов
-└── assets/templates/
-    ├── plan.md.tmpl                   # Стратегический план (без статусов)
-    ├── AGENTS.md.tmpl               # Шаблон манифеста (Closing Anchors + L1/L2/L3)
-    ├── SESSION_HANDOFF.md.tmpl      # Операционное состояние (CURRENT_FOCUS, TASK_BACKLOG)
-    ├── MEMORY.md.tmpl               # Долговременная память (CONFIRMED_FACTS, UNRESOLVED_ISSUES, FAILED_APPROACHES)
-    ├── general-rule.md.tmpl         # Базовые правила + Anti-Rationalization
-    ├── rule.md.tmpl                 # Доменные правила + Gotchas
-    ├── SKILL.md.tmpl                # Шаблон навыка
-    ├── command.md.tmpl              # Слеш-команды
-    ├── agent-persona.md.tmpl        # Сабагенты (role-play)
-    ├── opencode-agent.md.tmpl       # Сабагенты для task() (model, temperature, permissions)
-    ├── nda-anonymization.md.tmpl    # NDA / обезличивание данных
-    ├── script.py.tmpl               # Шаблон Python-скрипта (argparse, stderr-логгинг)
-    ├── script.sh.tmpl               # Шаблон bash-скрипта (set -euo pipefail)
-    ├── api-config.example.tmpl      # Шаблон .example для API-конфигов
-    └── YYYY-MM-DD.md.tmpl          # Ежедневные заметки
+│   ├── playbook.md                  # Спецификация Agent Playbook
+│   ├── workflow-patterns.md         # Каталог 9 архитектурных паттернов
+│   ├── variant-e-structure.md       # Архитектура Variant E + few-shot примеры
+│   ├── grace-anchors.md             # Спецификация GRACE-якорей + grep-команды
+│   └── model-profiles.md            # DeepSeek vs GLM vs universal профили
+├── scripts/
+│   └── classify_project.sh          # Авто-классификация проекта + выбор варианта
+└── assets/templates/                # 15 шаблонов генерации
+    ├── plan.md.tmpl
+    ├── AGENTS.md.tmpl               # Variant E: преамбула + closing anchors
+    ├── SESSION_HANDOFF.md.tmpl
+    ├── MEMORY.md.tmpl
+    ├── general-rule.md.tmpl
+    ├── rule.md.tmpl
+    ├── SKILL.md.tmpl
+    ├── command.md.tmpl
+    ├── agent-persona.md.tmpl
+    ├── opencode-agent.md.tmpl
+    ├── nda-anonymization.md.tmpl
+    ├── script.py.tmpl
+    ├── script.sh.tmpl
+    ├── api-config.example.tmpl
+    └── YYYY-MM-DD.md.tmpl
 ```
 
 ## Лицензия
