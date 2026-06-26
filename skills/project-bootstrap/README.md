@@ -1,22 +1,26 @@
-# Project Bootstrap — Agent Infrastructure Generator
+# Project Bootstrap v2 — Agent Infrastructure Generator
 
 🇷🇺 [Русская версия](README.ru.md)
 
-A skill for [opencode](https://github.com/opencode-ai/opencode) agents that bootstraps complete agent infrastructure for projects of any type following the [Agent Playbook](https://agents.md) standard (v0.0.5).
+A skill for [opencode](https://github.com/opencode-ai/opencode) agents that bootstraps complete agent infrastructure for projects of any type following the [Agent Playbook](https://agents.md) standard.
+
+**v2** adds Variant E architecture (rules in primacy + recency = inevitable), GRACE semantic anchors for grep-able rule discovery, and adaptive project classification.
 
 ## Why this exists
 
 When starting a new project with an AI agent, the first few sessions are spent inventing structure: where to store rules, how to preserve context between sessions, where to put scripts. Project-bootstrap handles this in one session — describe your task as a stream of thought, and get a ready-to-use `.agents/` structure with AGENTS.md, memory, rules, and skills.
 
-The skill is **universal**: works for technical projects (backups, servers, integrations), business projects (marketing digitization), and personal projects (job search, resume building, market analysis).
+The skill is **universal** and **model-adaptive**: works for technical projects (backups, servers, integrations), business projects (marketing digitization), and personal projects (job search, resume building). Adapts templates to the target model (DeepSeek V4, GLM 5+, universal).
 
 ## What types of projects it suits
 
-| Project type | Examples | What it creates |
-|-------------|---------|-----------------|
-| Technical | Server backups, CI/CD, monitoring | AGENTS.md, procedure rules, skills with scripts, commands |
-| Business | Marketing digitization, CRM integration | AGENTS.md, MEMORY.md with resources, process rules, agent roles |
-| Personal | Job search, resume, market analysis | AGENTS.md + profile, formatting rules, assistant agents |
+| Project type | Examples | Variant | What it creates |
+|-------------|---------|---------|-----------------|
+| Ops / Server | Docker, backups, CI/CD, monitoring | `variant-e-full` | Full preamble + checklist + gotchas + failure packet + hierarchy + closing anchors |
+| Code | JS/TS/Python, tests, integrations | `variant-e-grace` | Variant E + GRACE anchors in code files |
+| Agent | Skills, prompts, model configs | `variant-e-model` | Model-specific closing anchors (DeepSeek/GLM) |
+| Content / Business | Articles, analytics, briefs | `lightweight` | Preamble without technical rules |
+| Undetermined | <3 files, new project | `base` | Minimal template with upgrade suggestion |
 
 ## Which LLMs it works best with
 
