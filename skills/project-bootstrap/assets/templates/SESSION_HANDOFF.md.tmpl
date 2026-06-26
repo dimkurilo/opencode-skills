@@ -1,32 +1,49 @@
 # Session Handoff — ${PROJECT_NAME}
 
+<!-- @section id="header" -->
 > Операционное состояние между сессиями. **Не коммитить** (в `.gitignore`).
 > Обновляется агентом при завершении сессии, читается при старте.
 > CONFIRMED_FACTS, UNRESOLVED_ISSUES, FAILED_APPROACHES → `.agents/memory/MEMORY.md`.
+<!-- @section-end -->
 
 ---
 
+<!-- @section id="current-focus" priority="high" -->
 ## CURRENT_FOCUS
 
-<!-- Единственный приоритет на эту сессию. Формат: фаза (из plan.md) + задача + статус. -->
-<!-- Остальное — шум до завершения. -->
+<!-- @anchor id="focus" triggers="focus, current, active" -->
+<!-- Единственный приоритет на эту сессию. Формат: фаза (из plan.md) + задача + статус -->
+<!-- @anchor-end -->
+<!-- @section-end -->
 
 ---
 
+<!-- @section id="task-backlog" -->
 ## TASK_BACKLOG
 
-<!-- Берутся в CURRENT_FOCUS когда активная задача завершена. -->
+<!-- @anchor id="backlog" triggers="backlog, task, next" -->
+<!-- Берутся в CURRENT_FOCUS когда активная задача завершена -->
 <!-- Формат: - [ ] / [x] Фаза N — задача (модель, исполнитель, зависимости) -->
+<!-- @anchor-end -->
+<!-- @section-end -->
 
 ---
 
+<!-- @section id="environment-notes" -->
 ## ENVIRONMENT_NOTES
 
-<!-- Особенности окружения: ОС, shell, рабочие директории, хостинг, кэши, лимиты API, tool-ограничения. -->
+<!-- @anchor id="env" triggers="environment, os, shell, hosting, cache, api-limit" -->
+<!-- Особенности окружения: ОС, shell, рабочие директории, хостинг, кэши, лимиты API, tool-ограничения -->
+<!-- @anchor-end -->
+<!-- @section-end -->
 
 ---
 
+<!-- @section id="file-anchors" priority="high" -->
 ## FILE:LINE_ANCHORS
 
-<!-- Ключевые точки входа в код: file:line — что там. -->
+<!-- @anchor id="anchors" triggers="file, line, entry-point" -->
+<!-- Ключевые точки входа в код: file:line — что там -->
 <!-- Формат: - `path/to/file:LINE` — описание -->
+<!-- @anchor-end -->
+<!-- @section-end -->

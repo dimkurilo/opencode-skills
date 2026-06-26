@@ -10,7 +10,7 @@
 
 | Скилл | Описание |
 |-------|----------|
-| [project-bootstrap](skills/project-bootstrap/) | Генератор агентской инфраструктуры по [Agent Playbook](https://agents.md). Два режима: создание с нуля и расширение существующего проекта. DeepSeek-оптимизации: Closing Anchors, Progressive Context (L1/L2/L3), Anti-Rationalization, Adversarial Verification, Capture step. Создаёт AGENTS.md, SESSION_HANDOFF.md, MEMORY.md (append-only), правила с Gotchas, скиллы, персоны агентов, слеш-команды. 9 шаблонов, 52 переменные, каталог из 6 workflow-паттернов. [Подробнее →](skills/project-bootstrap/README.ru.md) |
+| [project-bootstrap](skills/project-bootstrap/) | Генератор агентской инфраструктуры по [Agent Playbook](https://agents.md). **v2**: архитектура Variant E (правила в primacy + recency = неизбежны), GRACE-семантические якоря, адаптивная классификация (ops/код/агентский/контент), модельно-специфичные closing anchors (DeepSeek/GLM/universal), двойной аудит. Создаёт AGENTS.md, SESSION_HANDOFF.md, MEMORY.md (append-only), правила с Gotchas, скиллы, персоны агентов, слеш-команды. 14 шаблонов, 50+ переменных, 6 фаз workflow. [Подробнее →](skills/project-bootstrap/README.ru.md) |
 | [vs-architect](skills/vs-architect/) | Distribution-level промптинг через Verbalized Sampling (arXiv 2510.01171). Генерирует варианты решений с вероятностными оценками для архитектуры, отладки, стратегии и креативных задач. |
 
 ## Установка
@@ -42,7 +42,7 @@ opencode-skills/
 ├── LICENSE                 # MIT
 ├── .gitignore
 └── skills/
-    ├── project-bootstrap/  # Генератор инфраструктуры (v3)
+    ├── project-bootstrap/  # Генератор инфраструктуры (v2)
     │   ├── SKILL.md
     │   ├── README.md / README.ru.md
     │   ├── references/

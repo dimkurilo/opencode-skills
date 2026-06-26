@@ -10,7 +10,7 @@ Each skill is a set of instructions, prompt patterns, and reference materials th
 
 | Skill | Description |
 |-------|-------------|
-| [project-bootstrap](skills/project-bootstrap/) | Agent infrastructure generator following [Agent Playbook](https://agents.md). Two modes: create from scratch and extend existing. DeepSeek optimizations: Closing Anchors, Progressive Context (L1/L2/L3), Anti-Rationalization, Adversarial Verification, Capture step. Creates AGENTS.md, SESSION_HANDOFF.md, MEMORY.md (append-only), rules with Gotchas, skills, agent personas, slash commands. 9 templates, 52 variables, 6 workflow patterns. [Details →](skills/project-bootstrap/README.md) |
+| [project-bootstrap](skills/project-bootstrap/) | Agent infrastructure generator following [Agent Playbook](https://agents.md). **v2**: Variant E architecture (rules in primacy + recency = inevitable), GRACE semantic anchors, adaptive project classification (ops/code/agent/content), model-specific closing anchors (DeepSeek/GLM/universal), dual-audit verification. Creates AGENTS.md, SESSION_HANDOFF.md, MEMORY.md (append-only), rules with Gotchas, skills, agent personas, slash commands. 14 templates, 50+ variables, 6 workflow phases. [Details →](skills/project-bootstrap/README.md) |
 | [vs-architect](skills/vs-architect/) | Distribution-level prompting via Verbalized Sampling (arXiv 2510.01171). Generates solution variants with probability estimates for architecture, debugging, strategy, and creative tasks. |
 
 ## Installation
@@ -42,7 +42,7 @@ opencode-skills/
 ├── LICENSE                 # MIT
 ├── .gitignore
 └── skills/
-    ├── project-bootstrap/  # Agent Playbook infrastructure generator (v3)
+    ├── project-bootstrap/  # Agent Playbook infrastructure generator (v2)
     │   ├── SKILL.md
     │   ├── README.md / README.ru.md
     │   ├── references/

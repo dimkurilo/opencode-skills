@@ -1,69 +1,92 @@
-# .agents/memory/MEMORY.md
+# .agents/memory/MEMORY.md — ${PROJECT_NAME}
 
-Персистентная память агента для проекта **${PROJECT_NAME}**.
-
-> **Правило:** только дополнение. Старые записи не удалять — дополнять новыми или помечать как устаревшие (`~~зачёркнуто~~`).
+<!-- @section id="header" priority="high" -->
+> Персистентная память агента. **Append-only:** старые записи не удалять — дополнять или помечать `~~зачёркнуто~~` с датой и причиной.
+> Операционное состояние → `../SESSION_HANDOFF.md`.
+<!-- @section-end -->
 
 ---
 
+<!-- @section id="confirmed-facts" -->
 ## CONFIRMED_FACTS
 
-<!-- Каждый внешний факт — с источником: URL, дата получения. -->
-<!-- Формат: - Факт. <!-- source: https://example.com/doc, YYYY-MM-DD --> -->
-
+<!-- Каждый внешний факт — с источником: URL, дата получения -->
+<!-- @anchor id="facts" triggers="fact, source, webfetch" -->
 ${FACTS}
+<!-- @anchor-end -->
+<!-- @section-end -->
 
 ---
 
+<!-- @section id="unresolved-issues" -->
 ## UNRESOLVED_ISSUES
 
-<!-- Проблемы без первопричины, нестабильное поведение, нерасследованные ошибки. -->
-<!-- Формат: - [ ] описание (severity: low/medium/high/critical, дата обнаружения) -->
+<!-- Проблемы без первопричины, нестабильное поведение -->
+<!-- Формат: - [ ] описание (severity: low/medium/high/critical, дата) -->
+<!-- @section-end -->
 
 ---
 
+<!-- @section id="failed-approaches" -->
 ## FAILED_APPROACHES
 
-<!-- Что пробовали и почему не сработало. -->
+<!-- Что пробовали и почему не сработало -->
 <!-- Формат: - **Подход:** описание → **Причина отказа:** ... → **Дата:** YYYY-MM-DD -->
+<!-- @section-end -->
 
 ---
 
+<!-- @section id="decisions" priority="high" -->
 ## Решения
-
-<!-- Записи о ключевых решениях. Формат: дата, контекст, решение, когда пересмотреть. -->
 
 ### [${DATE}] Создание проекта
 
+<!-- @anchor id="init-decisions" triggers="create, init, bootstrap" -->
 **Контекст:** ${INIT_CONTEXT}
 **Решение:** Создана агентская структура по стандарту Agent Playbook. ${INIT_DECISIONS}
 **Пересмотреть если:** изменится масштаб или тип проекта.
+<!-- @anchor-end -->
+
+<!-- @section-end -->
 
 ---
 
+<!-- @section id="tools" -->
 ## Инструменты и ресурсы
 
-<!-- CLI-утилиты, API, веб-сервисы, платформы, контакты — всё, что используется в проекте. -->
-<!-- Каждый ресурс — с источником (URL документации, дата получения). -->
-
+<!-- @anchor id="tools-resources" triggers="tool, api, cli, resource" -->
+<!-- CLI-утилиты, API, веб-сервисы, платформы — всё, что используется в проекте -->
+<!-- Каждый ресурс — с источником (URL документации, дата получения) -->
 ${TOOLS_AND_RESOURCES}
+<!-- @anchor-end -->
+<!-- @section-end -->
 
 ---
 
+<!-- @section id="limitations" -->
 ## Известные ограничения
 
+<!-- @anchor id="limits" triggers="limit, restriction, cap" -->
 ${LIMITATIONS}
+<!-- @anchor-end -->
+<!-- @section-end -->
 
 ---
 
+<!-- @section id="antipatterns" -->
 ## Анти-паттерны
 
+<!-- @anchor id="antipatterns-list" triggers="antipattern, don't, avoid" -->
 ${ANTIPATTERNS}
+<!-- @anchor-end -->
+<!-- @section-end -->
 
 ---
 
+<!-- @section id="chronology" -->
 ## Хронология взаимодействия
 
 | Дата | Событие |
 |------|---------|
 | ${DATE} | Проект создан. ${INIT_EVENT} |
+<!-- @section-end -->

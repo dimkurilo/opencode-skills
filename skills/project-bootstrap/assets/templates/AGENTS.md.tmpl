@@ -1,87 +1,109 @@
-# ${PROJECT_NAME}
+# AGENTS.md — ${PROJECT_NAME}
 
 > ${PROJECT_DESCRIPTION}
-> Стандарт: [Agent Playbook v0.0.5](https://agents.md)
+> Стандарт: [Agent Playbook](https://agents.md)
 > Создано: ${DATE}
+> Модельный профиль: ${MODEL_PROFILE}
 
 ---
 
-## Описание проекта
+<!-- @section id="preamble" priority="critical" -->
+## 🔴 ПРЕАМБУЛА: ЖЕЛЕЗНЫЕ ПРАВИЛА (нарушение = отказ)
 
-${PROJECT_FULL_DESCRIPTION}
+<!-- @rule id="F-01" priority="critical" -->
+${PREAMBLE_RULES}
+<!-- @rule-end -->
+
+<!-- @section-end -->
 
 ---
 
-## Архитектура
+## 📋 ЧЕКЛИСТ ПЕРЕД ДЕЙСТВИЕМ
+
+<!-- @anchor id="checklist" triggers="check, verify, before" -->
+${CHECKLIST_ITEMS}
+<!-- @anchor-end -->
+
+---
+
+## 📐 ПРОТОКОЛ
+
+<!-- @section id="protocol" priority="high" -->
+<!-- Command-first: конкретные команды с флагами, не описания -->
+${WORK_PROTOCOL}
+<!-- @section-end -->
+
+---
+
+<!-- @section id="gotchas" priority="high" -->
+## §1. ИЗВЕСТНЫЕ ПРОБЛЕМЫ / GOTCHA'S
+
+${GOTCHAS}
+<!-- @section-end -->
+
+---
+
+<!-- @section id="failure-packet" -->
+## §2. FAILURE PACKET
+
+${FAILURE_PACKET}
+<!-- @section-end -->
+
+---
+
+<!-- @section id="hierarchy" priority="high" -->
+## §3. ИЕРАРХИЯ ИНСТРУКЦИЙ
+
+${INSTRUCTION_HIERARCHY}
+<!-- @section-end -->
+
+---
+
+<!-- @section id="architecture" -->
+## §4. АРХИТЕКТУРА ПРОЕКТА
 
 ```
 ${PROJECT_DIR}/
-├── AGENTS.md                       # этот файл — главная инструкция
-├── plan.md                          # стратегический план: фазы, решения, блокеры (без статусов)
-├── SESSION_HANDOFF.md              # [.gitignore] операционное состояние: фаза, задачи, окружение
-├── .gitignore                      # исключения (секреты, handoff, OS-файлы)
+├── AGENTS.md                       ← этот файл — главная инструкция
+├── plan.md                          ← стратегический план: фазы, решения, блокеры (без статусов)
+├── SESSION_HANDOFF.md              ← [.gitignore] операционное состояние
+├── .gitignore                      ← исключения (секреты, handoff, OS-файлы)
 └── .agents/
 ${ARCHITECTURE_TREE}
 ```
 
 ${ARCHITECTURE_NOTES}
 
----
+### Loaded Context — Progressive Disclosure
 
-## Loaded Context
-
-<!-- Progressive Context: Level 1 = всегда, Level 2 = по триггеру, Level 3 = on-demand -->
 <!-- Группируй связанные файлы вместе — DeepSeek CSA-бюджет ~4000 токенов -->
 
-### Level 1 — Всегда
+**Level 1 (всегда):**
 | Файл | Назначение |
 |------|-----------|
 ${LOADED_CONTEXT_L1}
 
-### Level 2 — По задаче
+**Level 2 (по триггеру):**
 | Файл | Назначение | Триггер |
 |------|-----------|---------|
 ${LOADED_CONTEXT_L2}
 
-### Level 3 — On-demand
+**Level 3 (on-demand):**
 | Файл | Назначение |
 |------|-----------|
 ${LOADED_CONTEXT_L3}
 
----
-
-## Протокол работы
-
-<!-- Command-first: конкретные команды с флагами, не описания. -->
-<!-- "Done" = проверяемый результат (exit code, созданный файл, полученный ответ). -->
-
-${WORK_PROTOCOL}
-
-### Session Handoff
-
-При старте сессии прочитай:
-1. `SESSION_HANDOFF.md` — текущая фаза, активные задачи, окружение, якоря (в `.gitignore`)
-2. `.agents/memory/MEMORY.md` — CONFIRMED_FACTS, UNRESOLVED_ISSUES, FAILED_APPROACHES (долговременная память, коммитится)
-3. `plan.md` — стратегический план (читается при первом старте и после изменений человеком)
-
-При завершении сессии обнови:
-1. `SESSION_HANDOFF.md` — CURRENT_FOCUS, TASK_BACKLOG, ENVIRONMENT_NOTES, FILE:LINE_ANCHORS
-2. `.agents/memory/MEMORY.md` (append-only) — новые CONFIRMED_FACTS, UNRESOLVED_ISSUES, FAILED_APPROACHES
-
-${SETUP_COMMANDS}
+<!-- @section-end -->
 
 ---
 
-<!-- CLOSING ANCHORS — правила в конце имеют максимальный вес (DeepSeek recency effect) -->
-<!-- CSA-бюджет: ~4000 токенов. Этот файл + general.md + MEMORY.md должны суммарно укладываться в ~4000 токенов -->
-<!-- Если превышен — правила обрезаются, модель теряет инструкции -->
+<!-- @section id="historical-sessions" -->
+## §5. ИСТОРИЧЕСКИЕ СЕССИИ
 
-## Критические правила
+Факты → `.agents/memory/MEMORY.md` (долговременная память). Оперативное состояние → `SESSION_HANDOFF.md`. Планы → `plan.md`.
 
-${CRITICAL_RULES}
+<!-- @section-end -->
 
 ---
 
-## История изменений
-
-- **${DATE}:** AGENTS.md v1.0 — создание проекта. ${INIT_NOTE}
+${CLOSING_ANCHORS}

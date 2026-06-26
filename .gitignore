@@ -15,3 +15,13 @@ Thumbs.db
 # Temp
 tmp/
 temp/
+
+# Internal dev state (agent infrastructure, NOT for public release)
+# AGENTS.md / SESSION_HANDOFF.md / .agents/ — это наше рабочее состояние
+# для доработки скиллов. Публичный репозиторий содержит только skills/ + README + LICENSE + CHANGELOG.
+AGENTS.md
+SESSION_HANDOFF.md
+.agents/
+.plan.md
+*.bak/
+*.bak
