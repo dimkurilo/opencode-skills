@@ -94,26 +94,32 @@ Describe your task in any format (stream of thought, file link, voice note) and 
 
 ```
 project-bootstrap/
-├── SKILL.md                         # Agent instructions
+├── SKILL.md                         # Agent instructions (6-phase workflow)
+├── README.md / README.ru.md
 ├── references/
-│   ├── playbook.md                  # Agent Playbook v0.0.5 specification
-│   └── workflow-patterns.md         # 9 architectural patterns catalog
-└── assets/templates/
-    ├── plan.md.tmpl                   # Strategic plan (no statuses)
-    ├── AGENTS.md.tmpl               # Manifest template (Closing Anchors + L1/L2/L3)
-    ├── SESSION_HANDOFF.md.tmpl      # Operational state (CURRENT_FOCUS, TASK_BACKLOG)
-    ├── MEMORY.md.tmpl               # Long-term memory (CONFIRMED_FACTS, UNRESOLVED_ISSUES, FAILED_APPROACHES)
-    ├── general-rule.md.tmpl         # Base rules + Anti-Rationalization
-    ├── rule.md.tmpl                 # Domain rules + Gotchas
-    ├── SKILL.md.tmpl                # Skill template
-    ├── command.md.tmpl              # Slash commands
-    ├── agent-persona.md.tmpl        # Subagents (role-play)
-    ├── opencode-agent.md.tmpl       # Subagents for task() (model, temperature, permissions)
-    ├── nda-anonymization.md.tmpl    # NDA / data anonymization protocol
-    ├── script.py.tmpl               # Python script template (argparse, stderr logging)
-    ├── script.sh.tmpl               # Bash script template (set -euo pipefail)
-    ├── api-config.example.tmpl      # API config .example template
-    └── YYYY-MM-DD.md.tmpl          # Daily notes
+│   ├── playbook.md                  # Agent Playbook specification
+│   ├── workflow-patterns.md         # 9 architectural patterns
+│   ├── variant-e-structure.md       # Variant E architecture + few-shot examples
+│   ├── grace-anchors.md             # GRACE anchor specification + grep commands
+│   └── model-profiles.md            # DeepSeek vs GLM vs universal profiles
+├── scripts/
+│   └── classify_project.sh          # Auto-detect project type + select variant
+└── assets/templates/                # 15 generation templates
+    ├── plan.md.tmpl
+    ├── AGENTS.md.tmpl               # Variant E: preamble + closing anchors
+    ├── SESSION_HANDOFF.md.tmpl
+    ├── MEMORY.md.tmpl
+    ├── general-rule.md.tmpl
+    ├── rule.md.tmpl
+    ├── SKILL.md.tmpl
+    ├── command.md.tmpl
+    ├── agent-persona.md.tmpl
+    ├── opencode-agent.md.tmpl
+    ├── nda-anonymization.md.tmpl
+    ├── script.py.tmpl
+    ├── script.sh.tmpl
+    ├── api-config.example.tmpl
+    └── YYYY-MM-DD.md.tmpl
 ```
 
 ## License

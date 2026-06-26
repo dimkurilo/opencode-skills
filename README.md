@@ -45,10 +45,9 @@ opencode-skills/
     ├── project-bootstrap/  # Agent Playbook infrastructure generator (v2)
     │   ├── SKILL.md
     │   ├── README.md / README.ru.md
-    │   ├── references/
-    │   │   ├── playbook.md
-    │   │   └── workflow-patterns.md
-    │   └── assets/templates/   # 9 templates
+    │   ├── references/        # 5 files: playbook, patterns, Variant E, GRACE anchors, model profiles
+    │   ├── scripts/           # classify_project.sh
+    │   └── assets/templates/  # 15 templates
     └── vs-architect/       # Verbalized Sampling prompting
         ├── SKILL.md
         ├── README.md / README.ru.md
