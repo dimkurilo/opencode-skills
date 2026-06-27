@@ -133,7 +133,7 @@ disable-model-invocation: true
 ├─ §2 Failure Packet
 ├─ §3 Иерархия инструкций
 ├─ §4 Архитектура + Loaded Context (Progressive Disclosure)
-├─ §5 Исторические сессии (ТОЛЬКО ссылки на SESSION_HANDOFF.md и MEMORY.md)
+├─ §5 Handoff между сессиями (полный протокол: override §21, append-only, crash-safe, чеклист)
 └─ CLOSING ANCHORS (recency-зона, модельно-специфичные)
 ```
 
@@ -146,7 +146,7 @@ disable-model-invocation: true
 <!-- @rule-end -->
 ```
 
-**`SESSION_HANDOFF.md`** — шаблон `assets/templates/SESSION_HANDOFF.md.tmpl`. Только операционное состояние. CONFIRMED_FACTS, UNRESOLVED_ISSUES, FAILED_APPROACHES → MEMORY.md.
+**`SESSION_HANDOFF.md`** — шаблон `assets/templates/SESSION_HANDOFF.md.tmpl`. Append-only журнал сессий (каждая сессия дописывает блок). CONFIRMED_FACTS, UNRESOLVED_ISSUES, FAILED_APPROACHES, LEARNED_RULES → MEMORY.md (не дублировать).
 
 **`.gitignore`** — создай обязательно:
 ```
@@ -192,6 +192,8 @@ Thumbs.db
 
 Создавай по необходимости (rules, agents, commands, skills, scripts, docs). Шаблоны — в `assets/templates/`.
 
+**Обязательный скрипт:** скопируй `scripts/verify-handoff-gate.sh` (из скилла) в `.agents/scripts/verify-handoff-gate.sh` проекта. Используется в Фазе 4c.
+
 ---
 
 ### Фаза 4: Contradiction Check + Position Analysis
@@ -212,6 +214,18 @@ Thumbs.db
 2. Если правила в зоне 30-80% (Lost in the Middle) → перемести в преамбулу или closing anchors.
 3. Проверь, что @rule-якоря есть в начале И в конце.
 
+**4c. Handoff-Destination Verification Gate** (ВСЕГДА, после 4b):
+
+Запусти `bash .agents/scripts/verify-handoff-gate.sh`. Скрипт проверяет 4 правила:
+1. В AGENTS.md нет handoff-данных (блоков `## Session Handoff — [DATE]`)
+2. В AGENTS.md нет секции `## CONFIRMED_FACTS` (факты → MEMORY.md)
+3. SESSION_HANDOFF.md содержит `append-only` в заголовке
+4. MEMORY.md ссылается на SESSION_HANDOFF.md с `append-only`
+
+Если FAIL → contradiction: handoff-данные или факты попали в AGENTS.md, либо нарушен append-only контракт. Исправь перед Фазой 5.
+
+Если скрипта нет (legacy bootstrap) → выполни grep-проверки вручную.
+
 ---
 
 ### Фаза 5: Верификация + Двойной аудит
@@ -222,7 +236,7 @@ Thumbs.db
 3. Валидность YAML frontmatter.
 4. `.gitignore` включает SESSION_HANDOFF.md и секреты.
 5. `grep -c '@rule' AGENTS.md` > 0 и `grep -c '@anchor' MEMORY.md` > 0.
-6. `grep -i 'handoff' AGENTS.md` — ТОЛЬКО ссылки на SESSION_HANDOFF.md (не сами handoff-данные).
+6. Handoff-целостность проверена в Фазе 4c (`verify-handoff-gate.sh`).
 
 **5b. Двойной аудит** (ВСЕГДА):
 
@@ -280,7 +294,7 @@ task(auditor) + task(auditor-glm)
 | `${PROJECT_DIR}` | AGENTS.md | Имя директории проекта | Текущая директория |
 | `${ARCHITECTURE_TREE}` | AGENTS.md | Древовидная схема | Сгенерируй из структуры + `ls` |
 | `${ARCHITECTURE_NOTES}` | AGENTS.md | Пояснения к архитектуре | Опиши неочевидные решения |
-| `${LOADED_CONTEXT_L1}` | AGENTS.md | Level 1: всегда | MEMORY.md + general.md + SESSION_HANDOFF.md |
+| `${LOADED_CONTEXT_L1}` | AGENTS.md | Level 1: всегда | MEMORY.md + general.md + SESSION_HANDOFF.md (append-only) |
 | `${LOADED_CONTEXT_L2}` | AGENTS.md | Level 2: по триггеру | Rules с триггер-словами |
 | `${LOADED_CONTEXT_L3}` | AGENTS.md | Level 3: on-demand | Skills, commands, agents |
 | `${PREAMBLE_RULES}` | AGENTS.md | N железных правил IF-THEN (преамбула) | Извлеки из задачи |

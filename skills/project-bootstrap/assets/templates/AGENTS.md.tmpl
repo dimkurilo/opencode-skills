@@ -66,7 +66,7 @@ ${INSTRUCTION_HIERARCHY}
 ${PROJECT_DIR}/
 ├── AGENTS.md                       ← этот файл — главная инструкция
 ├── plan.md                          ← стратегический план: фазы, решения, блокеры (без статусов)
-├── SESSION_HANDOFF.md              ← [.gitignore] операционное состояние
+├── SESSION_HANDOFF.md              ← [.gitignore] журнал сессий (append-only)
 ├── .gitignore                      ← исключения (секреты, handoff, OS-файлы)
 └── .agents/
 ${ARCHITECTURE_TREE}
@@ -97,13 +97,30 @@ ${LOADED_CONTEXT_L3}
 
 ---
 
-<!-- @section id="historical-sessions" -->
-## §5. ИСТОРИЧЕСКИЕ СЕССИИ
+<!-- @section id="handoff" priority="high" -->
+## §5. HANDOFF МЕЖДУ СЕССИЯМИ
 
-Факты → `.agents/memory/MEMORY.md` (долговременная память). Оперативное состояние → `SESSION_HANDOFF.md`. Планы → `plan.md`.
+**Override общего протокола (§21 Context Handoff):**
+в этом проекте handoff пишется в `SESSION_HANDOFF.md`, а не в `AGENTS.md`.
+Основание: проектный AGENTS.md (§3 Иерархия) выше общего протокола.
+
+### Протокол
+1. **В конце сессии:** дописать блок в `SESSION_HANDOFF.md` (append-only, не overwrite).
+   Формат блока: `## Session Handoff — [Date]` с полями CURRENT_FOCUS, TASK_BACKLOG, ENVIRONMENT_NOTES, FILE:LINE_ANCHORS.
+2. **В начале сессии:** прочитать последний блок из `SESSION_HANDOFF.md` (grep `## Session Handoff` или прочитать весь файл).
+3. **Факты → `.agents/memory/MEMORY.md`** (append-only, §21 формат: CONFIRMED_FACTS, UNRESOLVED_ISSUES, FAILED_APPROACHES, LEARNED_RULES).
+   Не дублировать факты в SESSION_HANDOFF.md — там только оперативное.
+4. **Планы → `plan.md`** (перезапись при смене фазы, не append).
+5. **Crash-safe auto-save:** при завершении крупного deliverable — дописать AUTO-SAVE блок в `SESSION_HANDOFF.md`.
 
 <!-- @section-end -->
 
 ---
+
+<!-- CLOSING ANCHORS — Semi-Anchor-First Architecture -->
+<!-- @rule id="handoff-destination" priority="high" -->
+➡ Handoff → SESSION_HANDOFF.md (append-only), не в AGENTS.md.
+➡ Проектный AGENTS.md (§3) переопределяет §21 общего протокола.
+<!-- @rule-end -->
 
 ${CLOSING_ANCHORS}

@@ -7,6 +7,23 @@
 
 ## [Unreleased]
 
+## [0.4.1] — 2026-06-27
+
+### Fixed
+- **Handoff-протокол: устранён конфликт между системными агентами и project-bootstrap.** Системные агентские файлы (v34-pro, v33, v10-glm) предписывают запись handoff в AGENTS.md (§21/§9.2), но project-bootstrap создаёт трёхфайловую архитектуру (AGENTS.md — правила, SESSION_HANDOFF.md — оперативное, MEMORY.md — факты). В AGENTS.md.tmpl добавлен явный override §21 в секции §5 + closing anchor `handoff-destination`. SESSION_HANDOFF.md.tmpl и MEMORY.md.tmpl — явный append-only контракт.
+- **SESSION_HANDOFF.md.tmpl:** заголовок изменён с «операционное состояние» на «Append-only. Каждая сессия дописывает блок» — предотвращает перезапись вместо append.
+- **MEMORY.md.tmpl:** ссылка на SESSION_HANDOFF.md дополнена указанием `(append-only)`.
+
+### Added
+- **Phase 4c — Handoff-Destination Verification Gate.** Новый скрипт `skills/project-bootstrap/scripts/verify-handoff-gate.sh` с 4 grep-проверками: (1) отсутствие handoff-данных в AGENTS.md, (2) отсутствие секции CONFIRMED_FACTS в AGENTS.md, (3) append-only в заголовке SESSION_HANDOFF.md, (4) ссылка на SESSION_HANDOFF.md с append-only в MEMORY.md. Интегрирован в SKILL.md как Phase 4c.
+- **Спека для будущей сессии:** `.agents/specs/agent-neutralization-v2.md` — план нейтрализации хардкод-дестинейшнов в агентских файлах (19 правок в 3 файлах). Не реализовано в этой версии.
+
+### Changed
+- **SKILL.md §5:** «Исторические сессии» → «Handoff между сессиями» с полным протоколом (override §21, append-only, crash-safe, чеклист).
+- **Phase 5a check #6:** заменён на ссылку на Phase 4c gate (устранено дублирование).
+- **AGENTS.md.tmpl Loaded Context:** SESSION_HANDOFF.md описан как «Журнал сессий (append-only)».
+- **opencode-skills собственные AGENTS.md/SESSION_HANDOFF.md/MEMORY.md:** те же фиксы применены к текущему проекту.
+
 ## [0.4.0] — 2026-06-26
 
 ### Added

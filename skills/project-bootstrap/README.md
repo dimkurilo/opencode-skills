@@ -103,7 +103,8 @@ project-bootstrap/
 │   ├── grace-anchors.md             # GRACE anchor specification + grep commands
 │   └── model-profiles.md            # DeepSeek vs GLM vs universal profiles
 ├── scripts/
-│   └── classify_project.sh          # Auto-detect project type + select variant
+│   ├── classify_project.sh          # Auto-detect project type + select variant
+│   └── verify-handoff-gate.sh       # Phase 4c: verify handoff-destination rules
 └── assets/templates/                # 15 generation templates
     ├── plan.md.tmpl
     ├── AGENTS.md.tmpl               # Variant E: preamble + closing anchors
