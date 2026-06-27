@@ -1,9 +1,9 @@
 # Session Handoff — ${PROJECT_NAME}
 
 <!-- @section id="header" -->
-> Операционное состояние между сессиями. **Не коммитить** (в `.gitignore`).
-> Обновляется агентом при завершении сессии, читается при старте.
-> CONFIRMED_FACTS, UNRESOLVED_ISSUES, FAILED_APPROACHES → `.agents/memory/MEMORY.md`.
+> **Append-only.** Каждая сессия дописывает свой блок в конец файла. Старые блоки не удалять.
+> **Не коммитить** (в `.gitignore`). Формат блока: `## Session Handoff — [Date]`.
+> CONFIRMED_FACTS, UNRESOLVED_ISSUES, FAILED_APPROACHES, LEARNED_RULES → `.agents/memory/MEMORY.md` (не дублировать сюда).
 <!-- @section-end -->
 
 ---
