@@ -11,7 +11,7 @@ Each skill is a set of instructions, prompt patterns, scripts, and reference mat
 | Skill | Description |
 |-------|-------------|
 | [project-bootstrap](skills/project-bootstrap/) | Agent infrastructure generator following [Agent Playbook](https://agents.md). **v2**: Variant E architecture (rules in primacy + recency = inevitable), GRACE semantic anchors, adaptive project classification (ops/code/agent/content), model-specific closing anchors (DeepSeek/GLM/universal), dual-audit verification. Creates AGENTS.md, SESSION_HANDOFF.md, MEMORY.md (append-only), rules with Gotchas, skills, agent personas, slash commands. 14 templates, 50+ variables, 6 workflow phases. [Details →](skills/project-bootstrap/README.md) |
-| [skill-work-project-creator](skills/skill-work-project-creator/) | **Multi-Agent Kit 1.0** — bootstrap a multi-CLI multi-wave program OS: harness inventory, domain-novelty H-panel, role matrix, L0 consistency, Stamp Dialogue + R.A.E.H., dispatch dialects, evidence plane. Modes: `full`, `roles-only`, `wire-raeh`, `extend`, `cleanup`, `raeh-review`, `raeh-execute`, `install-dialects`. 9 gate scripts, 33 templates, 19 references. OpenCode + Grok. Peer of project-bootstrap (single-CLI) and wave-spec (wave drafting). [Details →](skills/skill-work-project-creator/README.md) |
+| [project-orchestra](skills/project-orchestra/) | **Multi-Agent Kit 1.0** — bootstrap a multi-CLI multi-wave program OS: harness inventory, domain-novelty H-panel, role matrix, L0 consistency, Stamp Dialogue + R.A.E.H., dispatch dialects, evidence plane. Modes: `full`, `roles-only`, `wire-raeh`, `extend`, `cleanup`, `raeh-review`, `raeh-execute`, `install-dialects`. 9 gate scripts, 33 templates, 19 references. OpenCode + Grok. Peer of project-bootstrap (single-CLI) and wave-spec (wave drafting). [Details →](skills/project-orchestra/README.md) |
 | [vs-architect](skills/vs-architect/) | Distribution-level prompting via Verbalized Sampling (arXiv 2510.01171). Generates solution variants with probability estimates for architecture, debugging, strategy, and creative tasks. |
 
 ### Which skill when?
@@ -19,7 +19,7 @@ Each skill is a set of instructions, prompt patterns, scripts, and reference mat
 | You need… | Skill |
 |-----------|--------|
 | Single-CLI agent home (AGENTS / MEMORY / HANDOFF) | **project-bootstrap** |
-| Multi-CLI roles, stamps, wave OS | **skill-work-project-creator** |
+| Multi-CLI roles, stamps, wave OS | **project-orchestra** |
 | Diverse solution variants with probabilities | **vs-architect** |
 
 ## Installation
@@ -31,21 +31,21 @@ git clone git@github.com:dimkurilo/opencode-skills.git ~/Projects/opencode-skill
 
 ln -sfn ~/Projects/opencode-skills/skills/project-bootstrap \
   ~/.config/opencode/skills/project-bootstrap
-ln -sfn ~/Projects/opencode-skills/skills/skill-work-project-creator \
-  ~/.config/opencode/skills/skill-work-project-creator
+ln -sfn ~/Projects/opencode-skills/skills/project-orchestra \
+  ~/.config/opencode/skills/project-orchestra
 ln -sfn ~/Projects/opencode-skills/skills/vs-architect \
   ~/.config/opencode/skills/vs-architect
 
 # Optional: Grok user skills
-ln -sfn ~/Projects/opencode-skills/skills/skill-work-project-creator \
-  ~/.grok/skills/skill-work-project-creator
+ln -sfn ~/Projects/opencode-skills/skills/project-orchestra \
+  ~/.grok/skills/project-orchestra
 ```
 
 ### Manual install
 
 ```bash
 cp -R skills/project-bootstrap ~/.config/opencode/skills/project-bootstrap
-cp -R skills/skill-work-project-creator ~/.config/opencode/skills/skill-work-project-creator
+cp -R skills/project-orchestra ~/.config/opencode/skills/project-orchestra
 cp -R skills/vs-architect ~/.config/opencode/skills/vs-architect
 ```
 
@@ -62,7 +62,7 @@ opencode-skills/
 ├── .gitignore
 └── skills/
     ├── project-bootstrap/           # Single-CLI Agent Playbook infrastructure
-    ├── skill-work-project-creator/  # Multi-agent program OS kit (v1.0)
+    ├── project-orchestra/  # Multi-agent program OS kit (v1.0)
     └── vs-architect/                # Verbalized Sampling prompting
 ```
 

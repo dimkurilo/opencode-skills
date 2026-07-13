@@ -14,7 +14,7 @@ Usage: bash classify_program.sh [project_dir]
 Output JSON fields:
   program_class: multi_agent | single_home | undetermined
   domain_novelty_hint: FIRST_IN_PORTFOLIO | REPEAT_DOMAIN | TRANSFER | UNKNOWN
-  recommendation: skill-work-project-creator | project-bootstrap | wave-spec | inspect
+  recommendation: project-orchestra | project-bootstrap | wave-spec | inspect
   signals: multi_cli, waves, roles, agents_md, handoff, bootstrap_like
 EOF
   exit 0
@@ -76,7 +76,7 @@ fi
 
 if [[ $MULTI_CLI -eq 1 || $ROLES -eq 1 || ( $WAVES -eq 1 && $AGENTS_MD -eq 1 ) ]]; then
   CLASS="multi_agent"
-  REC="skill-work-project-creator"
+  REC="project-orchestra"
 elif [[ $BOOTSTRAP_LIKE -eq 1 || ( $AGENTS_MD -eq 1 && $MULTI_CLI -eq 0 ) ]]; then
   CLASS="single_home"
   REC="project-bootstrap"

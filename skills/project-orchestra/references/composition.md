@@ -1,4 +1,4 @@
-# Composition — skill-work-project-creator kit
+# Composition — project-orchestra kit
 
 This skill packages the multiagent-kit 1.0 members as **modes**:
 

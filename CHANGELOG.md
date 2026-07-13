@@ -7,15 +7,24 @@
 
 ## [Unreleased]
 
+## [0.5.1] — 2026-07-13
+
+### Changed
+- **Rename:** `skill-work-project-creator` → **`project-orchestra`** (matches multiagent-kit SPEC; aligns with `project-bootstrap` naming).
+  - Path: `skills/project-orchestra/`
+  - Slash: `/project-orchestra`
+  - Install paths: `~/.config/opencode/skills/project-orchestra`, `~/.grok/skills/project-orchestra`
+  - Former name kept only as discovery alias in SKILL.md description
+
 ## [0.5.0] — 2026-07-13
 
 ### Added
-- **skill-work-project-creator v1.0.0 (Multi-Agent Kit)** — bootstrap multi-CLI multi-wave program OS for OpenCode + Grok.
+- **project-orchestra v1.0.0 (Multi-Agent Kit)** — bootstrap multi-CLI multi-wave program OS for OpenCode + Grok.
   - Modes: `full`, `roles-only`, `wire-raeh`, `extend`, `cleanup`, `raeh-review`, `raeh-execute`, `install-dialects`
   - Phases 0–4: harness inventory, domain_novelty H-panel (FIRST on / REPEAT off), role matrix, L0 consistency, Stamp Dialogue + R.A.E.H., dispatch dialects, archive hygiene
   - Scripts: `classify_program.sh`, `inventory_harness.sh`, `install_project_os.sh`, `verify_os_gate.sh`, `verify_l0_inputs.sh`, `verify_handoff_gate.sh`, `verify_raeh_ready.sh`, `verify_stamp_schema.sh`, `hash_acceptance.sh`
   - 33 templates (AGENTS/SPEC/STATUS/MEMORY/waves/_template/prompts/_dispatch/profiles) + 19 progressive-disclosure references
-  - Bilingual docs: `skills/skill-work-project-creator/README.md` + `README.ru.md`
+  - Bilingual docs: `skills/project-orchestra/README.md` + `README.ru.md`
   - Composition: peer of project-bootstrap (single-CLI) and wave-spec (wave drafting); does not absorb either
 - Root README (EN/RU): skill table, install symlinks, “which skill when” matrix
 

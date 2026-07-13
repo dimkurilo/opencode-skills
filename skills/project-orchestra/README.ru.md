@@ -1,4 +1,4 @@
-# skill-work-project-creator — OS для multi-agent программ
+# project-orchestra — OS для multi-agent программ
 
 🇬🇧 [English version](README.md)
 
@@ -81,28 +81,28 @@
 git clone git@github.com:dimkurilo/opencode-skills.git ~/Projects/opencode-skills
 
 # symlink (рекомендуется — обновляется через git pull)
-ln -sfn ~/Projects/opencode-skills/skills/skill-work-project-creator \
-  ~/.config/opencode/skills/skill-work-project-creator
+ln -sfn ~/Projects/opencode-skills/skills/project-orchestra \
+  ~/.config/opencode/skills/project-orchestra
 
 # или копия
-cp -R ~/Projects/opencode-skills/skills/skill-work-project-creator \
-  ~/.config/opencode/skills/skill-work-project-creator
+cp -R ~/Projects/opencode-skills/skills/project-orchestra \
+  ~/.config/opencode/skills/project-orchestra
 ```
 
 ### Grok
 
 ```bash
-ln -sfn ~/Projects/opencode-skills/skills/skill-work-project-creator \
-  ~/.grok/skills/skill-work-project-creator
+ln -sfn ~/Projects/opencode-skills/skills/project-orchestra \
+  ~/.grok/skills/project-orchestra
 ```
 
 ### Развернуть OS в целевой проект
 
 ```bash
-bash ~/.config/opencode/skills/skill-work-project-creator/scripts/install_project_os.sh \
+bash ~/.config/opencode/skills/project-orchestra/scripts/install_project_os.sh \
   /path/to/project "my-program"
 
-bash ~/.config/opencode/skills/skill-work-project-creator/scripts/verify_os_gate.sh \
+bash ~/.config/opencode/skills/project-orchestra/scripts/verify_os_gate.sh \
   /path/to/project
 ```
 
@@ -111,7 +111,7 @@ bash ~/.config/opencode/skills/skill-work-project-creator/scripts/verify_os_gate
 Вызови скилл (slash или естественный язык):
 
 ```
-/skill-work-project-creator
+/project-orchestra
 ```
 
 Примеры:
@@ -142,7 +142,7 @@ bash ~/.config/opencode/skills/skill-work-project-creator/scripts/verify_os_gate
 ## Структура пакета
 
 ```
-skill-work-project-creator/
+project-orchestra/
 ├── SKILL.md                 # Entry для агента (modes, phases, gates)
 ├── VERSION                  # 1.0.0
 ├── agents/openai.yaml       # UI metadata
