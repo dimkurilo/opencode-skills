@@ -1,4 +1,4 @@
-# skill-work-project-creator — Multi-Agent Program OS Kit
+# project-orchestra — Multi-Agent Program OS Kit
 
 🇷🇺 [Русская версия](README.ru.md)
 
@@ -81,28 +81,28 @@ Program architecture stays in **SPEC.md**. Wave contracts (SPEC.xml + PLAN.xml) 
 git clone git@github.com:dimkurilo/opencode-skills.git ~/Projects/opencode-skills
 
 # symlink (recommended — updates with git pull)
-ln -sfn ~/Projects/opencode-skills/skills/skill-work-project-creator \
-  ~/.config/opencode/skills/skill-work-project-creator
+ln -sfn ~/Projects/opencode-skills/skills/project-orchestra \
+  ~/.config/opencode/skills/project-orchestra
 
 # or copy
-cp -R ~/Projects/opencode-skills/skills/skill-work-project-creator \
-  ~/.config/opencode/skills/skill-work-project-creator
+cp -R ~/Projects/opencode-skills/skills/project-orchestra \
+  ~/.config/opencode/skills/project-orchestra
 ```
 
 ### Grok
 
 ```bash
-ln -sfn ~/Projects/opencode-skills/skills/skill-work-project-creator \
-  ~/.grok/skills/skill-work-project-creator
+ln -sfn ~/Projects/opencode-skills/skills/project-orchestra \
+  ~/.grok/skills/project-orchestra
 ```
 
 ### Materialize OS into a target project
 
 ```bash
-bash ~/.config/opencode/skills/skill-work-project-creator/scripts/install_project_os.sh \
+bash ~/.config/opencode/skills/project-orchestra/scripts/install_project_os.sh \
   /path/to/project "my-program"
 
-bash ~/.config/opencode/skills/skill-work-project-creator/scripts/verify_os_gate.sh \
+bash ~/.config/opencode/skills/project-orchestra/scripts/verify_os_gate.sh \
   /path/to/project
 ```
 
@@ -111,7 +111,7 @@ bash ~/.config/opencode/skills/skill-work-project-creator/scripts/verify_os_gate
 Invoke the skill (slash or natural language):
 
 ```
-/skill-work-project-creator
+/project-orchestra
 ```
 
 Examples:
@@ -142,7 +142,7 @@ All support `--help` and exit 0 on success.
 ## Skill package structure
 
 ```
-skill-work-project-creator/
+project-orchestra/
 ├── SKILL.md                 # Agent entry (modes, phases, gates)
 ├── VERSION                  # 1.0.0
 ├── agents/openai.yaml       # UI metadata

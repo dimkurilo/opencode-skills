@@ -1,12 +1,12 @@
 ---
-name: skill-work-project-creator
+name: project-orchestra
 description: >
   Bootstrap a multi-CLI multi-wave program OS (project-orchestra kit): harness inventory,
   domain-novelty H-panel, role matrix, L0 consistency, program SPEC, R.A.E.H. Stamp Dialogue,
   dispatch dialects, evidence plane, archive hygiene. Modes: full, roles-only, wire-raeh,
   extend, cleanup, raeh-review, raeh-execute, install-dialects. Use when starting a multi-agent
   program, choosing orchestrator vs executor, multi-agent bootstrap, who should orchestrate,
-  R.A.E.H., stamp dialogue, or skill-work-project-creator. Do NOT use for simple single-CLI
+  R.A.E.H., stamp dialogue, or project-orchestra (formerly skill-work-project-creator). Do NOT use for simple single-CLI
   scaffolds (project-bootstrap / zcode-bootstrap), pure wave drafting on an existing OS
   (wave-spec + raeh mode), or one-line edits.
 metadata:
@@ -15,7 +15,7 @@ metadata:
   kit: multiagent-kit-1.0
 ---
 
-# skill-work-project-creator (Multi-Agent Kit 1.0)
+# project-orchestra — Multi-Agent Program OS Kit 1.0
 
 **One-line:** Boot a multi-CLI program OS, wire Stamp Dialogue + R.A.E.H., install dispatch dialects — without re-paying first-domain discovery tax every project.
 
@@ -23,8 +23,8 @@ metadata:
 
 ```
 SKILL_DIR = directory containing this SKILL.md
-# Grok:     ~/.grok/skills/skill-work-project-creator
-# OpenCode: ~/.config/opencode/skills/skill-work-project-creator
+# Grok:     ~/.grok/skills/project-orchestra
+# OpenCode: ~/.config/opencode/skills/project-orchestra
 ```
 
 ## Modes
@@ -281,7 +281,7 @@ Program architecture = `SPEC.md`. Wave contracts = `waves/*/SPEC.xml` + `PLAN.xm
 | **vs-architect** | Optional helper in Phase 0 |
 | Domain skills (`/seo`, …) | After OS ready |
 
-Mirror install: keep identical trees at `~/.grok/skills/skill-work-project-creator` and `~/.config/opencode/skills/skill-work-project-creator` (copy; `VERSION` pin 1.0.0). No project-specific hostnames in package.
+Mirror install: keep identical trees at `~/.grok/skills/project-orchestra` and `~/.config/opencode/skills/project-orchestra` (copy; `VERSION` pin 1.0.0). No project-specific hostnames in package.
 
 ## Anti-patterns
 
