@@ -7,6 +7,22 @@
 
 ## [Unreleased]
 
+## [0.5.0] — 2026-07-13
+
+### Added
+- **skill-work-project-creator v1.0.0 (Multi-Agent Kit)** — bootstrap multi-CLI multi-wave program OS for OpenCode + Grok.
+  - Modes: `full`, `roles-only`, `wire-raeh`, `extend`, `cleanup`, `raeh-review`, `raeh-execute`, `install-dialects`
+  - Phases 0–4: harness inventory, domain_novelty H-panel (FIRST on / REPEAT off), role matrix, L0 consistency, Stamp Dialogue + R.A.E.H., dispatch dialects, archive hygiene
+  - Scripts: `classify_program.sh`, `inventory_harness.sh`, `install_project_os.sh`, `verify_os_gate.sh`, `verify_l0_inputs.sh`, `verify_handoff_gate.sh`, `verify_raeh_ready.sh`, `verify_stamp_schema.sh`, `hash_acceptance.sh`
+  - 33 templates (AGENTS/SPEC/STATUS/MEMORY/waves/_template/prompts/_dispatch/profiles) + 19 progressive-disclosure references
+  - Bilingual docs: `skills/skill-work-project-creator/README.md` + `README.ru.md`
+  - Composition: peer of project-bootstrap (single-CLI) and wave-spec (wave drafting); does not absorb either
+- Root README (EN/RU): skill table, install symlinks, “which skill when” matrix
+
+### Notes
+- Kit design contract: multiagent-kit-1.0 (Stamp Dialogue authority, no domain-specific hostnames in package)
+- Dry-run verified: verify_os_gate / verify_raeh_ready / verify_stamp_schema / verify_handoff_gate / install_project_os — PASS
+
 ## [0.4.1] — 2026-06-27
 
 ### Fixed

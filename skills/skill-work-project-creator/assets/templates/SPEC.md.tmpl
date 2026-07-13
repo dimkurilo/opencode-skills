@@ -1,0 +1,62 @@
+# SPEC — ${PROJECT_NAME}
+
+> **Status:** ${SPEC_STATUS}  
+> **Date:** ${DATE}  
+> **Orchestrator:** ${ORCHESTRATOR}  
+> **Wave Executor:** ${EXECUTOR}  
+> **Cross-auditor:** ${AUDITOR}
+
+---
+
+## 1. Program Goal
+
+${PROGRAM_GOAL}
+
+**Scope in:** ${SCOPE_IN}  
+**Scope out:** ${SCOPE_OUT}
+
+---
+
+## 2. Architecture: Roles
+
+| Role | Model | CLI | Workload | Write scope |
+|------|-------|-----|----------|-------------|
+| Orchestrator | ${ORCHESTRATOR} | ${ORCH_CLI} | ${ORCH_PCT} | STATUS, MEMORY, program SPEC |
+| Wave Executor | ${EXECUTOR} | ${EXEC_CLI} | ${EXEC_PCT} | audits/executor, EXEC-REPORT, research |
+| Cross-auditor | ${AUDITOR} | ${AUD_CLI} | ${AUD_PCT} | audits/auditor |
+| Stateless pull | ${FLASH} | ${FLASH_CLI} | ${FLASH_PCT} | research only |
+
+---
+
+## 3. Gates
+
+| Gate | When | Authority |
+|------|------|-----------|
+| L0 | Before architecture G0 | Consistency CLEAN |
+| G0 | After program SPEC | Human |
+| Stamp | Before EXECUTE | REVIEW-STAMP YES + hash |
+| G1 | Heavy/prod-bound | Human |
+| G-deploy | Production mutate | Human + domain ritual |
+| F-04 | After important synthesis | Different model family |
+
+---
+
+## 4. domain_novelty
+
+**Value:** ${DOMAIN_NOVELTY}  
+**H-panel:** ${HPANEL_ON_OFF}  
+**Rationale:** ${NOVELTY_RATIONALE}
+
+---
+
+## 5. Success criteria
+
+${SUCCESS_CRITERIA}
+
+---
+
+## 6. Decisions log
+
+| # | Decision | Rationale |
+|---|----------|-----------|
+| D1 | ${D1} | ${D1_WHY} |

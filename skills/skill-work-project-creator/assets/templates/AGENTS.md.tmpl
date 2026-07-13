@@ -1,0 +1,124 @@
+# AGENTS.md — ${PROJECT_NAME}
+
+> ${PROJECT_DESCRIPTION}
+> Multi-CLI multi-wave program OS. Orchestrator / Executor / Auditor roles.
+> Стандарт: [Agent Playbook](https://agents.md) · Создано: ${DATE}
+
+---
+
+## 🔴 ПРЕАМБУЛА: ЖЕЛЕЗНЫЕ ПРАВИЛА
+
+<!-- @rule id="F-01" priority="critical" -->
+➡ **READ-ONLY до approve.** Никаких prod-правок без явного подтверждения.
+<!-- @rule-end -->
+
+<!-- @rule id="F-03" priority="high" -->
+➡ **Anti-fabrication.** Каждая цифра — из источника (API/curl). Нет данных → `НЕТ ДАННЫХ`.
+<!-- @rule-end -->
+
+<!-- @rule id="F-04" priority="high" -->
+➡ **Cross-model symmetry.** Аудит одной модели проверяется другой семьёй. Не аудируй той же семьёй.
+<!-- @rule-end -->
+
+<!-- @rule id="F-stamp" priority="critical" -->
+➡ **Stamp authority.** EXECUTE только при `REVIEW-STAMP.md` → `AGREED: YES` + hash. Chat «AGREED» не считается.
+<!-- @rule-end -->
+
+---
+
+## 📋 ЧЕКЛИСТ ПЕРЕД СЕССИЕЙ
+
+- [ ] Последний блок `SESSION_HANDOFF.md`
+- [ ] `STATUS.md` — фаза, gates, blockers
+- [ ] `.agents/memory/MEMORY.md` — CONFIRMED_FACTS, LEARNED_RULES
+- [ ] Роли и write locks (ниже) не нарушены
+
+---
+
+## 📐 РОЛИ И WRITE LOCKS
+
+| Role | Model/CLI | Load | Writes | Does NOT write |
+|------|-----------|------|--------|----------------|
+| Orchestrator | ${ORCHESTRATOR} | ${ORCH_PCT} | STATUS, MEMORY, program SPEC/PLAN | executor evidence lanes |
+| Wave Executor | ${EXECUTOR} | ${EXEC_PCT} | audits/${EXECUTOR_LANE}/, EXEC-REPORT, research/ | STATUS, MEMORY |
+| Cross-auditor | ${AUDITOR} | ${AUD_PCT} | audits/${AUDITOR_LANE}/ | STATUS, MEMORY, program SPEC |
+| Stateless pull | ${FLASH} | ${FLASH_PCT} | research/ (ephemeral) | STATUS, MEMORY |
+
+Self-assessment required before locking any role ≥10% load.
+
+---
+
+## §1. FAILURE PACKET
+
+При 2× одинаковой ошибке подряд:
+
+```
+ROOT CAUSE: [одна строка]
+ACTION: [switch-tool | re-read-source | change-strategy | ask-user]
+CLASSIFICATION: [MODEL_ERROR | ENV_ERROR | AMBIGUOUS]
+```
+
+---
+
+## §2. HANDOFF
+
+1. Конец сессии: append `SESSION_HANDOFF.md`
+2. Факты → `.agents/memory/MEMORY.md`
+3. Планы/фаза → `plan.md` / `STATUS.md` (orchestrator)
+4. Не коммитить SESSION_HANDOFF.md
+
+---
+
+## §3. ИЕРАРХИЯ
+
+1. AGENTS.md (этот файл)
+2. SPEC.md (program architecture)
+3. `.agents/rules/*`
+4. plan.md / STATUS.md
+5. SESSION_HANDOFF.md (оперативное)
+
+---
+
+## §4. АРХИТЕКТУРА
+
+```
+${PROJECT_DIR}/
+├── AGENTS.md
+├── SPEC.md
+├── INTENT.md
+├── STATUS.md
+├── plan.md
+├── SESSION_HANDOFF.md          # gitignored, append-only
+├── .agents/memory/MEMORY.md
+├── prompts/_dispatch/
+├── waves/
+├── audits/
+├── docs/
+└── research/
+```
+
+### Loaded Context
+
+**Level 1 (always):** SESSION_HANDOFF (last block), STATUS.md, MEMORY.md  
+**Level 2 (trigger):** SPEC.md, plan.md, rules/*  
+**Level 3 (on-demand):** waves/*, prompts/*, audits/*, research/*
+
+---
+
+## §5. R.A.E.H.
+
+```
+DRAFT (wave-spec) → REVIEW* (stamp) → AGREE → EXECUTE → VERIFY → HANDOFF
+```
+
+New session per wave. Same session across review rounds. MAX_ROUNDS=5.
+
+---
+
+<closing_anchors priority="highest">
+<rule id="readonly-gate" priority="1">READ-ONLY until human approve for prod.</rule>
+<rule id="stamp-gate" priority="1">EXECUTE only after REVIEW-STAMP AGREED=YES + hash.</rule>
+<rule id="evidence-first" priority="2">No fabricated metrics. Source or НЕТ ДАННЫХ.</rule>
+<rule id="write-locks" priority="2">Executor does not edit STATUS/MEMORY.</rule>
+<rule id="cross-model" priority="2">F-04 uses different model family.</rule>
+</closing_anchors>

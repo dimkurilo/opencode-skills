@@ -1,0 +1,24 @@
+# MEMORY — ${PROJECT_NAME}
+
+> Persistent facts. Promote from SESSION_HANDOFF (append-only).  
+> SESSION_HANDOFF.md is append-only operational journal — do not duplicate full blocks here.
+
+## CONFIRMED_FACTS
+${FACTS}
+
+## UNRESOLVED_ISSUES
+${ISSUES}
+
+## FAILED_APPROACHES
+(none yet)
+
+## LEARNED_RULES
+- Stamp file is authority for AGREED (not chat)
+- domain_novelty=${DOMAIN_NOVELTY}
+
+## Tools and resources
+${TOOLS}
+
+## Anti-patterns
+- Fabricating metrics without API/curl source
+- Executor editing STATUS/MEMORY
