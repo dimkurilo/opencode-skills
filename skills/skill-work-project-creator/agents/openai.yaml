@@ -1,0 +1,4 @@
+interface:
+  display_name: "Work Project Creator"
+  short_description: "Multi-agent program OS: orchestra, R.A.E.H., dispatch dialects"
+  default_prompt: "Bootstrap a multi-CLI multi-wave program OS with role matrix, L0 consistency, R.A.E.H. stamps, and dispatch dialects (mode full)."

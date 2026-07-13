@@ -2,16 +2,25 @@
 
 🇬🇧 [English version](README.md)
 
-Коллекция скиллов для агентов [opencode](https://github.com/opencode-ai/opencode).
+Коллекция скиллов для агентов [opencode](https://github.com/opencode-ai/opencode) (и совместимых CLI).
 
-Каждый скилл — это набор инструкций, промпт-паттернов и справочных материалов, которые обучают AI-агента эффективно выполнять конкретную задачу. Скиллы модель-независимы и работают с любым LLM-бекендом opencode.
+Каждый скилл — набор инструкций, промпт-паттернов, скриптов и справочных материалов, которые обучают AI-агента эффективно выполнять конкретную задачу. Скиллы модель-независимы и работают с любым LLM-бекендом opencode; часть также ставится в **Grok** (`~/.grok/skills/`).
 
 ## Скиллы
 
 | Скилл | Описание |
 |-------|----------|
 | [project-bootstrap](skills/project-bootstrap/) | Генератор агентской инфраструктуры по [Agent Playbook](https://agents.md). **v2**: архитектура Variant E (правила в primacy + recency = неизбежны), GRACE-семантические якоря, адаптивная классификация (ops/код/агентский/контент), модельно-специфичные closing anchors (DeepSeek/GLM/universal), двойной аудит. Создаёт AGENTS.md, SESSION_HANDOFF.md, MEMORY.md (append-only), правила с Gotchas, скиллы, персоны агентов, слеш-команды. 14 шаблонов, 50+ переменных, 6 фаз workflow. [Подробнее →](skills/project-bootstrap/README.ru.md) |
+| [skill-work-project-creator](skills/skill-work-project-creator/) | **Multi-Agent Kit 1.0** — bootstrap multi-CLI multi-wave program OS: harness inventory, domain-novelty H-panel, матрица ролей, L0 consistency, Stamp Dialogue + R.A.E.H., dispatch dialects, evidence plane. Modes: `full`, `roles-only`, `wire-raeh`, `extend`, `cleanup`, `raeh-review`, `raeh-execute`, `install-dialects`. 9 gate-скриптов, 33 шаблона, 19 references. OpenCode + Grok. Peer project-bootstrap (single-CLI) и wave-spec (черновик волны). [Подробнее →](skills/skill-work-project-creator/README.ru.md) |
 | [vs-architect](skills/vs-architect/) | Distribution-level промптинг через Verbalized Sampling (arXiv 2510.01171). Генерирует варианты решений с вероятностными оценками для архитектуры, отладки, стратегии и креативных задач. |
+
+### Какой скилл когда?
+
+| Нужно… | Скилл |
+|--------|--------|
+| Single-CLI агентский дом (AGENTS / MEMORY / HANDOFF) | **project-bootstrap** |
+| Multi-CLI роли, stamps, wave OS | **skill-work-project-creator** |
+| Разнообразные варианты решений с вероятностями | **vs-architect** |
 
 ## Установка
 
@@ -19,15 +28,25 @@
 
 ```bash
 git clone git@github.com:dimkurilo/opencode-skills.git ~/Projects/opencode-skills
-ln -sf ~/Projects/opencode-skills/skills/project-bootstrap ~/.config/opencode/skills/project-bootstrap
-ln -sf ~/Projects/opencode-skills/skills/vs-architect ~/.config/opencode/skills/vs-architect
+
+ln -sfn ~/Projects/opencode-skills/skills/project-bootstrap \
+  ~/.config/opencode/skills/project-bootstrap
+ln -sfn ~/Projects/opencode-skills/skills/skill-work-project-creator \
+  ~/.config/opencode/skills/skill-work-project-creator
+ln -sfn ~/Projects/opencode-skills/skills/vs-architect \
+  ~/.config/opencode/skills/vs-architect
+
+# Опционально: Grok
+ln -sfn ~/Projects/opencode-skills/skills/skill-work-project-creator \
+  ~/.grok/skills/skill-work-project-creator
 ```
 
 ### Ручная
 
 ```bash
-cp -r skills/project-bootstrap ~/.config/opencode/skills/project-bootstrap
-cp -r skills/vs-architect ~/.config/opencode/skills/vs-architect
+cp -R skills/project-bootstrap ~/.config/opencode/skills/project-bootstrap
+cp -R skills/skill-work-project-creator ~/.config/opencode/skills/skill-work-project-creator
+cp -R skills/vs-architect ~/.config/opencode/skills/vs-architect
 ```
 
 После копирования opencode автоматически подхватит скилл при следующем запуске.
@@ -42,18 +61,9 @@ opencode-skills/
 ├── LICENSE                 # MIT
 ├── .gitignore
 └── skills/
-    ├── project-bootstrap/  # Генератор инфраструктуры (v2)
-    │   ├── SKILL.md
-    │   ├── README.md / README.ru.md
-    │   ├── references/        # 5 файлов: playbook, patterns, Variant E, GRACE anchors, model profiles
-    │   ├── scripts/           # classify_project.sh
-    │   └── assets/templates/  # 15 шаблонов
-    └── vs-architect/       # Verbalized Sampling промптинг
-        ├── SKILL.md
-        ├── README.md / README.ru.md
-        └── references/
-            ├── vs-theory.md
-            └── examples.md
+    ├── project-bootstrap/           # Single-CLI Agent Playbook
+    ├── skill-work-project-creator/  # Multi-agent program OS kit (v1.0)
+    └── vs-architect/                # Verbalized Sampling
 ```
 
 ## Как создать свой скилл
@@ -61,7 +71,7 @@ opencode-skills/
 Скиллы следуют простому соглашению:
 
 1. Директория с именем скилла
-2. `SKILL.md` — главный файл инструкций с YAML frontmatter (`name`, `description` — описывай КОГДА использовать, а не ЧТО делает)
+2. `SKILL.md` — главный файл инструкций с YAML frontmatter (`name`, `description` — описывай КОГДА использовать)
 3. Опционально `references/` — справочные материалы, примеры, теория
 4. Опционально `assets/templates/` — шаблоны генерации с `${VARIABLE}`-плейсхолдерами
 5. Опционально `scripts/` — вспомогательные скрипты

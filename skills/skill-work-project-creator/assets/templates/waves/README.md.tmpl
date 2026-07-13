@@ -1,0 +1,28 @@
+# waves/ — R.A.E.H. wave artifacts
+
+## Protocol
+1. **DRAFT** — Author (orchestrator) + **wave-spec**: INTENT → SPEC.xml → PLAN.xml  
+2. **REVIEW*** — Reviewer stamps `REVIEW-STAMP.md` (same session, max 5 rounds)  
+3. **AGREE** — `AGREED: YES` + `acceptance.hash`  
+4. **EXECUTE** — only after stamp YES  
+5. **VERIFY** — optional F-04  
+6. **HANDOFF** — orchestrator updates STATUS/MEMORY; append SESSION_HANDOFF
+
+## Layout
+```
+waves/
+├── README.md
+├── _template/
+│   ├── REVIEW-STAMP.md
+│   ├── EXEC-REPORT.md
+│   └── STATUS.md
+└── <YYYY-MM-DD>-<slug>/
+    ├── SPEC.xml
+    ├── PLAN.xml
+    ├── acceptance.hash
+    ├── REVIEW-STAMP.md
+    ├── EXEC-REPORT.md
+    └── STATUS.md
+```
+
+**Authority:** stamp file on disk. Chat AGREED does not count.
