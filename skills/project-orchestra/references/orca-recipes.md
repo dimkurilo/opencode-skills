@@ -7,27 +7,28 @@ Orchestration task API / `worker_done` messages are **optional** convenience; de
 
 ## Pin rules (do not invent providers)
 
-| Family | Typical CLI pin (examples) |
-|--------|----------------------------|
-| GPT-5.6 / Codex | `codex exec --model gpt-5.6-sol -c model_reasoning_effort="xhigh"` (effort = API pin) |
-| GLM 5.2 | `opencode --auto --agent A/agent1st_v13-glm --model zai-coding-plan/glm-5.2` |
-| DeepSeek V4 Pro | `opencode --auto --agent A/agent1st_v36-pro --model opencode-go/deepseek-v4-pro` |
-| Grok | `grok --always-approve --no-plan` (or project default) |
+| Shell / CLI | Model | Typical pin or note |
+|-------------|-------|---------------------|
+| Codex | GPT-5.6 (for example, sol or terra) | `codex exec --model gpt-5.6-sol -c model_reasoning_effort="xhigh"` (effort is part of the pin) |
+| Claude Code | Often GLM 5.2 | Use the selected GLM 5.2 session; do not invent a command-line provider route. |
+| OpenCode | GLM 5.2 | `opencode --auto --agent <your-glm-agent> --model zai-coding-plan/glm-5.2` |
+| OpenCode | DeepSeek V4 Pro | `opencode --auto --agent <your-deepseek-agent> --model opencode-go/deepseek-v4-pro` |
+| Grok (native) | Grok 4.5 | `grok --always-approve --no-plan` (or project default) |
 
 - Prefer model/agent from **your** agent frontmatter / harness inventory — do not invent OpenRouter routes.
 - Never two parallel bare `opencode run` (DB lock). Use two Orca terminals (or sequential).
 - **Never** hang Grok persona text on Codex/GLM; use shape + CLI/model pin only.
 
-## Dual-worker parallel review (1.1 default)
+## Dual-worker parallel review (default)
 
 **Goal:** two complementary jobs (different families + different shapes + different brief text).
 
 ```bash
 # 1) Two terminals — pin agent+model in --command (parameterize per family)
 orca terminal create --worktree active --title po-ledger \
-  --command 'opencode --auto --agent A/agent1st_v36-pro --model opencode-go/deepseek-v4-pro' --json
+  --command 'opencode --auto --agent <your-deepseek-agent> --model opencode-go/deepseek-v4-pro' --json
 orca terminal create --worktree active --title po-stress \
-  --command 'opencode --auto --agent A/agent1st_v13-glm --model zai-coding-plan/glm-5.2' --json
+  --command 'opencode --auto --agent <your-glm-agent> --model zai-coding-plan/glm-5.2' --json
 
 # 2) Wait until each TUI is ready (do not send into a cold prompt)
 orca terminal wait --terminal <handle-ledger> --for tui-idle --timeout-ms 90000 --json
@@ -38,7 +39,7 @@ orca terminal send --terminal <handle-ledger> --text "$(cat prompts/…/f04-ledg
 orca terminal send --terminal <handle-stress> --text "$(cat prompts/…/stress-fail.md)" --enter --json
 
 # 4) Wait for **files on disk** (poll paths), not chat vibes
-# 5) Identity gate: each report header has role + family + shape
+# 5) Identity gate: each report header has role + CLI + model family + shape
 # 6) Merge into audits/ or wave STATUS; mark DEGRADED_DUAL if only one family
 ```
 
@@ -60,7 +61,7 @@ If Orca unavailable → sequential single terminals or human dual; mark `DEGRADE
 
 ```bash
 orca terminal create --worktree active --title wave-review \
-  --command 'opencode --auto --agent A/agent1st_v13-glm --model zai-coding-plan/glm-5.2' --json
+  --command 'opencode --auto --agent <your-glm-agent> --model zai-coding-plan/glm-5.2' --json
 orca terminal wait --terminal <handle> --for tui-idle --timeout-ms 90000 --json
 orca terminal send --terminal <handle> --text "$(cat waves/<id>/prompts/wave-review.md)" --enter --json
 # Same reviewer session for rounds 1..N
@@ -75,7 +76,7 @@ bash "$SKILL_DIR/scripts/verify_stamp_hash.sh" waves/<id>
 
 # Fresh executor session (not the review session)
 orca terminal create --worktree active --title wave-exec \
-  --command 'opencode --auto --agent A/agent1st_v36-pro --model opencode-go/deepseek-v4-pro' --json
+  --command 'opencode --auto --agent <your-deepseek-agent> --model opencode-go/deepseek-v4-pro' --json
 orca terminal wait --terminal <handle> --for tui-idle --timeout-ms 90000 --json
 orca terminal send --terminal <handle> --text "$(cat waves/<id>/prompts/execute.md)" --enter --json
 ```

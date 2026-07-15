@@ -4,7 +4,7 @@
 
 A skill for people who run **several AI agents** on one product: one leads, one builds, one reviews - so folders and chats do not turn into soup.
 
-Works with OpenCode, Grok, and other CLIs that read `SKILL.md`.
+Works with OpenCode, Grok, Codex, Claude Code, and other CLIs that read `SKILL.md`.
 
 **Version:** 0.6.1 · **License:** MIT
 
@@ -73,7 +73,7 @@ Why I stick with it:
 1. **Several agents at once without circus.** When I need two different reviews, I open two terminals in Orca, pick which agent and which model, and wait for answers as **files on disk**. Two bare `opencode run` processes used to lock the DB for me - I am done with that.
 2. **Projects and working copies in one window.** I am not hunting which iTerm tab is DeepSeek.
 3. **The `orca` command.** The lead agent can create a terminal and send a task there - useful when the skill says: two workers, different jobs (one checks facts, the other looks for what breaks).
-4. **Different CLIs under one shell.** Grok, Claude Code, OpenCode - I do not hop apps every hour.
+4. **Different CLIs under one shell.** Grok, Claude Code, Codex, OpenCode - I do not hop apps every hour.
 
 **What I like:**
 
@@ -98,19 +98,28 @@ One line: the skill says *what* to do. Orca is *where* several agents can live w
 
 I do not sit on one model. Current set:
 
-| Where | What | Why |
-|-------|------|-----|
-| **Grok 4.5** (native build) | Often lead / long sessions | Fast think-write-check loop |
-| **Claude Code** | Lead on **GLM 5.2** (and when the Claude Code shell fits better) | Different head and UX; good for plan + workers |
-| **OpenCode** | **GLM 5.2**, **DeepSeek V4 Pro**, sometimes **GPT-5.6** | Workers: checklist check, “what breaks”, implement |
+| Shell / CLI | Models | Typical job |
+|-------------|--------|-------------|
+| **Grok 4.5** (native) | Grok 4.5 | Often lead / long sessions |
+| **Claude Code** | Often **GLM 5.2** | Lead when that shell fits; plan + workers |
+| **OpenCode** | **GLM 5.2**, **DeepSeek V4 Pro** | Workers: checklist and evidence, “what breaks” stress, implement |
+| **Codex** | **GPT-5.6** (sol, terra, and similar) | Full review, lean Goal / Success / Stop briefs, dual-audit arm |
 
 Why not “Claude everywhere” or “Grok everywhere”:
 
-- **Different families** for two-model review. DeepSeek, GLM, and GPT-5.6 often complement each other: one holds the checklist and evidence, the other breaks “what if we ship”.
+- **Different families** for two-model review. DeepSeek, GLM, and GPT-5.6 often complement each other: one holds the checklist and evidence, another asks what breaks when this ships.
 - **Lead** is usually Claude Code (often GLM 5.2) **and/or** Grok 4.5 in the native build. Whichever has less friction that day. Not a religion.
-- **How you phrase the task** depends on the model family (what/where/done vs Goal…Done vs Task+Done vs Goal+Success+Stop). In-package cheat sheet: `references/model-prompt-shapes.md`. Full personal guides and agent personas stay **private**.
+- **How you phrase the task** depends on the model family. OpenCode workers get a clear checklist and evidence target; Codex gets a lean Goal / Success / Stop brief. In-package cheat sheet: `references/model-prompt-shapes.md`. Full personal guides and agent personas stay **private**.
 
 Short: *several shells + several model families + Orca as the table so they do not collide*.
+
+### What’s new in 0.6.1
+
+- A “go” stamp needs a real hash. Right before work starts, the skill hashes the named SPEC and PLAN again and checks that they still match the stamp.
+- Without wave-spec, a new wave gets a SPEC template. Only a real wave folder can pass the ready check; the template folder cannot.
+- The four-file start stays four files. It no longer looks like a full multi-agent office.
+- A full install checks for the dispatch cheatsheets **and** the dispatch algorithm and model-shapes references.
+- The Orca dual-worker recipe pins the actual agent and model, waits until each terminal is ready, then waits for output files rather than treating a sent message as a result.
 
 ---
 

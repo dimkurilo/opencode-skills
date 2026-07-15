@@ -10,31 +10,34 @@
 ## [0.6.1] - 2026-07-16
 
 ### Added
-- **project-orchestra 0.6.1** - enforcement after dual audit (Sol full review + Grok ledger + GLM stress): gates match kit promises, not only prose.
-  - **`scripts/verify_stamp_hash.sh`** - pre-execute: re-hash files named in stamp `SPEC_PATH`/`PLAN_PATH`, compare to 64-hex `SPEC_HASH` (or `acceptance.hash`)
-  - **`scripts/verify_wave_ready.sh`** - live wave must have SPEC+PLAN+REVIEW-STAMP (`waves/_template` is not a wave)
-  - **`assets/templates/waves/SPEC.md.tmpl`** - in-package wave SPEC when wave-spec is not installed
-  - **`assets/templates/bootstrap-lite/`** - dedicated AGENTS / HANDOFF / MEMORY for four-file homes (no multi-wave lies)
-  - Installers ship wave `SPEC.md.tmpl` + `PLAN.md.tmpl` under parent and workstream `_template` as sources only
+- **project-orchestra 0.6.1** - проверки «можно делать / готово» совпадают с обещаниями скилла, а не только с текстом.
+  - **`scripts/verify_stamp_hash.sh`** - перед execute ещё раз хэширует SPEC и PLAN из штампа и сверяет с реальным 64-символьным hash
+  - **`scripts/verify_wave_ready.sh`** - зелёный только у **живой** папки волны (SPEC + PLAN + stamp); `waves/_template` - ящик шаблонов, не волна
+  - **`assets/templates/waves/SPEC.md.tmpl`** - SPEC волны, если wave-spec не установлен
+  - **`assets/templates/bootstrap-lite/`** - свои AGENTS / HANDOFF / MEMORY для старта из четырёх файлов (без вида «полного офиса»)
+  - **Installers** - кладут `SPEC.md.tmpl` и `PLAN.md.tmpl` в parent/workstream `_template` как **источники**, не как фейковый live-plan
 
 ### Changed
-- **`verify_stamp_schema.sh`** - AGREED=YES needs a real 64-hex hash (placeholder text / mere "SPEC_HASH" marker fails); YES on `_template` refused
-- **`verify_os_gate.sh`** - requires installed `prompts/_dispatch/dispatch-algorithm.md` and `model-shapes.md` (min size), not cheatsheets alone
-- **Role tables** - prompt shape column on program SPEC and phase0 synthesis templates
-- **`orca-recipes.md`** - pin agent+model (zai-coding-plan/glm-5.2, opencode-go/deepseek-v4-pro, codex), `tui-idle` before send, file-first dual; no forced orchestration task API
-- **Session policy / production-playbook** - same reviewer session for rounds 1..N; fresh executor after YES + verified hash
-- **`install_bootstrap_lite.sh`** - uses lite templates only
-- **`install_workstream.sh` / `install_project_os.sh`** - SPEC+PLAN as `*.tmpl` sources; no materialised fake live PLAN in `_template`
-- **Dispatch pack** - self-contained sibling refs in installed algorithm; model-shape heuristics labeled (GPT-5.6 remains OpenAI SoT)
-- **VERSION / skill README EN+RU** - 0.6.1
+- **`verify_stamp_schema.sh`** - `AGREED=YES` только с настоящим 64-hex hash; заглушки и YES на `_template` - fail
+- **`verify_os_gate.sh`** - полная установка: cheatsheets **и** `dispatch-algorithm.md` + `model-shapes.md`
+- **Role tables** - в SPEC и Phase 0 появилась колонка формы промпта (shape) по роли
+- **`orca-recipes.md`** - pin CLI+модели: **Codex = GPT-5.6**, **OpenCode = GLM 5.2 / DeepSeek V4 Pro**, Claude Code / Grok; ждать `tui-idle`, итог dual - **файлы**; task API по желанию
+- **Session policy / production-playbook** - ревью rounds 1..N в одной сессии; execute - новая сессия после проверенного hash
+- **`install_bootstrap_lite.sh`** - только lite-шаблоны
+- **`install_workstream.sh` / `install_project_os.sh`** - SPEC/PLAN как `*.tmpl`; без «живого» PLAN в `_template`
+- **Dispatch pack** - ссылки на соседние файлы в установленном пакете; GPT-5.6 - lean Goal/Success/Stop (OpenAI)
+- **README скилла EN+RU** - стек оболочек выровнен; блок «что нового в 0.6.1» человеческим языком
+- **VERSION** - 0.6.1
 
 ### Fixed
-- **`verify_l0_inputs.sh`** - treat `.grok/` as a directory (`-d`), not a file
-- **Stamp / wave UX** - stamp template and waves README document MD=XML, hash steps, and pre-execute gate
+- **`verify_l0_inputs.sh`** - `.grok/` как каталог (`-d`), не файл
+- **Stamp / wave UX** - MD и XML равноценны; когда хэшируем; почему execute перепроверяет hash
+- **Стек в README** - GPT-5.6 больше не «внутри OpenCode»: **Codex → GPT-5.6**; OpenCode → GLM + DeepSeek
 
 ### Notes
-- Dual audit trail stays private under `research/` (gitignored). No new skill name; no wave-spec absorb.
-- Deferred (not blocking): intake classifier polish, openai.yaml chip copy, conditional CLAUDE.md on full install.
+- Новый skill name не создавали; wave-spec не поглощали.
+- Отложено (не блокер): polish intake/classify, openai.yaml chip, условный `CLAUDE.md` при full install.
+- Типичный стек автора: Grok 4.5 (lead) · Claude Code + GLM 5.2 (lead) · OpenCode + GLM/DeepSeek (workers) · **Codex + GPT-5.6** (ревью / dual).
 
 ## [0.6.0] - 2026-07-15
 
@@ -49,7 +52,7 @@
   - Phase 0 / dual-review / raeh-execute / install-dialects: обязательный dispatch-algorithm; в `prompts/_dispatch/` ставятся `model-shapes.md` + `dispatch-algorithm.md`
   - План волны: если стоит **wave-spec** - зовём его; иначе шаблоны в пакете; `.md` и `.xml` для hash равноценны
   - README (EN/RU) человеческим языком: когда надо, как папки, когда помогает / нет, откуда идеи
-  - Заметки автора: зачем [Orca](https://onorca.dev) ([stablyai/orca](https://github.com/stablyai/orca)), плюсы и минусы, стек (Grok 4.5, Claude Code + GLM 5.2, OpenCode + DeepSeek/GLM)
+  - Заметки автора: зачем [Orca](https://onorca.dev) ([stablyai/orca](https://github.com/stablyai/orca)), плюсы и минусы, стек (Grok 4.5; Claude Code + GLM 5.2; OpenCode + GLM/DeepSeek; **Codex + GPT-5.6**)
 
 ### Changed
 - **description** в frontmatter - ловит wave / тему / boot / intake; больше не отшивает черновик волны как «чужой скилл»
