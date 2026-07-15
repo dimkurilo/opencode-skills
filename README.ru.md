@@ -11,7 +11,7 @@
 | Скилл | Описание |
 |-------|----------|
 | [project-bootstrap](skills/project-bootstrap/) | «Дом» для одного агента по [Agent Playbook](https://agents.md). **v2**: Variant E (правила в начале и конце файла), GRACE-якоря, классификация проекта (ops / код / агент / контент), closing anchors под DeepSeek и GLM, двойной аудит. Пишет AGENTS.md, SESSION_HANDOFF.md, MEMORY.md, правила, скиллы, персоны, слеш-команды. 14 шаблонов, 50+ переменных, 6 фаз. [Подробнее](skills/project-bootstrap/README.ru.md) |
-| [project-orchestra](skills/project-orchestra/) | **v0.6 - несколько агентов на одном продукте.** Сначала смотрит папку, при нужде задаёт вопросы, потом общая память, темы-подпапки, волны и файл «можно делать». Режимы: `full`, `workstream-new`, `wave`, `bootstrap-lite`, review/execute, `extend`. Удобно с [Orca](https://onorca.dev). [Подробнее](skills/project-orchestra/README.ru.md) |
+| [project-orchestra](skills/project-orchestra/) | **v0.6.1 - несколько агентов на одном продукте.** Сначала смотрит папку, при нужде задаёт вопросы, потом общая память, темы-подпапки, волны и файл «можно делать» с реальным hash-gate. Режимы: `full`, `workstream-new`, `wave`, `bootstrap-lite`, review/execute, `extend`. Удобно с [Orca](https://onorca.dev). [Подробнее](skills/project-orchestra/README.ru.md) |
 | [vs-architect](skills/vs-architect/) | Verbalized Sampling (arXiv 2510.01171): несколько вариантов решения с оценками вероятности - архитектура, отладка, стратегия, креатив. |
 
 ### Какой скилл когда?
@@ -62,7 +62,7 @@ opencode-skills/
 ├── .gitignore
 └── skills/
     ├── project-bootstrap/           # Single-CLI Agent Playbook
-    ├── project-orchestra/  # Несколько агентов на одном продукте (v0.6)
+    ├── project-orchestra/  # Несколько агентов на одном продукте (v0.6.1)
     └── vs-architect/                # Verbalized Sampling
 ```
 

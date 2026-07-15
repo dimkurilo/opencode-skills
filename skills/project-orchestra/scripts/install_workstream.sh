@@ -20,10 +20,11 @@ Creates:
   <parent>/<slug>/STATUS.md
   <parent>/<slug>/README.md
   <parent>/<slug>/INTENT.md
-  <parent>/<slug>/waves/_template/  (REVIEW-STAMP, EXEC-REPORT, STATUS, PLAN.md)
+  <parent>/<slug>/waves/_template/  (REVIEW-STAMP, EXEC-REPORT, STATUS, PLAN.md.tmpl, SPEC.md.tmpl)
 
 Does NOT create a second SESSION_HANDOFF or MEMORY (parent owns those).
 Does NOT run full OS install — use install_project_os.sh (or bootstrap-lite) on parent first.
+Live waves need SPEC+PLAN materialised under waves/<date-slug>/ then verify_wave_ready.sh.
 EOF
   [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]] && exit 0
   exit 1
@@ -124,14 +125,16 @@ copy_file "$T/waves/README.md.tmpl" "$WS_DIR/waves/README.md"
 copy_file "$T/waves/_template/REVIEW-STAMP.md.tmpl" "$WS_DIR/waves/_template/REVIEW-STAMP.md"
 copy_file "$T/waves/_template/EXEC-REPORT.md.tmpl" "$WS_DIR/waves/_template/EXEC-REPORT.md"
 copy_file "$T/waves/_template/STATUS.md.tmpl" "$WS_DIR/waves/_template/STATUS.md"
+# Keep SPEC/PLAN as *.tmpl under _template (sources). Materialise only into live wave dirs.
 copy_file "$T/waves/_template/PLAN.md.tmpl" "$WS_DIR/waves/_template/PLAN.md.tmpl"
-# Also materialize a ready PLAN.md copy for convenience
-copy_file "$T/waves/_template/PLAN.md.tmpl" "$WS_DIR/waves/_template/PLAN.md"
+copy_file "$T/waves/SPEC.md.tmpl" "$WS_DIR/waves/_template/SPEC.md.tmpl"
 
 echo ""
 echo "OK workstream ready: $WS_DIR"
 echo "Next:"
 echo "  - Fill INTENT.md / STATUS.md"
 echo "  - /project-orchestra mode wave  (peer wave-spec if installed, else templates)"
+echo "  - Copy waves/_template/{SPEC,PLAN}.md.tmpl → waves/<date-slug>/{SPEC,PLAN}.md then:"
+echo "      bash \$SKILL_DIR/scripts/verify_wave_ready.sh <wave_dir>"
 echo "  - Parent keeps single SESSION_HANDOFF.md + MEMORY.md"
 exit 0

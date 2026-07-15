@@ -1,0 +1,175 @@
+# Как писать задачи разным моделям
+
+В скилле два слоя. Их не смешивать.
+
+| Слой | Что это | Где |
+|------|---------|-----|
+| **Роль** | executor / orchestrator / auditor / flash | `assets/templates/profiles/`, `prompts/_dispatch/` |
+| **Семья модели** | DeepSeek, GLM, Grok, GPT-5.6 - разная «несущая» форма | этот файл |
+
+Роль выбирает **зачем** (сделать / спланировать / проверить).  
+Семья модели - **как сформулировать** задачу, чтобы модель не тонула в простыне.
+
+Полные личные гайды автора (метапромпты, длинные шаблоны) живут **вне** публичного пакета. Сюда - короткая шпаргалка для диспатча.
+
+---
+
+## Сравнение одной таблицей
+
+| | DeepSeek V4 | GLM 5.2 | Grok 4.5 | GPT-5.6 |
+|--|-------------|---------|----------|---------|
+| Несущие блоки | **что / где / done** | **Goal → Context → Constraints → Done** | **Task + Done** (+ Autonomy) | **Goal + Success + Stop** |
+| Thinking | не тащить `【】` в файлы; control через harness/API | **не** писать «думай»; только API `thinking` | effort через API | effort / pro - **API**, не «think step by step» |
+| Любит | under-structure, ясно «что и где» | structured long-horizon | outcome + проверка | **lean** contract, без толстого process dump |
+| Частый провал | всё слитно в одну простыню | persona вместо Goal; process в тексте | Task без Done-path | повтор scaffolding, «Be concise» ×10, thick dump |
+
+**Правило:** не копируй форму одной семьи на другую «как есть».
+
+---
+
+## Минимальные скелеты
+
+### DeepSeek - что / где / done
+
+```markdown
+Сделай: [глагол + результат]
+Где: [`path`, `path:line`, URL, id]
+Готово когда: [файл / цифра / тест - конкретно]
+
+Контекст (коротко): [зачем]
+Не трогать: […]
+```
+
+### GLM 5.2 - Goal … Done
+
+```markdown
+### Goal
+[1-2 предложения]
+
+### Context
+- Файлы: […]
+- Сейчас: […]
+- Почему: […]
+
+### Constraints
+- Не трогать: […]
+- Стиль / границы: […]
+
+### Done
+- [артефакт path]
+- [как проверить]
+```
+
+Не пиши: «think step by step», `【】`, «включи deep thinking».
+
+### Grok 4.5 - Task + Done
+
+```markdown
+## Task
+[verb + concrete result]
+
+## Done when
+- path/to/artifact
+
+## Autonomy
+- tools OK in scope
+- no STATUS/MEMORY edits
+- 2× fail → Failure Packet
+
+## Context (minimal)
+[pointers, not dump]
+```
+
+Близко к профилю `executor-task-done`.
+
+### GPT-5.6 - Goal + Success + Stop (lean)
+
+```markdown
+### Goal
+[verb-first: user-visible outcome]
+
+### Success
+- Acceptance: [что true до final]
+- Validation: [test / curl / lint - или почему skip]
+
+### Context
+- Файлы: [`path`]
+- Сейчас: […]
+- Evidence: [что есть / чего нет]
+
+### Constraints
+- ALWAYS/NEVER только invariants
+- Не трогать: […]
+
+### Autonomy
+- Без спроса: [local read/edit/tests]
+- Спросить: [external / destructive / scope expand]
+
+### Output
+- [shape deliverable]
+
+### Stop
+- Answer when: […]
+- Ask when: [smallest missing field]
+```
+
+**Не пиши в текст:** «use pro mode», «думай глубже», DeepSeek-`【】`, «Be concise» как единственный length control.  
+Thinking / verbosity - параметры API harness, не абзацы промпта.
+
+Толстый process dump и повтор одних и тех же правил GPT-5.6 часто **ухудшают** качество и жрут токены. Goal + Success несут нагрузку.
+
+---
+
+## Связка с ролями (dispatch)
+
+| Роль (profile) | Удачная семья «по умолчанию» | Почему |
+|----------------|------------------------------|--------|
+| `executor-task-done` | Grok, DeepSeek | Task/что + Done-path |
+| `orchestrator-goal-context` | GLM, GPT-5.6 | Goal/Context/Done или Goal/Success |
+| `auditor-what-where` | DeepSeek, GLM | что проверить + где evidence |
+| `flash-oneshot` | любая lean | один output path |
+
+Можно смешивать: executor на DeepSeek, auditor на GPT-5.6 - **разные семьи** на dual-check лучше, чем два одинаковых «please review».
+
+---
+
+## Две сессии (Grok / GPT; полезно и остальным)
+
+| Сессия | Что кладёшь | Зачем |
+|--------|-------------|--------|
+| A (мета) | поток мыслей + «собери промпт по шаблону» | получить **чистый** contract |
+| B (работа) | **только** заполненный шаблон | выполнить задачу |
+
+В B **не** оставляй мета-инструкцию «переформулируй» и пустые `[скобки]`.
+
+---
+
+## Anti-patterns (все семьи)
+
+- Done = «сделай хорошо» без path / test  
+- Весь AGENTS.md в каждый worker dispatch  
+- Одинаковый промпт двум моделям и «это dual-review»  
+- Thinking-директивы в тексте, когда control - API  
+- Persona («ты senior…») вместо Goal/Task  
+
+См. также: `profile-selection.md`, `anti-patterns.md`, `dispatch-iron.md`.
+
+---
+
+## GPT-5.6 - official SoT
+
+OpenAI: [Prompting guidance for GPT-5.6 Sol](https://developers.openai.com/api/docs/guides/prompt-guidance-gpt-5p6)
+
+Aligned with our kit:
+
+| OpenAI | Orchestra use |
+|--------|----------------|
+| Outcome + constraints + evidence + completion bar | Goal + Success + Stop |
+| Lean prompts (drop repeated process) | Never paste full AGENTS into worker |
+| Autonomy / approval boundaries | stamp, G1, write locks |
+| Effort / verbosity = API | pin in Orca command, not prose |
+| Check work before finish | Success validation + EXEC-REPORT |
+
+**Algorithm:** every dispatch runs `references/dispatch-algorithm.md` (role → family → shape → pin → send → identity gate).
+
+Terra / Sol / Luna are product variants of the same family - still use **Goal + Success + Stop**.

@@ -13,7 +13,7 @@ description: >
   ready), or creating a new skill package.
 metadata:
   short-description: One-door multi-agent program OS (workstream + wave + R.A.E.H.)
-  version: "0.6.0"
+  version: "0.6.1"
   kit: multiagent-kit-1.1
 ---
 
@@ -62,6 +62,7 @@ After the scan, output a short **proposal** (what you think is going on + recomm
 4. **Horizon:** one short task, multi-session wave, or long multi-theme program?
 5. **Risk:** anything production / money / public ship this session? (dual-review yes/no)
 6. If large repo: **which path/theme** is in scope this session?
+7. If multi-model: **default roster** (who leads, who executes, who audits - families e.g. Grok / GLM / DeepSeek / GPT-5.6)?
 
 **Ambiguity rules:**
 - workstream vs wave unclear → ask that **one** question first.
@@ -120,6 +121,7 @@ Details: `references/intake.md`.
 | G1 | Human before heavy/prod-bound execute (or pre-approved policy) |
 | G-deploy | Human + domain safety ritual for production mutate |
 | F-04 | Cross-audit important synthesis with **different model family** |
+| Dispatch | Every worker brief: **role + model family + prompt shape** (`references/dispatch-algorithm.md`). Missing shape = invalid dual claim |
 
 **Forbidden:** chat/subject “AGREED” when stamp file ≠ YES. Stamp file wins.
 
@@ -154,8 +156,10 @@ Write locks and when a separate root is OK: `references/monorepo-workstreams.md`
 2. **If wave-spec is installed** → **peer-call** it (do not soft-invoke weasel: actually load and follow wave-spec for INTENT → SPEC → PLAN → human approve). Then return here for `raeh-review`.
 3. **Else** → use in-package templates:
    - `assets/templates/WAVE_BRIEF.md.tmpl`
-   - `assets/templates/waves/_template/PLAN.md.tmpl` (and existing REVIEW-STAMP / EXEC-REPORT)
-   - Optional: copy into `waves/<date-slug>/` under parent or workstream
+   - `assets/templates/waves/SPEC.md.tmpl` + `waves/_template/PLAN.md.tmpl`
+   - Existing REVIEW-STAMP / EXEC-REPORT under `waves/_template/`
+   - Copy into a **live** `waves/<date-slug>/` (never treat `_template` as the wave)
+   - `bash "$SKILL_DIR/scripts/verify_wave_ready.sh" waves/<date-slug>`
 4. MD or XML both valid. After draft → human approve → `raeh-review`.
 
 Contract: `references/composition.md`.
@@ -226,13 +230,16 @@ INTENT → Phase 0 Discovery → Phase 1 Architecture (L0) → Human G0
    ```
 4. Set `domain_novelty` = `FIRST_IN_PORTFOLIO` | `REPEAT_DOMAIN` | `TRANSFER`  
    Read `references/domain-novelty.md`.
-5. Draft role matrix from harness (not prestige). Template: `references/role-matrix.md`.
+5. Draft role matrix from harness (not prestige). Template: `references/role-matrix.md`.  
+   **Each active role row must include:** CLI + **model family** + default **prompt shape id**  
+   (from `references/model-prompt-shapes.md` / `dispatch-algorithm.md`). Example:  
+   `Executor | opencode | deepseek-v4-pro | shape:deepseek-what-where-done`.
 6. Self-assessment for any role ≥10% load → `references/self-assessment-brief.md`.
 7. **H-panel:** ON if FIRST (3–5 falsifiable Hs); OFF if REPEAT. Rules: `references/h-panel-rules.md`.  
    Template: `assets/templates/audits/h-panel/H-TEMPLATE.md.tmpl`.  
    If ≥3 FAIL/PARTIAL on single-model dominance → emit `ROLE_ARCHITECTURE_REQUIRED` (success).
 8. Platform study only if harness unknown.
-9. Write synthesis → `audits/phase0-role-synthesis.md` (from tmpl).
+9. Write synthesis → `audits/phase0-role-synthesis.md` (from tmpl). Include roster table with shape ids.
 
 ### Phase 1 — Architecture decision
 
@@ -250,8 +257,11 @@ INTENT → Phase 0 Discovery → Phase 1 Architecture (L0) → Human G0
 ### Phase 2 — Wire protocols
 
 1. Install wave R.A.E.H. tree from `assets/templates/waves/`.
-2. Install dispatch cheatsheets from `assets/templates/prompts/_dispatch/` + profiles.
-3. Encode orchestrator rule: **never execute without stamp YES**.
+2. Install dispatch pack from `assets/templates/prompts/_dispatch/` + profiles:  
+   role cheatsheets **and** `model-shapes.md` + `dispatch-algorithm.md`.
+3. Encode orchestrator rules:  
+   - **never execute without stamp YES**;  
+   - **every worker send** follows dispatch algorithm (role → family → shape → pin → file → send).
 4. Verify:
    ```bash
    bash "$SKILL_DIR/scripts/verify_raeh_ready.sh" "$PROJECT_DIR"
@@ -318,15 +328,22 @@ DRAFT (wave mode / wave-spec peer) → REVIEW* (Stamp Dialogue) → AGREE (YES +
    - Open deltas table if NO
    - Execute blockers / next action
 4. Validate: `bash "$SKILL_DIR/scripts/verify_stamp_schema.sh" <stamp-path>`
-5. On YES: `bash "$SKILL_DIR/scripts/hash_acceptance.sh" <wave-dir>`
+5. On YES: `bash "$SKILL_DIR/scripts/hash_acceptance.sh" <wave-dir>` then put **64-hex** into stamp `SPEC_HASH` (placeholders fail schema).
 
 ### raeh-execute
 
-1. Refuse unless stamp `AGREED: YES` and hash matches.
-2. Execute only approved PLAN scope; write `EXEC-REPORT.md` with evidence paths.
-3. Executor does **not** edit STATUS.md / MEMORY.md (orchestrator owns).
-4. Idempotency: waveId + phase + round + specHash + dispatchId (`references/idempotency.md`).
-5. New session **per wave**; same session across review rounds.
+1. Refuse unless stamp `AGREED: YES` **and** hash matches live SPEC+PLAN:
+   ```bash
+   bash "$SKILL_DIR/scripts/verify_stamp_schema.sh" <wave-dir>
+   bash "$SKILL_DIR/scripts/verify_stamp_hash.sh" <wave-dir>
+   ```
+2. Build executor brief via **dispatch algorithm**  
+   (`role=executor` + executor family shape + output=`EXEC-REPORT.md`).  
+   GPT-5.6 executor → lean Goal/Success/Stop (OpenAI guidance), not GLM/DeepSeek form.
+3. Execute only approved PLAN scope; write `EXEC-REPORT.md` with evidence paths.
+4. Executor does **not** edit STATUS.md / MEMORY.md (orchestrator owns). Executor does **not** re-stamp.
+5. Idempotency: waveId + phase + round + specHash + dispatchId (`references/idempotency.md`).
+6. **Same reviewer session** for rounds 1..N; **fresh executor session** after YES + verified hash.
 
 Lightweight: tiny doc tweak / no acceptance change → skip stamp. Flash one-shot → no session. Emergency → human + short stamp.
 
@@ -336,24 +353,38 @@ Lightweight: tiny doc tweak / no acceptance change → skip stamp. Flash one-sho
 
 | When dual required | Who | How |
 |--------------------|-----|-----|
-| Gate-critical plan / ship skill description / high-stakes synthesis | Two **different model families** | Prefer Orca: **two terminals** in parallel; pin agent+model |
+| Gate-critical plan / ship skill description / high-stakes synthesis | Two **different model families** | Orca: **two terminals**; **two shapes** (algorithm per worker) |
 | Dual unavailable | Document `DEGRADED_DUAL` | Single family + bias warning; do not fake dual |
 
-**Never** two parallel bare `opencode run` (DB lock). Parallel workers = Orca `terminal create` ×2 + task/dispatch.  
-Details: `references/production-playbook.md`, `references/orca-recipes.md`, `references/dispatch-iron.md`.
+**Per worker (mandatory):** run `references/dispatch-algorithm.md`  
+→ role → family → prompt shape → pin CLI/model/effort → write brief file → send → identity gate.
+
+**GPT-5.6 worker:** shape `gpt56-goal-success-stop` (Goal + Success + Stop, lean).  
+Official: [OpenAI GPT-5.6 prompt guidance](https://developers.openai.com/api/docs/guides/prompt-guidance-gpt-5p6).  
+Effort/pro/verbosity = API pin, not “think step by step” in prose.
+
+**Never** two parallel bare `opencode run` (DB lock).  
+Details: `production-playbook.md`, `orca-recipes.md`, `dispatch-iron.md`, `dispatch-algorithm.md`.
 
 ---
 
 ## Dispatch dialects (`install-dialects`)
 
-Profiles (role + model family quirks, not prestige):
+Two layers - both required for multi-model work:
 
-| Profile | Shape | Typical role |
-|---------|-------|--------------|
-| `executor-task-done` | Task → Done (paths) → Autonomy | Wave Executor |
-| `orchestrator-goal-context` | Goal → Context → Constraints → Done | Orchestrator |
-| `auditor-what-where` | What → Where → Readiness (+ discipline) | Cross-auditor |
-| `flash-oneshot` | Single call, single output path | Stateless pull |
+| Layer | What | Source |
+|-------|------|--------|
+| **Role profile** | executor / orchestrator / auditor / flash | `profiles/`, role cheatsheets |
+| **Model shape** | DeepSeek / GLM / Grok / **GPT-5.6** skeletons | `model-shapes.md` |
+| **Algorithm** | role → family → shape → pin → send | `dispatch-algorithm.md` |
+
+| Profile | Default form | Typical role |
+|---------|--------------|--------------|
+| `executor-task-done` | Task → Done (paths) → Autonomy | Wave Executor (often Grok/DeepSeek) |
+| `orchestrator-goal-context` | Goal → Context → Done | Orchestrator (often GLM) |
+| `auditor-what-where` | What → Where → Readiness | Cross-auditor |
+| `flash-oneshot` | Single output path | Stateless pull |
+| *(family override)* | GPT-5.6 always prefers **Goal + Success + Stop** lean | Any role on GPT-5.6 |
 
 Install to project:
 ```
@@ -362,11 +393,15 @@ prompts/_dispatch/
 ├── executor-cheatsheet.md
 ├── orchestrator-cheatsheet.md
 ├── auditor-cheatsheet.md
-└── flash-cheatsheet.md
+├── flash-cheatsheet.md
+├── model-shapes.md
+└── dispatch-algorithm.md
 ```
 
 Sources: `assets/templates/prompts/_dispatch/` and `assets/templates/profiles/`.  
-Selection: `references/profile-selection.md`. Anti-patterns: `references/anti-patterns.md`.
+Selection: `references/profile-selection.md` + **`references/dispatch-algorithm.md`**.  
+Shapes: `references/model-prompt-shapes.md`.  
+Anti-patterns: `references/anti-patterns.md`.
 
 ---
 
@@ -382,8 +417,10 @@ Selection: `references/profile-selection.md`. Anti-patterns: `references/anti-pa
 | `scripts/verify_os_gate.sh` | Phase 3 done checks |
 | `scripts/verify_l0_inputs.sh` | lists canon files for L0 |
 | `scripts/verify_handoff_gate.sh` | handoff/MEMORY/AGENTS separation |
-| `scripts/verify_stamp_schema.sh` | required stamp fields; YES requires real hash (not CHECKLIST_VERSION alone) |
-| `scripts/verify_raeh_ready.sh` | waves/_template + README |
+| `scripts/verify_stamp_schema.sh` | required stamp fields; YES requires **64-hex** hash (not placeholder / CHECKLIST_VERSION) |
+| `scripts/verify_stamp_hash.sh` | **pre-execute**: re-hash stamp SPEC_PATH+PLAN_PATH vs SPEC_HASH |
+| `scripts/verify_wave_ready.sh` | **live** wave has SPEC+PLAN+stamp (not `_template`) |
+| `scripts/verify_raeh_ready.sh` | waves/_template skeleton + README (install only) |
 | `scripts/hash_acceptance.sh` | sha256 SPEC+PLAN (xml **or** md) → acceptance.hash |
 
 All accept `[project_dir]` or path args; support `--help`; exit 0 on pass.
@@ -431,7 +468,8 @@ Program architecture = `SPEC.md`. Wave contracts = `waves/*/SPEC.{xml|md}` + `PL
 | `references/composition.md` | wave-spec peer-call vs templates; bootstrap boundary |
 | `references/monorepo-workstreams.md` | Parent vs workstream write locks |
 | `references/production-playbook.md` | Universal loop; dual-review gate table; DEGRADED_DUAL |
-| `references/dispatch-iron.md` | Pin agent+model; F-04 vs stress; identity gate |
+| `references/dispatch-algorithm.md` | **Mandatory** role × family × shape before every worker send |
+| `references/dispatch-iron.md` | Pin agent+model+shape; F-04 vs stress; identity gate |
 | `references/orca-recipes.md` | Dual-terminal parallel workers (no headless double-run) |
 | `references/domain-novelty.md` | FIRST / REPEAT / TRANSFER |
 | `references/h-panel-rules.md` | Falsifiable Hs |
@@ -448,7 +486,8 @@ Program architecture = `SPEC.md`. Wave contracts = `waves/*/SPEC.{xml|md}` + `PL
 | `references/session-policy.md` | Session per wave |
 | `references/idempotency.md` | Dispatch ids |
 | `references/metrics.md` | rounds-to-YES |
-| `references/profile-selection.md` | Dialect pick |
+| `references/profile-selection.md` | Role → profile |
+| `references/model-prompt-shapes.md` | How to phrase tasks for DeepSeek / GLM / Grok / GPT-5.6 |
 | `references/anti-patterns.md` | Dispatch fails |
 
 ---
@@ -463,7 +502,7 @@ Program architecture = `SPEC.md`. Wave contracts = `waves/*/SPEC.{xml|md}` + `PL
 | **vs-architect** | Optional helper in Phase 0 |
 | Domain skills | After OS ready — never embedded |
 
-Mirror install: keep identical trees at `~/.grok/skills/project-orchestra` and `~/.config/opencode/skills/project-orchestra` (symlink or copy; `VERSION` pin **0.6.0**). No project-specific hostnames in package.
+Mirror install: keep identical trees at `~/.grok/skills/project-orchestra` and `~/.config/opencode/skills/project-orchestra` (symlink or copy; `VERSION` pin **0.6.1**). No project-specific hostnames in package.
 
 ## Anti-patterns
 
@@ -475,5 +514,6 @@ Mirror install: keep identical trees at `~/.grok/skills/project-orchestra` and `
 - Executor edits STATUS/MEMORY  
 - One eternal multi-wave session  
 - Two bare parallel `opencode run` (use Orca dual terminals)  
+- Worker brief without model family prompt shape (especially GPT-5.6 thick dump)  
 - Domain residue (site hostnames, CMS-only rules) inside skill package  
 - Creating a new skill name instead of extending this one door  

@@ -26,7 +26,7 @@ It packages kit members as **modes** (not separate skill names).
 | Situation | Action |
 |-----------|--------|
 | wave-spec skill **installed** (skill root exists under grok/opencode/project skills) | **Peer-call**: load and follow wave-spec for draft. Do not reimplement its interview/XML pipeline. After draft → return to `raeh-review`. |
-| wave-spec **not** installed | Use **in-package templates**: `WAVE_BRIEF.md.tmpl`, `waves/_template/PLAN.md.tmpl`, stamp/exec templates. MD preferred when no wave-spec. |
+| wave-spec **not** installed | Use **in-package templates**: `WAVE_BRIEF.md.tmpl`, `waves/SPEC.md.tmpl`, `waves/_template/PLAN.md.tmpl`, stamp/exec templates → copy into **live** `waves/<slug>/`. MD preferred when no wave-spec. Then `verify_wave_ready.sh`. |
 | Soft-invoke without loading | **Forbidden.** Either peer-call for real or template for real. Document which path was used in wave STATUS. |
 
 ### MD = XML policy

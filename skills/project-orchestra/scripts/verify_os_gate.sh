@@ -14,7 +14,9 @@ Usage: bash verify_os_gate.sh [project_dir]
 Required: AGENTS.md, SPEC.md, STATUS.md, SESSION_HANDOFF.md,
           .agents/memory/MEMORY.md, plan.md, .gitignore,
           waves/README.md, waves/_template/REVIEW-STAMP.md,
-          prompts/_dispatch/ (at least one cheatsheet)
+          prompts/_dispatch/dispatch-algorithm.md,
+          prompts/_dispatch/model-shapes.md,
+          prompts/_dispatch/ (>=3 cheatsheets)
 EOF
   exit 0
 fi
@@ -67,6 +69,30 @@ req_dir "prompts/_dispatch"
 req_dir "audits"
 req_dir "docs"
 
+# Mandatory dispatch pack (algorithm + shapes)
+req_dispatch_file() {
+  local path="$1"
+  local min_bytes="${2:-80}"
+  if [[ -f "$PROJECT_DIR/$path" ]]; then
+    local sz
+    sz=$(wc -c < "$PROJECT_DIR/$path" | tr -d ' ')
+    if [[ "$sz" -ge "$min_bytes" ]]; then
+      echo "PASS: $path ($sz bytes)"
+      PASS=$((PASS + 1))
+    else
+      echo "FAIL: $path too small ($sz < $min_bytes bytes)"
+      ERRORS+="FAIL: $path size\n"
+      FAIL=$((FAIL + 1))
+    fi
+  else
+    echo "FAIL: missing $path"
+    ERRORS+="FAIL: $path\n"
+    FAIL=$((FAIL + 1))
+  fi
+}
+req_dispatch_file "prompts/_dispatch/dispatch-algorithm.md" 200
+req_dispatch_file "prompts/_dispatch/model-shapes.md" 200
+
 # At least 3 cheatsheets in _dispatch
 CHEAT_COUNT=0
 if [[ -d "$PROJECT_DIR/prompts/_dispatch" ]]; then
@@ -87,5 +113,5 @@ if [[ $FAIL -gt 0 ]]; then
   echo -e "$ERRORS"
   exit 1
 fi
-echo "Gate PASSED. Project OS skeleton complete."
+echo "Gate PASSED. Project OS skeleton present (fill role placeholders next)."
 exit 0
