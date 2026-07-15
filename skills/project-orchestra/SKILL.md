@@ -13,7 +13,7 @@ description: >
   ready), or creating a new skill package.
 metadata:
   short-description: One-door multi-agent program OS (workstream + wave + R.A.E.H.)
-  version: "1.1.0"
+  version: "0.6.0"
   kit: multiagent-kit-1.1
 ---
 
@@ -463,7 +463,7 @@ Program architecture = `SPEC.md`. Wave contracts = `waves/*/SPEC.{xml|md}` + `PL
 | **vs-architect** | Optional helper in Phase 0 |
 | Domain skills | After OS ready — never embedded |
 
-Mirror install: keep identical trees at `~/.grok/skills/project-orchestra` and `~/.config/opencode/skills/project-orchestra` (symlink or copy; `VERSION` pin **1.1.0**). No project-specific hostnames in package.
+Mirror install: keep identical trees at `~/.grok/skills/project-orchestra` and `~/.config/opencode/skills/project-orchestra` (symlink or copy; `VERSION` pin **0.6.0**). No project-specific hostnames in package.
 
 ## Anti-patterns
 

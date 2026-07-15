@@ -4,7 +4,7 @@
 
 | Check | Pass |
 |-------|------|
-| K1 | Skill dir + VERSION=1.0.0 |
+| K1 | Skill dir + VERSION=0.6.0 |
 | K2 | SKILL.md frontmatter name+description |
 | K3 | references/composition.md present |
 | K4 | Templates non-empty |

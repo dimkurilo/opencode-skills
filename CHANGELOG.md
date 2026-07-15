@@ -10,7 +10,7 @@
 ## [0.6.0] - 2026-07-15
 
 ### Added
-- **project-orchestra v1.1.0** - один вход для «офиса» нескольких агентов: темы подпапками, волны, файл «можно делать», проверка двумя моделями, Orca.
+- **project-orchestra 0.6.0** - один вход для «офиса» нескольких агентов: темы подпапками, волны, файл «можно делать», проверка двумя моделями, Orca.
   - Режимы (не больше восьми): `full`, `workstream-new`, `wave`, `bootstrap-lite`, `raeh-review`, `raeh-execute`, `install-dialects`, `extend` (с нормальным описанием шагов)
   - Сначала смотрит папку проекта (git не обязателен), предлагает режим, при нужде задаёт 3-5 вопросов (`references/intake.md`)
   - `scripts/install_workstream.sh` - тема под корнем; **отказывается**, если нет `AGENTS.md` (override: `ALLOW_NO_PARENT=1`)
@@ -23,7 +23,7 @@
 
 ### Changed
 - **description** в frontmatter - ловит wave / тему / boot / intake; больше не отшивает черновик волны как «чужой скилл»
-- **README** (скилл EN/RU + строка в корневых README) - один вход, версия 1.1.0
+- **README** (скилл EN/RU + строка в корневых README) - один вход, версия 0.6.0
 - **docs** - humanizer-ru по публичным README: project-bootstrap, vs-architect, корень EN/RU; проза CHANGELOG без длинных тире и канцелярита
 - **`.gitignore`** - `research/`, `skills/**/research/` (внутренняя кухня не публикуется)
 
@@ -47,7 +47,7 @@
 ## [0.5.0] - 2026-07-13
 
 ### Added
-- **project-orchestra v1.0.0 (Multi-Agent Kit)** - bootstrap multi-CLI multi-wave program OS for OpenCode + Grok.
+- **project-orchestra (первый пакет, monorepo 0.5.0; Multi-Agent Kit)** - bootstrap multi-CLI multi-wave program OS for OpenCode + Grok.
   - Modes: `full`, `roles-only`, `wire-raeh`, `extend`, `cleanup`, `raeh-review`, `raeh-execute`, `install-dialects`
   - Phases 0-4: harness inventory, domain_novelty H-panel (FIRST on / REPEAT off), role matrix, L0 consistency, Stamp Dialogue + R.A.E.H., dispatch dialects, archive hygiene
   - Scripts: `classify_program.sh`, `inventory_harness.sh`, `install_project_os.sh`, `verify_os_gate.sh`, `verify_l0_inputs.sh`, `verify_handoff_gate.sh`, `verify_raeh_ready.sh`, `verify_stamp_schema.sh`, `hash_acceptance.sh`
