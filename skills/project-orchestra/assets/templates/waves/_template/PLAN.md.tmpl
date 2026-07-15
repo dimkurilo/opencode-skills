@@ -1,0 +1,44 @@
+# PLAN — ${WAVE_ID}
+
+> Markdown wave plan (equal to PLAN.xml for stamp + hash).  
+> Prefer this when wave-spec is not installed.
+
+| Field | Value |
+|-------|-------|
+| wave | ${WAVE_ID} |
+| date | ${DATE} |
+| workstream / parent | ${PARENT_OR_WS} |
+
+## Goal
+
+${GOAL}
+
+## Steps
+
+| # | Step | Owner | Output path | Done when |
+|---|------|-------|-------------|-----------|
+| 1 | ${STEP_1} | ${OWNER_1} | ${OUT_1} | ${DONE_1} |
+| 2 | ${STEP_2} | ${OWNER_2} | ${OUT_2} | ${DONE_2} |
+
+## Out of scope
+
+- ${OUT_OF_SCOPE}
+
+## Risks
+
+| Risk | Mitigation |
+|------|------------|
+| ${RISK} | ${MITIGATION} |
+
+## Verify
+
+```bash
+# after stamp YES:
+# bash hash_acceptance.sh <wave_dir>
+```
+
+## Execute constraints
+
+- Only this PLAN scope
+- No STATUS/MEMORY/HANDOFF edits by executor
+- Evidence paths in EXEC-REPORT.md

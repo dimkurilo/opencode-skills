@@ -1,83 +1,87 @@
-# Project Bootstrap v2 — Agent Infrastructure Generator
+# Project Bootstrap v2 - agent infrastructure generator
 
 🇷🇺 [Русская версия](README.ru.md)
 
-A skill for [opencode](https://github.com/opencode-ai/opencode) agents that bootstraps complete agent infrastructure for projects of any type following the [Agent Playbook](https://agents.md) standard.
+A skill for [opencode](https://github.com/opencode-ai/opencode): in one session it builds an agent “home” for a project, following the [Agent Playbook](https://agents.md) standard.
 
-**v2** adds Variant E architecture (rules in primacy + recency = inevitable), GRACE semantic anchors for grep-able rule discovery, and adaptive project classification.
+**v2** adds Variant E (rules at the start and end of the file so they are harder to skip), GRACE anchors (rules findable with `grep`), and template choice by project type.
 
-## Why this exists
+## Why it exists
 
-When starting a new project with an AI agent, the first few sessions are spent inventing structure: where to store rules, how to preserve context between sessions, where to put scripts. Project-bootstrap handles this in one session — describe your task as a stream of thought, and get a ready-to-use `.agents/` structure with AGENTS.md, memory, rules, and skills.
+A new project with an AI agent often starts by inventing structure: where rules live, how to keep context across sessions, where scripts go. Project-bootstrap does that in one session - you describe the task as a stream of thought and get a ready `.agents/` tree with AGENTS.md, memory, rules, and skills.
 
-The skill is **universal** and **model-adaptive**: works for technical projects (backups, servers, integrations), business projects (marketing digitization), and personal projects (job search, resume building). Adapts templates to the target model (DeepSeek V4, GLM 5+, universal).
+It fits technical work (backups, servers, integrations), business work (marketing digitization), and personal work (job search, resume). Templates adapt to the target model: DeepSeek V4, GLM 5+, universal.
 
-## What types of projects it suits
+## Project types
 
-| Project type | Examples | Variant | What it creates |
-|-------------|---------|---------|-----------------|
-| Ops / Server | Docker, backups, CI/CD, monitoring | `variant-e-full` | Full preamble + checklist + gotchas + failure packet + hierarchy + closing anchors |
-| Code | JS/TS/Python, tests, integrations | `variant-e-grace` | Variant E + GRACE anchors in code files |
-| Agent | Skills, prompts, model configs | `variant-e-model` | Model-specific closing anchors (DeepSeek/GLM) |
-| Content / Business | Articles, analytics, briefs | `lightweight` | Preamble without technical rules |
-| Undetermined | <3 files, new project | `base` | Minimal template with upgrade suggestion |
+| Type | Examples | Variant | What you get |
+|------|----------|---------|--------------|
+| Ops / server | Docker, backups, CI/CD, monitoring | `variant-e-full` | Full preamble, checklist, gotchas, failure packet, hierarchy, closing anchors |
+| Code | JS/TS/Python, tests, integrations | `variant-e-grace` | Variant E and GRACE anchors in files |
+| Agent | Skills, prompts, model configs | `variant-e-model` | Closing anchors tuned for DeepSeek or GLM |
+| Content / business | Articles, analytics, briefs | `lightweight` | Preamble without technical rules |
+| Unclear | fewer than three files, brand-new project | `base` | Minimal template with a nudge to upgrade later |
 
-## Which LLMs it works best with
+## Which LLMs it likes
 
-The skill is optimized for **DeepSeek V4** (Pro for main work, Flash for subagents). DeepSeek-specific features:
+Tuned for **DeepSeek V4** (Pro for main work, Flash for subagents). What that shapes:
 
-- **Closing Anchors** — critical rules placed at the end of AGENTS.md (DeepSeek V4 recency effect)
-- **CSA-aware grouping** — related rules grouped in one section (~4000 token precise context budget)
-- **Progressive Context (Level 1/2/3)** — tiered context instead of flat table
-- **Anti-Rationalization** — table of common agent excuses with rebuttals
-- **Adversarial Verification** — critical artifacts checked by a separate agent
+- **Closing Anchors** - critical rules at the end of AGENTS.md (DeepSeek V4 recency effect)
+- **CSA-aware grouping** - related rules in one section (about 4000 tokens of precise context budget)
+- **Progressive Context (Level 1/2/3)** - tiered context, not one flat table
+- **Anti-Rationalization** - common agent excuses with rebuttals
+- **Adversarial Verification** - critical artifacts checked by a separate agent
 
-The skill is **model-agnostic**: all templates and rules use standard Markdown with YAML frontmatter, works with any LLM backend (OpenAI, Anthropic, Qwen).
+Templates are plain Markdown with YAML frontmatter. Backend can be OpenAI, Anthropic, Qwen - DeepSeek is not required.
 
 ## What it creates
 
 | Module | Purpose |
 |--------|---------|
-| `plan.md` | Strategic plan for humans: phases (no statuses), decisions, blockers |
-| `AGENTS.md` | Main manifest: description, architecture, Progressive Context (L1/L2/L3), Closing Anchors |
-| `SESSION_HANDOFF.md` | Operational state: current phase, tasks, environment (.gitignore) |
-| `.gitignore` | Exclusions for secrets and SESSION_HANDOFF.md |
-| `.agents/memory/MEMORY.md` | Long-term memory (append-only): CONFIRMED_FACTS, UNRESOLVED_ISSUES, FAILED_APPROACHES, decisions |
-| `.agents/memory/YYYY-MM-DD.md` | Daily notes (for long-term projects) |
+| `plan.md` | Human-facing plan: phases (no statuses), decisions, blockers |
+| `AGENTS.md` | Manifest: description, architecture, Progressive Context (L1/L2/L3), Closing Anchors |
+| `SESSION_HANDOFF.md` | Current phase, tasks, environment (gitignored) |
+| `.gitignore` | Secrets and SESSION_HANDOFF.md |
+| `.agents/memory/MEMORY.md` | Long-term memory (append-only): facts, open issues, failed approaches, decisions |
+| `.agents/memory/YYYY-MM-DD.md` | Daily notes (for long-running projects) |
 | `.agents/rules/general.md` | Base rules: Anti-Rationalization, Adversarial Verification, Gotchas |
-| `.agents/rules/*.md` | Domain rules with frontmatter (applies_to, priority) |
+| `.agents/rules/*.md` | Domain rules with frontmatter (`applies_to`, `priority`) |
 | `.agents/skills/*/SKILL.md` | Workflow skills with gotchas and verification |
-| `.agents/agents/*.md` | Subagent personas (@role) |
-| `.agents/commands/*.md` | Slash commands (/command) |
+| `.agents/agents/*.md` | Subagent personas (`@role`) |
+| `.agents/commands/*.md` | Slash commands (`/command`) |
 | `.agents/scripts/` | Shared utilities |
-| `readme.md` | Human-readable documentation (optional) |
+| `readme.md` | Human-readable docs (optional) |
 
-**Key principle:** creates only what the task actually requires. No bloat.
+Only what the task needs. No bloat.
 
-## Key features (v3)
+## What matters in v3
 
-### Two operation modes
-- **Create from scratch** — for new projects
-- **Extend** — if AGENTS.md already exists, reads it and adds only new modules
+### Two modes
+
+- **From scratch** - new project
+- **Extend** - AGENTS.md already exists: read it, add only new modules
 
 ### Capture step
-After generation, records not just WHAT was created but WHY: decisions made, rejected alternatives, deferred tasks. Critical for the next session.
+
+After generation, MEMORY.md records **what** was created and **why**: decisions, rejected alternatives, deferred work. The next session does not guess.
 
 ### Data discovery
-Before generation, scans the project root (`ls`) and includes existing data folders in the AGENTS.md architecture.
+
+Before generation, scans the project root (`ls`) and folds existing data folders into the AGENTS.md architecture.
 
 ### Workflow patterns catalog
-6 architectural patterns (Classify-and-Act, Fan-out-and-Synthesize, Adversarial Verification, Generate-and-Filter, Tournament, Loop Until Done) — helps choose the right architecture for complex skills.
 
-## Inspiration & sources
+Six architectures (Classify-and-Act, Fan-out-and-Synthesize, Adversarial Verification, Generate-and-Filter, Tournament, Loop Until Done) - a menu for complex skills.
 
-- **[Agent Playbook v0.0.5](https://github.com/PromptPasture/agent.md)** — `.agents/` structure standard
-- **[Cursor Rules](https://cursor.com/docs/rules)** & **[OpenCode Rules](https://opencode.ai/docs/rules/)** — context loading best practices
-- **[Thariq @ Anthropic](https://x.com/trq212/status/2061907337154367865)** — "A harness for every task" — 6 workflow patterns, adversarial verification, progressive disclosure
-- **Vladimir Ivanov [@turboproject](https://t.me/turboproject)** — GRACE approach popularization, semantic anchors, knowledge graph
-- **[vv-opencode (GRACE)](https://github.com/osovv/vv-opencode)** — delegation packet convention, three-layer spec-to-code, module contracts
-- **[AGENTS.md Patterns (Blake Crosley)](https://blakecrosley.com/blog/agents-md-patterns)** — command-first, closure-defined, 150-line limit
-- **Agent1st Protocol v30 (DeepSeek)** — CSA citation budget, Closing Anchors, Cascade Breaker, Failure Packet (internal agent protocol)
+## Inspiration and sources
+
+- **[Agent Playbook v0.0.5](https://github.com/PromptPasture/agent.md)** - `.agents/` structure standard
+- **[Cursor Rules](https://cursor.com/docs/rules)** and **[OpenCode Rules](https://opencode.ai/docs/rules/)** - how context loading works in practice
+- **[Thariq @ Anthropic](https://x.com/trq212/status/2061907337154367865)** - “A harness for every task”: 6 workflow patterns, adversarial verification, progressive disclosure
+- **Vladimir Ivanov [@turboproject](https://t.me/turboproject)** - GRACE, semantic anchors, knowledge graph
+- **[vv-opencode (GRACE)](https://github.com/osovv/vv-opencode)** - delegation packet, three-layer spec-to-code, module contracts
+- **[AGENTS.md Patterns (Blake Crosley)](https://blakecrosley.com/blog/agents-md-patterns)** - command-first, closure-defined, ~150-line limit
+- **Agent1st Protocol v30 (DeepSeek)** - CSA citation budget, Closing Anchors, Cascade Breaker, Failure Packet (internal agent protocol)
 
 ## Installation
 
@@ -88,9 +92,9 @@ ln -sf ~/Projects/opencode-skills/skills/project-bootstrap ~/.config/opencode/sk
 
 ## Usage
 
-Describe your task in any format (stream of thought, file link, voice note) and say "create structure" or "bootstrap". The skill auto-detects project type and creates the right infrastructure.
+Describe the task in any form (stream of thought, file link, voice note) and say “create structure” or “bootstrap”. The skill picks the project type and builds the matching files.
 
-## Skill structure
+## Skill layout
 
 ```
 project-bootstrap/
@@ -99,12 +103,12 @@ project-bootstrap/
 ├── references/
 │   ├── playbook.md                  # Agent Playbook specification
 │   ├── workflow-patterns.md         # 9 architectural patterns
-│   ├── variant-e-structure.md       # Variant E architecture + few-shot examples
-│   ├── grace-anchors.md             # GRACE anchor specification + grep commands
-│   └── model-profiles.md            # DeepSeek vs GLM vs universal profiles
+│   ├── variant-e-structure.md       # Variant E + few-shot examples
+│   ├── grace-anchors.md             # GRACE anchors + grep commands
+│   └── model-profiles.md            # DeepSeek, GLM, universal
 ├── scripts/
-│   ├── classify_project.sh          # Auto-detect project type + select variant
-│   └── verify-handoff-gate.sh       # Phase 4c: verify handoff-destination rules
+│   ├── classify_project.sh          # Project type + variant
+│   └── verify-handoff-gate.sh       # Phase 4c: handoff-destination
 └── assets/templates/                # 15 generation templates
     ├── plan.md.tmpl
     ├── AGENTS.md.tmpl               # Variant E: preamble + closing anchors
@@ -125,4 +129,4 @@ project-bootstrap/
 
 ## License
 
-MIT — part of [opencode-skills](https://github.com/dimkurilo/opencode-skills).
+MIT - part of [opencode-skills](https://github.com/dimkurilo/opencode-skills).

@@ -1,83 +1,87 @@
-# Project Bootstrap v2 — Генератор агентской инфраструктуры
+# Project Bootstrap v2 - генератор агентской инфраструктуры
 
 🇬🇧 [English version](README.md)
 
-Скилл для [opencode](https://github.com/opencode-ai/opencode)-агентов, создающий полную агентскую инфраструктуру для проектов любого типа по стандарту [Agent Playbook](https://agents.md).
+Скилл для [opencode](https://github.com/opencode-ai/opencode): за одну сессию собирает «дом» агента в проекте по стандарту [Agent Playbook](https://agents.md).
 
-**v2** добавляет архитектуру Variant E (правила в primacy + recency = неизбежны), GRACE-семантические якоря для grep-поиска правил и адаптивную классификацию проектов.
+**v2** добавляет архитектуру Variant E (правила в начале и в конце файла - их труднее пропустить), GRACE-якоря (правила ищутся через `grep`) и подбор шаблона под тип проекта.
 
-## Почему этот скилл существует
+## Зачем он
 
-Когда начинаешь новый проект с AI-агентом, первые несколько сессий уходят на изобретение структуры: где хранить правила, как не терять контекст между сессиями, куда класть скрипты. Project-bootstrap делает это за одну сессию — ты описываешь задачу потоком мыслей, а на выходе получаешь готовую структуру `.agents/` с AGENTS.md, памятью, правилами и скиллами.
+Новый проект с AI-агентом часто начинается с изобретения структуры: куда правила, как не терять контекст между сессиями, где скрипты. Project-bootstrap делает это за одну сессию - описываешь задачу потоком мыслей, на выходе `.agents/` с AGENTS.md, памятью, правилами и скиллами.
 
-Скилл **универсален** и **модельно-адаптивен**: работает для технических проектов (бекапы, серверы, интеграции), бизнес-проектов (оцифровка маркетинга) и персональных (поиск работы, резюме). Адаптирует шаблоны под целевую модель (DeepSeek V4, GLM 5+, universal).
+Работает на техпроекте (бекапы, серверы, интеграции), на бизнесе (оцифровка маркетинга) и на личном (поиск работы, резюме). Шаблоны подстраиваются под модель: DeepSeek V4, GLM 5+, universal.
 
-## Для каких проектов подходит
+## Для каких проектов
 
-| Тип проекта | Примеры | Вариант | Что создаст |
-|------------|---------|---------|-------------|
-| Ops / Сервер | Docker, бекапы, CI/CD, мониторинг | `variant-e-full` | Полная преамбула + чеклист + gotchas + failure packet + иерархия + closing anchors |
-| Код | JS/TS/Python, тесты, интеграции | `variant-e-grace` | Variant E + GRACE-якоря в коде |
-| Агентский | Скиллы, промпты, конфиги моделей | `variant-e-model` | Модельно-специфичные closing anchors (DeepSeek/GLM) |
-| Контент / Бизнес | Статьи, аналитика, брифы | `lightweight` | Преамбула без технических правил |
-| Неопределённый | <3 файлов, новый проект | `base` | Минимальный шаблон с предложением доработать |
+| Тип | Примеры | Вариант | Что получишь |
+|-----|---------|---------|--------------|
+| Ops / сервер | Docker, бекапы, CI/CD, мониторинг | `variant-e-full` | Полная преамбула, чеклист, gotchas, failure packet, иерархия, closing anchors |
+| Код | JS/TS/Python, тесты, интеграции | `variant-e-grace` | Variant E и GRACE-якоря в файлах |
+| Агентский | Скиллы, промпты, конфиги моделей | `variant-e-model` | Closing anchors под DeepSeek или GLM |
+| Контент / бизнес | Статьи, аналитика, брифы | `lightweight` | Преамбула без техправил |
+| Неясно | меньше трёх файлов, новый проект | `base` | Минимум и намёк, что можно докрутить |
 
-## Для каких LLM лучше работает
+## С какими LLM удобнее
 
-Скилл оптимизирован под **DeepSeek V4** (Pro для основной работы, Flash для субагентов). Ключевые особенности, заточенные под DeepSeek:
+Заточен под **DeepSeek V4** (Pro на основную работу, Flash на субагентов). Что под это завязано:
 
-- **Closing Anchors** — критические правила размещаются в конце AGENTS.md (recency effect DeepSeek V4)
-- **CSA-aware grouping** — связанные правила группируются в одном разделе (бюджет точного контекста ~4000 токенов)
-- **Progressive Context (Level 1/2/3)** — уровневый контекст вместо плоской таблицы
-- **Anti-Rationalization** — таблица типичных отговорок агента с опровержениями
-- **Adversarial Verification** — проверка критических артефактов отдельным агентом
+- **Closing Anchors** - важные правила в конце AGENTS.md (recency effect DeepSeek V4)
+- **CSA-aware grouping** - связанные правила в одном разделе (бюджет точного контекста около 4000 токенов)
+- **Progressive Context (Level 1/2/3)** - контекст слоями, не одной плоской таблицей
+- **Anti-Rationalization** - типичные отговорки агента и ответы на них
+- **Adversarial Verification** - критические артефакты проверяет отдельный агент
 
-При этом скилл **модель-независим**: все шаблоны и правила — на стандартном Markdown с YAML frontmatter, работает с любым LLM-бекендом (OpenAI, Anthropic, Qwen).
+При этом шаблоны обычный Markdown с YAML frontmatter. Бэкенд может быть OpenAI, Anthropic, Qwen - не обязательно DeepSeek.
 
 ## Что создаёт
 
-| Модуль | Назначение |
-|--------|-----------|
-| `plan.md` | Стратегический план для человека: фазы (без статусов), решения, блокеры |
-| `AGENTS.md` | Главный манифест: описание, архитектура, Progressive Context (L1/L2/L3), Closing Anchors |
-| `SESSION_HANDOFF.md` | Операционное состояние: текущая фаза, задачи, окружение (.gitignore) |
-| `.gitignore` | Исключения для секретов и SESSION_HANDOFF.md |
-| `.agents/memory/MEMORY.md` | Долговременная память (append-only): CONFIRMED_FACTS, UNRESOLVED_ISSUES, FAILED_APPROACHES, решения |
-| `.agents/memory/YYYY-MM-DD.md` | Ежедневные заметки (для долгосрочных проектов) |
-| `.agents/rules/general.md` | Базовые правила: Anti-Rationalization, Adversarial Verification, Gotchas |
-| `.agents/rules/*.md` | Доменные правила с frontmatter (applies_to, priority) |
-| `.agents/skills/*/SKILL.md` | Workflow-навыки с gotchas и верификацией |
-| `.agents/agents/*.md` | Сабагент-персоны (@role) |
-| `.agents/commands/*.md` | Слеш-команды (/command) |
+| Модуль | Зачем |
+|--------|-------|
+| `plan.md` | План для человека: фазы (без статусов), решения, блокеры |
+| `AGENTS.md` | Манифест: описание, архитектура, Progressive Context (L1/L2/L3), Closing Anchors |
+| `SESSION_HANDOFF.md` | Текущее: фаза, задачи, окружение (в `.gitignore`) |
+| `.gitignore` | Секреты и SESSION_HANDOFF.md |
+| `.agents/memory/MEMORY.md` | Долгая память (append-only): факты, открытые вопросы, провалы, решения |
+| `.agents/memory/YYYY-MM-DD.md` | Дневные заметки (если проект длинный) |
+| `.agents/rules/general.md` | База: Anti-Rationalization, Adversarial Verification, Gotchas |
+| `.agents/rules/*.md` | Доменные правила с frontmatter (`applies_to`, `priority`) |
+| `.agents/skills/*/SKILL.md` | Workflow-скиллы с gotchas и проверкой |
+| `.agents/agents/*.md` | Персоны субагентов (`@role`) |
+| `.agents/commands/*.md` | Слеш-команды (`/command`) |
 | `.agents/scripts/` | Общие утилиты |
-| `readme.md` | Человекочитаемая документация (опционально) |
+| `readme.md` | Документация для людей (по желанию) |
 
-**Ключевой принцип:** создаётся только то, что задача реально требует. Не раздувается.
+Создаётся только то, что задача реально просит. Лишнего нет.
 
-## Ключевые особенности v3
+## Что важно в v3
 
-### Два режима работы
-- **Создание с нуля** — для нового проекта
-- **Расширение (extend)** — если AGENTS.md уже существует, скилл читает его и добавляет только новые модули
+### Два режима
+
+- **С нуля** - новый проект
+- **Extend** - AGENTS.md уже есть: читает и дописывает только новые модули
 
 ### Capture step
-После генерации скилл записывает в MEMORY.md не только ЧТО создано, но и ПОЧЕМУ: принятые решения, отклонённые альтернативы, отложенные задачи. Это критически важно для следующей сессии.
+
+После генерации в MEMORY.md пишется, **что** создали и **почему**: решения, отклонённые варианты, отложенные задачи. Следующая сессия не гадает.
 
 ### Обнаружение данных
-Перед генерацией скилл сканирует корень проекта (`ls`) и включает существующие папки с данными в архитектуру AGENTS.md.
+
+Перед генерацией смотрит корень (`ls`) и втаскивает уже существующие папки с данными в архитектуру AGENTS.md.
 
 ### Каталог workflow-паттернов
-6 архитектурных паттернов (Classify-and-Act, Fan-out-and-Synthesize, Adversarial Verification, Generate-and-Filter, Tournament, Loop Until Done) — помощь в выборе правильной архитектуры для сложных skills.
 
-## Откуда взялись идеи
+Шесть архитектур (Classify-and-Act, Fan-out-and-Synthesize, Adversarial Verification, Generate-and-Filter, Tournament, Loop Until Done) - подсказка, какую схему взять для сложного скилла.
 
-- **[Agent Playbook v0.0.5](https://github.com/PromptPasture/agent.md)** — стандарт структуры `.agents/`
-- **[Cursor Rules](https://cursor.com/docs/rules)** и **[OpenCode Rules](https://opencode.ai/docs/rules/)** — лучшие практики загрузки контекста
-- **[Thariq @ Anthropic](https://x.com/trq212/status/2061907337154367865)** — «A harness for every task: dynamic workflows in Claude Code» — 6 паттернов workflow, adversarial verification, progressive disclosure
-- **Владимир Иванов [@turboproject](https://t.me/turboproject)** — популяризация GRACE-подхода, семантические якоря, knowledge graph
-- **[vv-opencode (GRACE)](https://github.com/osovv/vv-opencode)** — делегирование через delegation packet, трёхслойная spec-to-code, модульные контракты
-- **[AGENTS.md Patterns (Blake Crosley)](https://blakecrosley.com/blog/agents-md-patterns)** — command-first, closure-defined, 150-line limit
-- **Agent1st Protocol v30 (DeepSeek)** — CSA citation budget, Closing Anchors, Cascade Breaker, Failure Packet (внутренний протокол агента)
+## Откуда идеи
+
+- **[Agent Playbook v0.0.5](https://github.com/PromptPasture/agent.md)** - стандарт структуры `.agents/`
+- **[Cursor Rules](https://cursor.com/docs/rules)** и **[OpenCode Rules](https://opencode.ai/docs/rules/)** - как грузить контекст
+- **[Thariq @ Anthropic](https://x.com/trq212/status/2061907337154367865)** - «A harness for every task»: 6 workflow-паттернов, adversarial verification, progressive disclosure
+- **Владимир Иванов [@turboproject](https://t.me/turboproject)** - GRACE, семантические якоря, knowledge graph
+- **[vv-opencode (GRACE)](https://github.com/osovv/vv-opencode)** - delegation packet, трёхслойная spec-to-code, модульные контракты
+- **[AGENTS.md Patterns (Blake Crosley)](https://blakecrosley.com/blog/agents-md-patterns)** - command-first, closure-defined, лимит ~150 строк
+- **Agent1st Protocol v30 (DeepSeek)** - CSA citation budget, Closing Anchors, Cascade Breaker, Failure Packet (внутренний протокол)
 
 ## Установка
 
@@ -88,7 +92,7 @@ ln -sf ~/Projects/opencode-skills/skills/project-bootstrap ~/.config/opencode/sk
 
 ## Использование
 
-Опиши задачу в любом формате (поток мыслей, ссылка на файл, голосовая заметка) и скажи «создай структуру» или «разверни агента». Скилл сам определит тип проекта и создаст нужную инфраструктуру.
+Опиши задачу как удобно (поток мыслей, ссылка на файл, голосовая заметка) и скажи «создай структуру» или «разверни агента». Скилл сам определит тип проекта и соберёт нужные файлы.
 
 ## Структура скилла
 
@@ -98,14 +102,14 @@ project-bootstrap/
 ├── README.md / README.ru.md
 ├── references/
 │   ├── playbook.md                  # Спецификация Agent Playbook
-│   ├── workflow-patterns.md         # Каталог 9 архитектурных паттернов
-│   ├── variant-e-structure.md       # Архитектура Variant E + few-shot примеры
-│   ├── grace-anchors.md             # Спецификация GRACE-якорей + grep-команды
-│   └── model-profiles.md            # DeepSeek vs GLM vs universal профили
+│   ├── workflow-patterns.md         # 9 архитектурных паттернов
+│   ├── variant-e-structure.md       # Variant E + few-shot примеры
+│   ├── grace-anchors.md             # GRACE-якоря + grep-команды
+│   └── model-profiles.md            # DeepSeek, GLM, universal
 ├── scripts/
-│   ├── classify_project.sh          # Авто-классификация проекта + выбор варианта
-│   └── verify-handoff-gate.sh       # Фаза 4c: проверка handoff-destination правил
-└── assets/templates/                # 15 шаблонов генерации
+│   ├── classify_project.sh          # Тип проекта + выбор варианта
+│   └── verify-handoff-gate.sh       # Фаза 4c: handoff-destination
+└── assets/templates/                # 15 шаблонов
     ├── plan.md.tmpl
     ├── AGENTS.md.tmpl               # Variant E: преамбула + closing anchors
     ├── SESSION_HANDOFF.md.tmpl
@@ -125,4 +129,4 @@ project-bootstrap/
 
 ## Лицензия
 
-MIT — часть [opencode-skills](https://github.com/dimkurilo/opencode-skills).
+MIT - часть [opencode-skills](https://github.com/dimkurilo/opencode-skills).

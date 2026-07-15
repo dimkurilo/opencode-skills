@@ -25,3 +25,10 @@ SESSION_HANDOFF.md
 .plan.md
 *.bak/
 *.bak
+
+# Skill-development research archives (NOT public product under skills/)
+# Lives at repo root: research/<skill-name>/…
+research/
+# Safety net: never publish research dirs inside skill packages
+skills/**/research/
+NEXT_SESSION_ORCHESTRA*.md
