@@ -27,6 +27,8 @@ metadata:
 SKILL_DIR = directory containing this SKILL.md
 # Grok:     ~/.grok/skills/project-orchestra
 # OpenCode: ~/.config/opencode/skills/project-orchestra
+# Codex:    ~/.codex/skills/project-orchestra
+# Claude:   ~/.claude/skills/project-orchestra
 ```
 
 ---
@@ -502,7 +504,10 @@ Program architecture = `SPEC.md`. Wave contracts = `waves/*/SPEC.{xml|md}` + `PL
 | **vs-architect** | Optional helper in Phase 0 |
 | Domain skills | After OS ready — never embedded |
 
-Mirror install: keep identical trees at `~/.grok/skills/project-orchestra` and `~/.config/opencode/skills/project-orchestra` (symlink or copy; `VERSION` pin **0.6.1**). No project-specific hostnames in package.
+Mirror install (symlink or copy; `VERSION` pin **0.6.1**):  
+`~/.grok/skills/project-orchestra`, `~/.config/opencode/skills/project-orchestra`,  
+`~/.codex/skills/project-orchestra`, `~/.claude/skills/project-orchestra`.  
+No project-specific hostnames in package.
 
 ## Anti-patterns
 
