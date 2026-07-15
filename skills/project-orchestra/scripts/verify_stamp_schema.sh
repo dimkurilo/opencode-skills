@@ -12,9 +12,12 @@ Usage: bash verify_stamp_schema.sh <stamp.md | wave_dir>
 
 Required fields:
   AGREED: YES|NO
-  SPEC_PATH, PLAN_PATH (or SPEC_HASH)
+  SPEC_PATH or SPEC_HASH
+  PLAN_PATH or PLAN_HASH  (SPEC_HASH alone does NOT satisfy PLAN)
   ROUND, MAX (or MAX_ROUNDS)
-Optional but recommended: SESSION_ID, OPEN_DELTAS section
+If AGREED=YES: must include SPEC_HASH or acceptance.hash
+  (CHECKLIST_VERSION is NOT a substitute for content hash)
+Optional: SESSION_ID, open deltas section
 EOF
   [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]] && exit 0
   exit 1
@@ -56,17 +59,17 @@ require_re() {
 echo "=== Stamp schema: $STAMP ==="
 require_re "AGREED YES|NO" '^AGREED:[[:space:]]*(YES|NO)\b'
 require_re "SPEC_PATH or SPEC_HASH" '(SPEC_PATH|SPEC_HASH):'
-require_re "PLAN_PATH or PLAN_HASH" '(PLAN_PATH|PLAN_HASH|SPEC_HASH):'
+require_re "PLAN_PATH or PLAN_HASH" '(PLAN_PATH|PLAN_HASH):'
 require_re "ROUND" 'ROUND:'
 require_re "MAX / MAX_ROUNDS" '(MAX_ROUNDS|MAX):'
 
 # If AGREED=YES, hash should be present
 if grep -Eqi '^AGREED:[[:space:]]*YES\b' "$STAMP"; then
-  if grep -Eqi '(SPEC_HASH|acceptance\.hash|CHECKLIST_VERSION)' "$STAMP"; then
-    echo "PASS: YES stamp has hash/version marker"
+  if grep -Eqi '(SPEC_HASH|acceptance\.hash)' "$STAMP"; then
+    echo "PASS: YES stamp has SPEC_HASH or acceptance.hash marker"
     PASS=$((PASS + 1))
   else
-    echo "FAIL: AGREED=YES without SPEC_HASH/checklist version"
+    echo "FAIL: AGREED=YES without SPEC_HASH or acceptance.hash (CHECKLIST_VERSION alone is not enough)"
     FAIL=$((FAIL + 1))
   fi
 fi

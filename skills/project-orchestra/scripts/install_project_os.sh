@@ -7,7 +7,7 @@ set -euo pipefail
 
 if [[ "${1:-}" == "--help" || "${1:-}" == "-h" || $# -lt 1 ]]; then
   cat <<'EOF'
-install_project_os.sh — copy kit templates into target project
+install_project_os.sh — copy kit templates into target project (parent program OS)
 
 Usage: bash install_project_os.sh <project_dir> [project_name]
 
@@ -17,6 +17,11 @@ Environment:
 
 Creates AGENTS/SPEC/STATUS/MEMORY/waves/_template/prompts/_dispatch/docs/audits.
 Does not invent domain content — placeholders remain for agent fill-in where needed.
+
+Layout note:
+  This script installs a **parent** program OS (full). For minimal 4 files use
+  install_bootstrap_lite.sh. For a theme workstream under an existing parent,
+  use install_workstream.sh <parent_dir> <slug> (mode workstream-new).
 EOF
   [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]] && exit 0
   exit 1

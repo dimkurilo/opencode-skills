@@ -1,0 +1,32 @@
+# Workstream: ${WORKSTREAM_SLUG}
+
+Parent program: **${PROJECT_NAME}**
+
+## Purpose
+
+${WORKSTREAM_PURPOSE}
+
+## Layout
+
+```
+${WORKSTREAM_SLUG}/
+├── STATUS.md       # workstream status (orchestrator)
+├── README.md       # this file
+├── INTENT.md       # theme intent
+└── waves/
+    ├── _template/  # stamp + exec templates
+    └── <date-slug>/
+```
+
+## Write locks
+
+- Executor: wave `EXEC-REPORT` + approved PLAN scope only
+- Orchestrator: STATUS, parent HANDOFF/MEMORY, stamps coordination
+- See parent AGENTS.md and monorepo-workstreams reference
+
+## How to start a wave
+
+```
+/project-orchestra
+# mode: wave — peer-call wave-spec if installed, else templates
+```

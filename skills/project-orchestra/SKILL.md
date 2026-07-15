@@ -1,23 +1,25 @@
 ---
 name: project-orchestra
 description: >
-  Bootstrap a multi-CLI multi-wave program OS (project-orchestra kit): harness inventory,
-  domain-novelty H-panel, role matrix, L0 consistency, program SPEC, R.A.E.H. Stamp Dialogue,
-  dispatch dialects, evidence plane, archive hygiene. Modes: full, roles-only, wire-raeh,
-  extend, cleanup, raeh-review, raeh-execute, install-dialects. Use when starting a multi-agent
-  program, choosing orchestrator vs executor, multi-agent bootstrap, who should orchestrate,
-  R.A.E.H., stamp dialogue, or project-orchestra (formerly skill-work-project-creator). Do NOT use for simple single-CLI
-  scaffolds (project-bootstrap / zcode-bootstrap), pure wave drafting on an existing OS
-  (wave-spec + raeh mode), or one-line edits.
+  Use when bootstrapping a multi-CLI multi-wave program OS, opening a monorepo
+  workstream, planning a wave (SPEC/PLAN), running R.A.E.H. stamp/execute, dual-review
+  gates, or Orca dual-worker dispatch — one door: /project-orchestra. Starts with
+  intake: study the project folder (git optional), propose a mode, ask 3–5 questions
+  if ambiguous. Modes: full, workstream-new, wave, bootstrap-lite, raeh-review,
+  raeh-execute, install-dialects, extend. Also: who should orchestrate, harness
+  inventory, domain-novelty H-panel, L0, Stamp Dialogue, dispatch dialects
+  (formerly skill-work-project-creator). Do NOT use for one-line edits already
+  approved, pure domain SEO methodology (use external domain skills after OS is
+  ready), or creating a new skill package.
 metadata:
-  short-description: Multi-agent program OS kit (orchestra + R.A.E.H. + dialects)
-  version: "1.0.0"
-  kit: multiagent-kit-1.0
+  short-description: One-door multi-agent program OS (workstream + wave + R.A.E.H.)
+  version: "1.1.0"
+  kit: multiagent-kit-1.1
 ---
 
-# project-orchestra — Multi-Agent Program OS Kit 1.0
+# project-orchestra — Multi-Agent Program OS Kit 1.1
 
-**One-line:** Boot a multi-CLI program OS, wire Stamp Dialogue + R.A.E.H., install dispatch dialects — without re-paying first-domain discovery tax every project.
+**One-line:** One door (`/project-orchestra`) for program OS, monorepo workstreams, wave planning (peer wave-spec or in-package templates), Stamp Dialogue + R.A.E.H., dual-review gates, and Orca dual-worker recipes.
 
 **You (the agent) execute this skill.** Copy templates from this skill dir; run scripts with absolute path to this skill.
 
@@ -27,37 +29,180 @@ SKILL_DIR = directory containing this SKILL.md
 # OpenCode: ~/.config/opencode/skills/project-orchestra
 ```
 
-## Modes
+---
+
+## 0. Intake (always first — study, then ask)
+
+**Do not materialize files until intake is done** (unless the user already named an exact mode + paths).
+
+### Step A — Study the project (silent scan, no git required)
+
+Look at the **current working directory** (and obvious parents if cwd is a subfolder). Git is optional — files alone are enough.
+
+| Signal | Look for |
+|--------|----------|
+| Already multi-agent OS? | `AGENTS.md` + `SPEC.md` + `waves/` or `STATUS.md` with gates |
+| Minimal agent home? | `AGENTS.md` + `SESSION_HANDOFF.md` + `.agents/memory/` without waves |
+| Existing workstream? | Subdirs with own `STATUS.md` + `waves/` |
+| Active wave? | `waves/<slug>/` with SPEC/PLAN/REVIEW-STAMP |
+| Empty / code-only repo? | No agent files, or only README/src |
+| Large / multi-theme? | Many top-level domains, monorepo packages, several products |
+
+Cap deep-read: top-level listing + key marker files. If the tree is huge, **do not invent a plan** — ask what subtree matters.
+
+### Step B — Propose + ask (3–5 questions max)
+
+After the scan, output a short **proposal** (what you think is going on + recommended mode), then ask only what is still ambiguous.
+
+**Always useful questions (pick 3–5, skip what scan already answered):**
+
+1. **Goal now:** full multi-agent OS, only minimal agent home (4 files), new **workstream** (theme under parent), or **wave** (plan/stamp/execute)?
+2. **Parent root:** is this folder the program root, or a workstream/subdir of something larger?
+3. **Who runs agents:** one CLI/model or multi (orchestrator / executor / auditor families)?
+4. **Horizon:** one short task, multi-session wave, or long multi-theme program?
+5. **Risk:** anything production / money / public ship this session? (dual-review yes/no)
+6. If large repo: **which path/theme** is in scope this session?
+
+**Ambiguity rules:**
+- workstream vs wave unclear → ask that **one** question first.
+- full vs bootstrap-lite unclear → prefer **proposing bootstrap-lite** for small needs; offer full only if multi-CLI multi-wave is explicit.
+- OS already complete + user said “bootstrap” → refuse re-`full`; propose workstream / wave / extend.
+
+### Step C — Confirm mode, then act
+
+State: `Mode: <name>` + paths you will touch → wait for user OK if destructive/FORCE or first install on a non-empty tree → then run the mode section below.
+
+Details: `references/intake.md`.
+
+---
+
+## Modes (≤8)
 
 | Mode | Scope | When |
 |------|-------|------|
-| `full` | Phases 0→4 | New multi-agent program |
-| `roles-only` | Phase 0 (light) + 1 | Who orchestrates / role matrix only |
-| `wire-raeh` | Phase 2 + partial 3 | OS exists; need waves/stamps only |
-| `extend` | Inventory delta + 3 + 4 | Add roles/CLI to existing OS |
-| `cleanup` | Phase 4 only | Archive journey, prune museum AGENTS |
+| `full` | Phases 0→4 | New multi-agent program OS at a parent root |
+| `workstream-new` | Workstream under parent | Theme folder (STATUS + waves/) inside monorepo parent |
+| `wave` | Wave plan draft | New/next wave: peer-call **wave-spec** if installed, else in-package templates |
+| `bootstrap-lite` | Exactly 4 files | Minimal agent home when full OS is not needed yet |
 | `raeh-review` | Stamp Dialogue REVIEW | Wave SPEC/PLAN ready for stamp |
-| `raeh-execute` | EXECUTE after stamp YES | Stamp AGREED=YES + hash match |
-| `install-dialects` | prompts/_dispatch only | Need cheatsheets without full boot |
+| `raeh-execute` | EXECUTE after stamp YES | Stamp `AGREED: YES` + hash match |
+| `install-dialects` | `prompts/_dispatch` only | Cheatsheets without full boot |
+| `extend` | Delta on existing OS | Add roles/CLI, wire-raeh, roles-only, cleanup/archive |
 
-**Route rules:**
-- Single-CLI simple agent home → **stop**, recommend `project-bootstrap` / `zcode-bootstrap`.
-- Wave drafting INTENT→SPEC.xml→PLAN.xml → peer skill **`wave-spec`** (do not reimplement).
-- OS already complete + user wants `full` → refuse; point to `wave-spec` + `raeh-review`.
-- Domain SEO methodology → external `/seo` skills; never embed domain doctrine here.
+**Intent → mode map**
+
+| User says… | Mode |
+|------------|------|
+| New multi-agent program / program OS / who orchestrates (full boot) | `full` |
+| New workstream / theme under parent / monorepo subfolder | `workstream-new` |
+| New wave / plan this wave / SPEC+PLAN | `wave` |
+| Only AGENTS + HANDOFF + MEMORY (+ gitignore) | `bootstrap-lite` |
+| Review / stamp / AGREED | `raeh-review` |
+| Execute stamped wave | `raeh-execute` |
+| Dispatch cheatsheets only | `install-dialects` |
+| Add role/CLI, wire stamps only, cleanup museum AGENTS | `extend` |
+
+**Route rules (after intake):**
+- Simple single-CLI home with no multi-wave need → prefer `bootstrap-lite` (script below), or peer `project-bootstrap` for full Variant-E homes.
+- Wave drafting: **peer-call wave-spec if installed**; else use in-package wave templates (see `references/composition.md`). Not a refuse.
+- OS already complete + user wants `full` → refuse re-bootstrap; offer `wave` / `workstream-new` / `raeh-review` / `extend`.
+- Domain methodology (SEO etc.) → external domain skills after OS ready; never embed hostnames or domain doctrine in this package.
+- Do not invent a ninth mode.
 
 ## Hard gates
 
 | Gate | Rule |
 |------|------|
-| L0 | Always before architecture fast-path / G0 |
+| L0 | Always before architecture fast-path / G0 (`full`) |
 | G0 | Human approve program SPEC.md |
+| Dual-review | When table says required — two families; else mark `DEGRADED_DUAL` (see production-playbook) |
 | Stamp | EXECUTE only if `REVIEW-STAMP.md` has `AGREED: YES` + hash matches SPEC+PLAN |
 | G1 | Human before heavy/prod-bound execute (or pre-approved policy) |
 | G-deploy | Human + domain safety ritual for production mutate |
 | F-04 | Cross-audit important synthesis with **different model family** |
 
 **Forbidden:** chat/subject “AGREED” when stamp file ≠ YES. Stamp file wins.
+
+**MD = XML policy:** `SPEC.md`/`PLAN.md` and `SPEC.xml`/`PLAN.xml` are equal for stamp + hash. Prefer format already used in the wave dir; do not convert without need. `hash_acceptance.sh` accepts either pair.
+
+---
+
+## Mode: `workstream-new`
+
+Monorepo layout: **one parent folder** (product/site) → **workstream subfolders** (themes of work) → **waves** inside a workstream.
+
+**Prerequisite:** parent has `AGENTS.md` (full OS or bootstrap-lite). Script **refuses** otherwise unless `ALLOW_NO_PARENT=1`.
+
+```bash
+bash "$SKILL_DIR/scripts/install_workstream.sh" "$PARENT_DIR" "<slug>"
+# override only when intentional:
+# ALLOW_NO_PARENT=1 bash "$SKILL_DIR/scripts/install_workstream.sh" "$PARENT_DIR" "<slug>"
+```
+
+Creates under `$PARENT_DIR/<slug>/`:
+- `STATUS.md`, `README.md`, `INTENT.md` (optional fill)
+- `waves/_template/` (REVIEW-STAMP, EXEC-REPORT, STATUS + PLAN.md)
+- Does **not** create a second program OS; parent keeps one HANDOFF/MEMORY.
+
+Write locks and when a separate root is OK: `references/monorepo-workstreams.md`.
+
+---
+
+## Mode: `wave`
+
+1. Detect wave-spec skill (paths such as `~/.grok/skills/wave-spec` or `~/.config/opencode/skills/wave-spec`, or project skill roots).
+2. **If wave-spec is installed** → **peer-call** it (do not soft-invoke weasel: actually load and follow wave-spec for INTENT → SPEC → PLAN → human approve). Then return here for `raeh-review`.
+3. **Else** → use in-package templates:
+   - `assets/templates/WAVE_BRIEF.md.tmpl`
+   - `assets/templates/waves/_template/PLAN.md.tmpl` (and existing REVIEW-STAMP / EXEC-REPORT)
+   - Optional: copy into `waves/<date-slug>/` under parent or workstream
+4. MD or XML both valid. After draft → human approve → `raeh-review`.
+
+Contract: `references/composition.md`.
+
+---
+
+## Mode: `bootstrap-lite`
+
+When full multi-agent OS is overkill, materialize **exactly these four files**:
+
+| # | Path |
+|---|------|
+| 1 | `AGENTS.md` |
+| 2 | `SESSION_HANDOFF.md` |
+| 3 | `.agents/memory/MEMORY.md` |
+| 4 | `.gitignore` |
+
+```bash
+bash "$SKILL_DIR/scripts/install_bootstrap_lite.sh" "$PROJECT_DIR" "$PROJECT_NAME"
+```
+
+Sources: `assets/templates/AGENTS.md.tmpl`, `SESSION_HANDOFF.md.tmpl`, `MEMORY.md.tmpl`, `gitignore.tmpl`.  
+Do **not** call `install_project_os.sh` for this mode (that is full OS creep).  
+Do **not** add SPEC/waves/prompts unless user upgrades to `full` or `extend` (wire-raeh).
+
+---
+
+## Mode: `extend`
+
+Use when a program OS (or bootstrap-lite home) **already exists** and the user needs a **delta**, not a full re-bootstrap.
+
+| Sub-intent | What to do |
+|------------|------------|
+| **roles-only / add-role** | Update role table in `AGENTS.md` / `ROLES.md` from harness inventory; fill orchestrator/executor/auditor placeholders; do **not** re-run Phase 0 H-panel on REPEAT domain unless novelty changed. Optional: copy profile from `assets/templates/profiles/`. |
+| **wire-raeh** | If OS exists without `waves/_template`: install from `assets/templates/waves/` (or re-run relevant parts of `install_project_os.sh` only for waves/prompts). Then `verify_raeh_ready.sh` + `verify_stamp_schema.sh` on template stamp. |
+| **install-dialects** (via extend) | Prefer dedicated mode `install-dialects`; if user said “extend dispatch”, copy `assets/templates/prompts/_dispatch/`. |
+| **cleanup / archive** | Move Phase 0–1 journey and museum paths → `audits/_legacy/`; prune AGENTS to live mounts only (`references/archive-hygiene.md`). Do not delete user evidence without asking. |
+
+**Rules:**
+- Never run `full` materialize over an existing OS without explicit FORCE + human OK.
+- After roles-only with a **single** model family: on dual-required waves mark `DEGRADED_DUAL` (see production-playbook).
+- Verify after structural change:
+  ```bash
+  bash "$SKILL_DIR/scripts/verify_os_gate.sh" "$PROJECT_DIR"   # if full OS expected
+  bash "$SKILL_DIR/scripts/verify_handoff_gate.sh" "$PROJECT_DIR"
+  bash "$SKILL_DIR/scripts/verify_raeh_ready.sh" "$PROJECT_DIR"  # if waves wired
+  ```
 
 ---
 
@@ -91,7 +236,7 @@ INTENT → Phase 0 Discovery → Phase 1 Architecture (L0) → Human G0
 
 ### Phase 1 — Architecture decision
 
-1. Write program `SPEC.md` from `assets/templates/SPEC.md.tmpl` (architecture MD — **not** wave XML).
+1. Write program `SPEC.md` from `assets/templates/SPEC.md.tmpl` (architecture MD — **not** wave contract).
 2. **L0 Consistency Pass (never skip):**
    ```bash
    bash "$SKILL_DIR/scripts/verify_l0_inputs.sh" "$PROJECT_DIR"
@@ -129,6 +274,12 @@ Copy/adapt templates into project (substitute `${PROJECT_NAME}`, `${DATE}`, role
 | audits/README.md, lanes per role | audits/*.tmpl |
 | research/ | empty dirs as needed |
 | prompts/_dispatch/* | from install-dialects assets |
+| ROLES.md, NEXT_SESSION_PROMPT.md | optional ops templates |
+
+Or:
+```bash
+bash "$SKILL_DIR/scripts/install_project_os.sh" "$PROJECT_DIR" "$PROJECT_NAME"
+```
 
 Then:
 ```bash
@@ -148,16 +299,17 @@ bash "$SKILL_DIR/scripts/verify_handoff_gate.sh" "$PROJECT_DIR"
 
 ## R.A.E.H. modes (`raeh-review` / `raeh-execute`)
 
-Full card: `references/stamp-dialogue.md`, lifecycle: `references/raeh-lifecycle.md`.
+Full card: `references/stamp-dialogue.md`, lifecycle: `references/raeh-lifecycle.md`.  
+Universal loop + dual-review table: `references/production-playbook.md`.
 
 ```
-DRAFT (wave-spec) → REVIEW* (Stamp Dialogue) → AGREE (YES + acceptance.hash)
+DRAFT (wave mode / wave-spec peer) → REVIEW* (Stamp Dialogue) → AGREE (YES + acceptance.hash)
   → EXECUTE → VERIFY (optional F-04) → HANDOFF
 ```
 
 ### raeh-review
 
-1. Require wave dir with SPEC.xml + PLAN.xml (from wave-spec).
+1. Require wave dir with SPEC+PLAN as **xml or md** (equal policy).
 2. Same reviewer session for rounds 1..N (default MAX=5).
 3. Write/update `REVIEW-STAMP.md` with required fields:
    - `AGREED: YES | NO`
@@ -177,6 +329,18 @@ DRAFT (wave-spec) → REVIEW* (Stamp Dialogue) → AGREE (YES + acceptance.hash)
 5. New session **per wave**; same session across review rounds.
 
 Lightweight: tiny doc tweak / no acceptance change → skip stamp. Flash one-shot → no session. Emergency → human + short stamp.
+
+---
+
+## Dual-review + Orca (summary)
+
+| When dual required | Who | How |
+|--------------------|-----|-----|
+| Gate-critical plan / ship skill description / high-stakes synthesis | Two **different model families** | Prefer Orca: **two terminals** in parallel; pin agent+model |
+| Dual unavailable | Document `DEGRADED_DUAL` | Single family + bias warning; do not fake dual |
+
+**Never** two parallel bare `opencode run` (DB lock). Parallel workers = Orca `terminal create` ×2 + task/dispatch.  
+Details: `references/production-playbook.md`, `references/orca-recipes.md`, `references/dispatch-iron.md`.
 
 ---
 
@@ -212,19 +376,23 @@ Selection: `references/profile-selection.md`. Anti-patterns: `references/anti-pa
 |--------|---------|
 | `scripts/classify_program.sh` | multi-agent vs single-home; domain_novelty hint |
 | `scripts/inventory_harness.sh` | CLIs, skill packs, MCP markers (best-effort) |
-| `scripts/install_project_os.sh` | materialize templates into target project |
+| `scripts/install_project_os.sh` | materialize **full** OS templates into target project |
+| `scripts/install_bootstrap_lite.sh` | **exactly 4 files** — no waves/SPEC creep |
+| `scripts/install_workstream.sh` | workstream under parent (requires parent `AGENTS.md` unless `ALLOW_NO_PARENT=1`) |
 | `scripts/verify_os_gate.sh` | Phase 3 done checks |
 | `scripts/verify_l0_inputs.sh` | lists canon files for L0 |
 | `scripts/verify_handoff_gate.sh` | handoff/MEMORY/AGENTS separation |
-| `scripts/verify_stamp_schema.sh` | required stamp fields |
+| `scripts/verify_stamp_schema.sh` | required stamp fields; YES requires real hash (not CHECKLIST_VERSION alone) |
 | `scripts/verify_raeh_ready.sh` | waves/_template + README |
-| `scripts/hash_acceptance.sh` | sha256 SPEC+PLAN → acceptance.hash |
+| `scripts/hash_acceptance.sh` | sha256 SPEC+PLAN (xml **or** md) → acceptance.hash |
 
 All accept `[project_dir]` or path args; support `--help`; exit 0 on pass.
 
 ---
 
-## Target project OS (after `full`)
+## Target layouts
+
+### Parent program OS (after `full`)
 
 ```
 <project>/
@@ -233,15 +401,25 @@ All accept `[project_dir]` or path args; support `--help`; exit 0 on pass.
 ├── CLAUDE.md                   # if Claude in roster
 ├── .gitignore
 ├── .agents/memory/MEMORY.md
-├── .agents/rules/...
 ├── prompts/_dispatch/...
 ├── waves/README.md + _template/ + <date-slug>/
-├── audits/{README, <role>/, _legacy/}
-├── docs/{access-map,cross-project-map}.md
-└── research/<sources>/
+├── <workstream-slug>/          # via workstream-new
+│   ├── STATUS.md, README.md, INTENT.md
+│   └── waves/_template/ + <date-slug>/
+├── audits/, docs/, research/
 ```
 
-Program architecture = `SPEC.md`. Wave contracts = `waves/*/SPEC.xml` + `PLAN.xml` via **wave-spec**.
+### bootstrap-lite only
+
+```
+<project>/
+├── AGENTS.md
+├── SESSION_HANDOFF.md
+├── .agents/memory/MEMORY.md
+└── .gitignore
+```
+
+Program architecture = `SPEC.md`. Wave contracts = `waves/*/SPEC.{xml|md}` + `PLAN.{xml|md}`.
 
 ---
 
@@ -249,7 +427,12 @@ Program architecture = `SPEC.md`. Wave contracts = `waves/*/SPEC.xml` + `PLAN.xm
 
 | File | When |
 |------|------|
-| `references/composition.md` | Boundaries with wave-spec / bootstrap |
+| `references/intake.md` | First-session study + 3–5 questions |
+| `references/composition.md` | wave-spec peer-call vs templates; bootstrap boundary |
+| `references/monorepo-workstreams.md` | Parent vs workstream write locks |
+| `references/production-playbook.md` | Universal loop; dual-review gate table; DEGRADED_DUAL |
+| `references/dispatch-iron.md` | Pin agent+model; F-04 vs stress; identity gate |
+| `references/orca-recipes.md` | Dual-terminal parallel workers (no headless double-run) |
 | `references/domain-novelty.md` | FIRST / REPEAT / TRANSFER |
 | `references/h-panel-rules.md` | Falsifiable Hs |
 | `references/harness-beats-model.md` | Inventory-first roles |
@@ -257,13 +440,12 @@ Program architecture = `SPEC.md`. Wave contracts = `waves/*/SPEC.xml` + `PLAN.xm
 | `references/self-assessment-brief.md` | ≥10% roles |
 | `references/l0-consistency.md` | L0 checklist |
 | `references/cross-audit-protocol.md` | F-04 cost control |
-| `references/degraded-modes.md` | 1–2 model modes |
-| `references/archive-hygiene.md` | Phase 4 |
+| `references/degraded-modes.md` | 1–2 model modes + DEGRADED_DUAL |
+| `references/archive-hygiene.md` | Phase 4 / extend cleanup |
 | `references/done-definition.md` | K/P/W checks |
 | `references/stamp-dialogue.md` | Full stamp card |
 | `references/raeh-lifecycle.md` | Wave lifecycle |
 | `references/session-policy.md` | Session per wave |
-| `references/orca-recipes.md` | Optional Orca |
 | `references/idempotency.md` | Dispatch ids |
 | `references/metrics.md` | rounds-to-YES |
 | `references/profile-selection.md` | Dialect pick |
@@ -275,13 +457,13 @@ Program architecture = `SPEC.md`. Wave contracts = `waves/*/SPEC.xml` + `PLAN.xm
 
 | Peer | Relationship |
 |------|----------------|
-| **wave-spec** | Draft INTENT/SPEC.xml/PLAN.xml; this skill stamps/executes |
-| **project-bootstrap** | Single-CLI homes only |
+| **wave-spec** | **Peer-call if installed** for wave draft; else in-package templates. This skill stamps/executes. Not soft-invoke. |
+| **project-bootstrap** | Full Variant-E single-CLI homes; this skill’s `bootstrap-lite` is the 4-file minimal path |
 | **zcode-bootstrap** | ZCode native bits; then this skill `extend` |
 | **vs-architect** | Optional helper in Phase 0 |
-| Domain skills (`/seo`, …) | After OS ready |
+| Domain skills | After OS ready — never embedded |
 
-Mirror install: keep identical trees at `~/.grok/skills/project-orchestra` and `~/.config/opencode/skills/project-orchestra` (copy; `VERSION` pin 1.0.0). No project-specific hostnames in package.
+Mirror install: keep identical trees at `~/.grok/skills/project-orchestra` and `~/.config/opencode/skills/project-orchestra` (symlink or copy; `VERSION` pin **1.1.0**). No project-specific hostnames in package.
 
 ## Anti-patterns
 
@@ -289,7 +471,9 @@ Mirror install: keep identical trees at `~/.grok/skills/project-orchestra` and `
 - Skip L0 because files “look fine”  
 - Chat AGREED without stamp YES  
 - Paste full AGENTS/MEMORY into every dispatch  
-- Done = “сделай хорошо” without artifact path  
+- Done = vibes without artifact path / verify report  
 - Executor edits STATUS/MEMORY  
 - One eternal multi-wave session  
+- Two bare parallel `opencode run` (use Orca dual terminals)  
 - Domain residue (site hostnames, CMS-only rules) inside skill package  
+- Creating a new skill name instead of extending this one door  
