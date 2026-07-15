@@ -55,4 +55,4 @@ Full absorb / EOL of wave-spec is **out of 1.1** (metrics-driven in 1.3).
 
 ## Version pin
 
-`VERSION` file in skill root = `1.1.0`. Mirrors: `~/.grok/skills/` and `~/.config/opencode/skills/` should be the same tree (symlink recommended).
+`VERSION` file in skill root = `0.6.0`. Mirrors: `~/.grok/skills/` and `~/.config/opencode/skills/` should be the same tree (symlink recommended).

@@ -6,7 +6,7 @@ A skill for people who run **several AI agents** on one product: one leads, one 
 
 Works with OpenCode, Grok, and other CLIs that read `SKILL.md`.
 
-**Version:** 1.1.0 · **License:** MIT
+**Version:** 0.6.0 · **License:** MIT
 
 ---
 
