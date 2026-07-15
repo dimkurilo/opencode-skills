@@ -200,6 +200,20 @@ ln -sfn ~/Projects/opencode-skills/skills/project-orchestra \
   ~/.grok/skills/project-orchestra
 ```
 
+### Codex
+
+```bash
+ln -sfn ~/Projects/opencode-skills/skills/project-orchestra \
+  ~/.codex/skills/project-orchestra
+```
+
+### Claude Code
+
+```bash
+ln -sfn ~/Projects/opencode-skills/skills/project-orchestra \
+  ~/.claude/skills/project-orchestra
+```
+
 ### Scripts
 
 ```bash

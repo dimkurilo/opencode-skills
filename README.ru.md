@@ -36,9 +36,13 @@ ln -sfn ~/Projects/opencode-skills/skills/project-orchestra \
 ln -sfn ~/Projects/opencode-skills/skills/vs-architect \
   ~/.config/opencode/skills/vs-architect
 
-# Опционально: Grok
+# Опционально: Grok / Claude / Codex (одно живое дерево)
 ln -sfn ~/Projects/opencode-skills/skills/project-orchestra \
   ~/.grok/skills/project-orchestra
+ln -sfn ~/Projects/opencode-skills/skills/project-orchestra \
+  ~/.claude/skills/project-orchestra
+ln -sfn ~/Projects/opencode-skills/skills/project-orchestra \
+  ~/.codex/skills/project-orchestra
 ```
 
 ### Ручная
