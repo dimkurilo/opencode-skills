@@ -2,19 +2,31 @@
 
 Non-negotiable constraints for multi-worker dispatches (Orca or manual).
 
-## 1. Pin agent + model
+## 0. Run dispatch algorithm first
+
+`references/dispatch-algorithm.md`:  
+**role → model family → prompt shape → pin → brief file → send → identity**.
+
+No shape id in brief header → invalid dual-review claim.
+
+## 1. Pin agent + model + shape
 
 Every worker brief / terminal create must pin:
 
 | Field | Example |
 |-------|---------|
-| Agent / CLI | `opencode`, `grok`, … |
-| Model family + id | DeepSeek Pro, GLM 5.x, … |
+| Agent / CLI | `opencode`, `grok`, `codex`, … |
+| Model family + id | DeepSeek Pro, GLM 5.2, Grok 4.5, **gpt-5.6-terra** |
+| Prompt shape | `shape:gpt56-goal-success-stop` (see model-prompt-shapes) |
+| Effort (API) | high / medium - **not** “think harder” in text |
 | Role | reviewer-F04, stress, executor |
 | CWD | absolute project path |
 | Output path | single primary artifact path |
 
 Unpinned “just open another chat” is invalid for dual-review claims.
+
+GPT-5.6: lean Goal/Success/Stop; official guidance  
+https://developers.openai.com/api/docs/guides/prompt-guidance-gpt-5p6
 
 ## 2. Complementary lanes (not clones)
 
@@ -23,7 +35,7 @@ Unpinned “just open another chat” is invalid for dual-review claims.
 | **F-04 / ledger** | Evidence vs claims; acceptance checklist; “is it proven?” | Same prompt as stress |
 | **Stress** | Failure modes; missing gates; rollback; “what breaks?” | Only restates F-04 |
 
-Minimum difference: different **job** + different **model family** when dual is required.
+Minimum difference: different **job** + different **model family** + **different brief text/shape** when dual is required.
 
 ## 3. Identity gate
 

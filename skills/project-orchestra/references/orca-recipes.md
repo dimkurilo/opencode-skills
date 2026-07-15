@@ -1,67 +1,90 @@
 # Orca recipes
 
-File-first truth - Orca is **transport only**. Stamp file and reports on disk are authority.
+File-first truth — Orca is **transport only**. Stamp file and reports on disk are authority.  
+Orchestration task API / `worker_done` messages are **optional** convenience; default dual is two terminals + two output files.
 
-**Author recommendation:** use [Orca](https://onorca.dev) ([github.com/stablyai/orca](https://github.com/stablyai/orca)) when two agents must run side by side (two-model review, multi-CLI workers). Pros/cons and a real model stack: skill README, section *How I actually use this*.
+**Author recommendation:** use [Orca](https://onorca.dev) ([github.com/stablyai/orca](https://github.com/stablyai/orca)) when two agents must run side by side. Pros/cons: skill README, *How I actually use this*.
 
-## Dual-worker parallel review (1.1 default for dual-review)
+## Pin rules (do not invent providers)
 
-**Goal:** two complementary reviews without dual bare `opencode run` (DB lock).
+| Family | Typical CLI pin (examples) |
+|--------|----------------------------|
+| GPT-5.6 / Codex | `codex exec --model gpt-5.6-sol -c model_reasoning_effort="xhigh"` (effort = API pin) |
+| GLM 5.2 | `opencode --auto --agent A/agent1st_v13-glm --model zai-coding-plan/glm-5.2` |
+| DeepSeek V4 Pro | `opencode --auto --agent A/agent1st_v36-pro --model opencode-go/deepseek-v4-pro` |
+| Grok | `grok --always-approve --no-plan` (or project default) |
+
+- Prefer model/agent from **your** agent frontmatter / harness inventory — do not invent OpenRouter routes.
+- Never two parallel bare `opencode run` (DB lock). Use two Orca terminals (or sequential).
+- **Never** hang Grok persona text on Codex/GLM; use shape + CLI/model pin only.
+
+## Dual-worker parallel review (1.1 default)
+
+**Goal:** two complementary jobs (different families + different shapes + different brief text).
 
 ```bash
-# 1) Create two terminals — pin agent + model in the command each worker will use
-orca terminal create --worktree active --title po-f04-ledger --command "opencode" --json
-orca terminal create --worktree active --title po-stress --command "opencode" --json
+# 1) Two terminals — pin agent+model in --command (parameterize per family)
+orca terminal create --worktree active --title po-ledger \
+  --command 'opencode --auto --agent A/agent1st_v36-pro --model opencode-go/deepseek-v4-pro' --json
+orca terminal create --worktree active --title po-stress \
+  --command 'opencode --auto --agent A/agent1st_v13-glm --model zai-coding-plan/glm-5.2' --json
 
-# 2) Send role-specific briefs (different jobs — see dispatch-iron.md)
-orca terminal send --terminal <handle-f04> --text "$(cat prompts/…/f04-ledger.md)" --enter --json
+# 2) Wait until each TUI is ready (do not send into a cold prompt)
+orca terminal wait --terminal <handle-ledger> --for tui-idle --timeout-ms 90000 --json
+orca terminal wait --terminal <handle-stress> --for tui-idle --timeout-ms 90000 --json
+
+# 3) Different briefs (not clones) — prefer short "read file X and execute"
+orca terminal send --terminal <handle-ledger> --text "$(cat prompts/…/f04-ledger.md)" --enter --json
 orca terminal send --terminal <handle-stress> --text "$(cat prompts/…/stress-fail.md)" --enter --json
 
-# 3) Wait / poll for worker_done artifacts on disk (not chat vibes)
-# 4) Coordinator reads both paths → identity gate → merge into audits/ or wave STATUS
+# 4) Wait for **files on disk** (poll paths), not chat vibes
+# 5) Identity gate: each report header has role + family + shape
+# 6) Merge into audits/ or wave STATUS; mark DEGRADED_DUAL if only one family
 ```
 
-| Worker | Role | Output example |
-|--------|------|----------------|
-| Terminal A | F-04 ledger | `audits/f04/REVIEW.md` |
-| Terminal B | Stress | `audits/stress/FAILURE_MODES.md` |
+| Worker | Role | Shape example | Output example |
+|--------|------|---------------|----------------|
+| Terminal A | F-04 ledger | deepseek-what-where-done | `audits/f04/REVIEW.md` |
+| Terminal B | Stress | glm-goal-context-done | `audits/stress/FAILURE_MODES.md` |
 
 **Never:**
 
-- Two parallel bare `opencode run` processes sharing the same OpenCode DB  
-- Subject / chat line `AGREED` without `REVIEW-STAMP.md` = YES  
-- Same prompt to both workers labeled “dual”
+- Two parallel bare `opencode run` on the same OpenCode DB  
+- Chat `AGREED` without stamp YES  
+- Same prompt text to both workers labeled “dual”  
+- Default agent `vv-controller` for narrow audit/execute tasks  
 
 If Orca unavailable → sequential single terminals or human dual; mark `DEGRADED_DUAL` if only one family.
 
 ## Single wave review dispatch
 
 ```bash
-orca terminal create --worktree active --title wave-review --command "grok" --json
+orca terminal create --worktree active --title wave-review \
+  --command 'opencode --auto --agent A/agent1st_v13-glm --model zai-coding-plan/glm-5.2' --json
+orca terminal wait --terminal <handle> --for tui-idle --timeout-ms 90000 --json
 orca terminal send --terminal <handle> --text "$(cat waves/<id>/prompts/wave-review.md)" --enter --json
+# Same reviewer session for rounds 1..N
 ```
 
 ## Execute after stamp YES
 
 ```bash
-# Confirm stamp on disk first
-grep -E '^AGREED:[[:space:]]*YES' waves/<id>/REVIEW-STAMP.md
+# Schema + live hash (paths named in stamp)
+bash "$SKILL_DIR/scripts/verify_stamp_schema.sh" waves/<id>
+bash "$SKILL_DIR/scripts/verify_stamp_hash.sh" waves/<id>
 
-orca terminal create --worktree active --title wave-exec --command "opencode" --json
+# Fresh executor session (not the review session)
+orca terminal create --worktree active --title wave-exec \
+  --command 'opencode --auto --agent A/agent1st_v36-pro --model opencode-go/deepseek-v4-pro' --json
+orca terminal wait --terminal <handle> --for tui-idle --timeout-ms 90000 --json
 orca terminal send --terminal <handle> --text "$(cat waves/<id>/prompts/execute.md)" --enter --json
 ```
 
 Executor writes `EXEC-REPORT.md` only — not STATUS/MEMORY/HANDOFF.
 
-## Message types (logical)
+## Optional: orchestration messages
 
-| Type | Meaning |
-|------|---------|
-| task REVIEW | Produce stamp or dual-review artifact |
-| task EXECUTE | Run approved PLAN after YES |
-| worker_done | Artifact path ready |
-| escalation | Blocker needs human / orchestrator |
-| decision_gate | Human G0/G1/G-deploy |
+Supervised `worker_done` / task DAGs via Orca orchestration are fine when the coordinator already uses that skill. They are **not** required for dual-review validity — files on disk are.
 
 ## Identity + invalid
 

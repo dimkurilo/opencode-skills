@@ -74,11 +74,15 @@ copy_file "$T/waves/README.md.tmpl" "$PROJECT_DIR/waves/README.md"
 copy_file "$T/waves/_template/REVIEW-STAMP.md.tmpl" "$PROJECT_DIR/waves/_template/REVIEW-STAMP.md"
 copy_file "$T/waves/_template/EXEC-REPORT.md.tmpl" "$PROJECT_DIR/waves/_template/EXEC-REPORT.md"
 copy_file "$T/waves/_template/STATUS.md.tmpl" "$PROJECT_DIR/waves/_template/STATUS.md"
+# Wave contract templates (sources). Copy into live waves/<slug>/ when starting a wave —
+# do not treat waves/_template as a live wave (see verify_wave_ready.sh).
+copy_file "$T/waves/_template/PLAN.md.tmpl" "$PROJECT_DIR/waves/_template/PLAN.md.tmpl"
+copy_file "$T/waves/SPEC.md.tmpl" "$PROJECT_DIR/waves/_template/SPEC.md.tmpl"
 copy_file "$T/docs/access-map.md.tmpl" "$PROJECT_DIR/docs/access-map.md"
 copy_file "$T/docs/cross-project-map.md.tmpl" "$PROJECT_DIR/docs/cross-project-map.md"
 copy_file "$T/audits/README.md.tmpl" "$PROJECT_DIR/audits/README.md"
 
-for c in README executor-cheatsheet orchestrator-cheatsheet auditor-cheatsheet flash-cheatsheet; do
+for c in README executor-cheatsheet orchestrator-cheatsheet auditor-cheatsheet flash-cheatsheet model-shapes dispatch-algorithm; do
   copy_file "$T/prompts/_dispatch/${c}.md.tmpl" "$PROJECT_DIR/prompts/_dispatch/${c}.md"
 done
 

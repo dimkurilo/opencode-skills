@@ -6,7 +6,7 @@ A skill for people who run **several AI agents** on one product: one leads, one 
 
 Works with OpenCode, Grok, and other CLIs that read `SKILL.md`.
 
-**Version:** 0.6.0 · **License:** MIT
+**Version:** 0.6.1 · **License:** MIT
 
 ---
 
@@ -102,13 +102,13 @@ I do not sit on one model. Current set:
 |-------|------|-----|
 | **Grok 4.5** (native build) | Often lead / long sessions | Fast think-write-check loop |
 | **Claude Code** | Lead on **GLM 5.2** (and when the Claude Code shell fits better) | Different head and UX; good for plan + workers |
-| **OpenCode** | **GLM 5.2**, **DeepSeek V4 Pro** (others as needed) | Workers: checklist check, “what breaks”, implement |
+| **OpenCode** | **GLM 5.2**, **DeepSeek V4 Pro**, sometimes **GPT-5.6** | Workers: checklist check, “what breaks”, implement |
 
 Why not “Claude everywhere” or “Grok everywhere”:
 
-- **Different families** for two-model review. DeepSeek and GLM often complement each other: one holds the checklist and evidence, the other breaks “what if we ship”.
+- **Different families** for two-model review. DeepSeek, GLM, and GPT-5.6 often complement each other: one holds the checklist and evidence, the other breaks “what if we ship”.
 - **Lead** is usually Claude Code (often GLM 5.2) **and/or** Grok 4.5 in the native build. Whichever has less friction that day. Not a religion.
-- **Personal agent instructions** (roles, AGENTS, personas) stay **private**. The public skill only ships the skeleton: modes, stamp, who may write what, Orca recipe. The kitchen of prompts is mine.
+- **How you phrase the task** depends on the model family (what/where/done vs Goal…Done vs Task+Done vs Goal+Success+Stop). In-package cheat sheet: `references/model-prompt-shapes.md`. Full personal guides and agent personas stay **private**.
 
 Short: *several shells + several model families + Orca as the table so they do not collide*.
 

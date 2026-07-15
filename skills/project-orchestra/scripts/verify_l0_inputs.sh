@@ -49,9 +49,14 @@ check_file "INTENT.md" "$PROJECT_DIR/INTENT.md" 0
 check_file "MEMORY.md" "$PROJECT_DIR/.agents/memory/MEMORY.md" 0
 check_file "SESSION_HANDOFF.md" "$PROJECT_DIR/SESSION_HANDOFF.md" 0
 check_file "CLAUDE.md" "$PROJECT_DIR/CLAUDE.md" 0
-check_file "Grok entry (.grok/)" "$PROJECT_DIR/.grok" 0
 
-# Directory markers
+# Directory markers (use -d, not -f)
+if [[ -d "$PROJECT_DIR/.grok" ]]; then
+  echo "PRESENT: Grok entry (.grok/) → $PROJECT_DIR/.grok"
+  PASS=$((PASS + 1))
+else
+  echo "MISSING (optional): Grok entry (.grok/)"
+fi
 if [[ -d "$PROJECT_DIR/.claude" ]]; then
   echo "PRESENT: .claude/ → $PROJECT_DIR/.claude"
   PASS=$((PASS + 1))

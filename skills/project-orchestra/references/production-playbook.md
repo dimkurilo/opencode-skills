@@ -7,12 +7,16 @@ File-first. Chat is transport, not authority.
 ```
 1. INTENT (parent or workstream)
 2. PLAN wave          → mode wave (peer wave-spec OR templates)
-3. DUAL-REVIEW        → when gate table requires (see below)
-4. STAMP              → raeh-review → REVIEW-STAMP.md
-5. HASH               → hash_acceptance.sh
-6. NEW SESSION        → raeh-execute (executor)
-7. EVIDENCE           → EXEC-REPORT.md + paths
-8. HANDOFF            → append parent SESSION_HANDOFF; orchestrator updates STATUS/MEMORY
+3. DISPATCH PREP      → for each worker: role × family × prompt shape
+                        (references/dispatch-algorithm.md)
+                        GPT-5.6 = Goal+Success+Stop lean
+4. DUAL-REVIEW        → when gate table requires (two families, two shapes)
+5. STAMP              → raeh-review → REVIEW-STAMP.md (same reviewer session, rounds 1..N)
+6. HASH               → hash_acceptance.sh → real 64-hex on stamp
+7. PRE-EXECUTE GATE   → verify_stamp_schema.sh + verify_stamp_hash.sh (paths named in stamp)
+8. NEW SESSION        → raeh-execute (fresh executor session; brief via same algorithm)
+9. EVIDENCE           → EXEC-REPORT.md + paths
+10. HANDOFF           → append parent SESSION_HANDOFF; orchestrator updates STATUS/MEMORY
 ```
 
 Lightweight exceptions: tiny doc tweak with no acceptance change → skip stamp.  

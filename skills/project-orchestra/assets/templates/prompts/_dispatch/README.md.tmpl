@@ -1,12 +1,21 @@
 # prompts/_dispatch/
 
-Thin role/model envelopes. Wave-specific briefs live under `prompts/<role>/` or `waves/.../tasks/`.
+Two layers for every worker send:
 
-| File | Profile | Typical role |
-|------|---------|--------------|
-| executor-cheatsheet.md | Task→Done→Autonomy | Wave Executor |
-| orchestrator-cheatsheet.md | Goal→Context→Constraints→Done | Orchestrator |
-| auditor-cheatsheet.md | What→Where→Readiness | Cross-auditor |
-| flash-cheatsheet.md | One-shot | Stateless pull |
+1. **Role** cheatsheet (why: execute / plan / audit)
+2. **Model shape** (`model-shapes.md`) + **algorithm** (`dispatch-algorithm.md`)
+
+| File | What |
+|------|------|
+| executor-cheatsheet.md | Task → Done → Autonomy (role) |
+| orchestrator-cheatsheet.md | Goal → Context → Done (role) |
+| auditor-cheatsheet.md | What → Where → Readiness (role) |
+| flash-cheatsheet.md | One-shot (role) |
+| model-shapes.md | DeepSeek / GLM / Grok / **GPT-5.6** skeletons |
+| dispatch-algorithm.md | **Mandatory** role → family → shape → pin → send |
+
+Before send: open `dispatch-algorithm.md`, pick family, fill that family's skeleton, pin CLI+model+effort, write brief under `waves/<id>/prompts/`.
+
+GPT-5.6: Goal + Success + Stop (lean). Official: https://developers.openai.com/api/docs/guides/prompt-guidance-gpt-5p6
 
 Do not paste full AGENTS.md into every dispatch.

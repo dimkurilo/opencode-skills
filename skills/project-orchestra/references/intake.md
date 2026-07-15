@@ -51,6 +51,7 @@ Questions:
 | 1 | Full OS / 4-file home / workstream / wave / stamp-execute? | full / bootstrap-lite / workstream-new / wave / raeh-* |
 | 2 | Is this folder the program root? | parent path |
 | 3 | One model or multi-family roles? | full vs lite; dual-review |
+| 3b | If multi: who leads / executes / audits (families: Grok, GLM, DeepSeek, GPT-5.6)? | Phase 0 roster + dispatch shapes |
 | 4 | One task vs multi-session program? | lite vs full / workstream |
 | 5 | Prod / public / money this session? | dual-review gate |
 | 6 | (If large) Which path/theme is in scope? | workstream slug / cwd |

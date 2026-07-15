@@ -66,9 +66,10 @@ copy_file() {
 echo "=== install_bootstrap_lite → $PROJECT_DIR (name=$PROJECT_NAME) ==="
 mkdir -p "$PROJECT_DIR/.agents/memory"
 
-copy_file "$T/AGENTS.md.tmpl" "$PROJECT_DIR/AGENTS.md"
-copy_file "$T/SESSION_HANDOFF.md.tmpl" "$PROJECT_DIR/SESSION_HANDOFF.md"
-copy_file "$T/MEMORY.md.tmpl" "$PROJECT_DIR/.agents/memory/MEMORY.md"
+# Dedicated lite templates (not full multi-wave AGENTS/STATUS/waves claims)
+copy_file "$T/bootstrap-lite/AGENTS.md.tmpl" "$PROJECT_DIR/AGENTS.md"
+copy_file "$T/bootstrap-lite/SESSION_HANDOFF.md.tmpl" "$PROJECT_DIR/SESSION_HANDOFF.md"
+copy_file "$T/bootstrap-lite/MEMORY.md.tmpl" "$PROJECT_DIR/.agents/memory/MEMORY.md"
 copy_file "$T/gitignore.tmpl" "$PROJECT_DIR/.gitignore"
 
 echo ""

@@ -19,12 +19,14 @@ ${PROGRAM_GOAL}
 
 ## 2. Architecture: Roles
 
-| Role | Model | CLI | Workload | Write scope |
-|------|-------|-----|----------|-------------|
-| Orchestrator | ${ORCHESTRATOR} | ${ORCH_CLI} | ${ORCH_PCT} | STATUS, MEMORY, program SPEC |
-| Wave Executor | ${EXECUTOR} | ${EXEC_CLI} | ${EXEC_PCT} | audits/executor, EXEC-REPORT, research |
-| Cross-auditor | ${AUDITOR} | ${AUD_CLI} | ${AUD_PCT} | audits/auditor |
-| Stateless pull | ${FLASH} | ${FLASH_CLI} | ${FLASH_PCT} | research only |
+| Role | Model family | CLI | Prompt shape | Workload | Write scope |
+|------|--------------|-----|--------------|----------|-------------|
+| Orchestrator | ${ORCHESTRATOR} | ${ORCH_CLI} | ${ORCH_SHAPE} | ${ORCH_PCT} | STATUS, MEMORY, program SPEC |
+| Wave Executor | ${EXECUTOR} | ${EXEC_CLI} | ${EXEC_SHAPE} | ${EXEC_PCT} | audits/executor, EXEC-REPORT, research |
+| Cross-auditor | ${AUDITOR} | ${AUD_CLI} | ${AUD_SHAPE} | ${AUD_PCT} | audits/auditor |
+| Stateless pull | ${FLASH} | ${FLASH_CLI} | ${FLASH_SHAPE} | ${FLASH_PCT} | research only |
+
+Shape ids: see `prompts/_dispatch/model-shapes.md` + `dispatch-algorithm.md`.
 
 ---
 
