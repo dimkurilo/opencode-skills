@@ -7,6 +7,18 @@
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-07-16
+
+### Removed
+- **project-orchestra** — no longer published in this repository.
+  - Dropped from public git tree (`skills/project-orchestra/` ignored locally if present).
+  - Removed from root README EN/RU (table, “which skill when”, install blocks, repo tree).
+  - Orchestra-titled GitHub Releases for historical tags retired; see release notes for v0.7.0.
+
+### Notes
+- Remaining public skills: **project-bootstrap**, **vs-architect**.
+- CHANGELOG entries for 0.5.x–0.6.x kept as history of past monorepo content.
+
 ## [0.6.1] - 2026-07-16
 
 ### Added

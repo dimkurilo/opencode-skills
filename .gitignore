@@ -32,3 +32,6 @@ research/
 # Safety net: never publish research dirs inside skill packages
 skills/**/research/
 NEXT_SESSION_ORCHESTRA*.md
+
+# Local-only archive of unpublished skill (not part of public product)
+skills/project-orchestra/
