@@ -1,4 +1,0 @@
-interface:
-  display_name: "Project Orchestra"
-  short_description: "Several agents on one product: look at folder, set up themes and waves"
-  default_prompt: "Look at this project folder, say what you see, propose full / four-file / theme / wave / review as needed, ask up to five questions if unclear, then set it up."
