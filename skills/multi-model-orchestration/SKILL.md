@@ -322,4 +322,5 @@ Coordinator names models to human BEFORE dispatch — human can veto expensive c
 - `references/routing.md` — full model routing table, brief templates per model, examples
 - `references/worker-contract.md` — output contract spec, inject preamble, worker_done format
 - `references/failure-handling.md` — timeout policy, escalation, self-correction, circuit-breaker
-<!-- Changelog: v1.0 initial · v1.1 +MCP policy, +audit log, +cost guidance, +Orca fallback, universalized briefs · v1.2 dispatch sequence fix, description cleanup, anti-pattern #8 alignment, universal language markers, coordinator universality · v1.3 [platform] routing, fidelity port rules, deploy gate (corrected curl), lifecycle states (commit→PR→merge chain), writer replaceability -->
+- `references/model-card.md` — model roles + «не путать с» + evidence 1-liners + owner pin
+<!-- Changelog: v1.0 initial · v1.1 +MCP policy, +audit log, +cost guidance, +Orca fallback, universalized briefs · v1.2 dispatch sequence fix, description cleanup, anti-pattern #8 alignment, universal language markers, coordinator universality · v1.3 [platform] routing, fidelity port rules, deploy gate (corrected curl), lifecycle states (commit→PR→merge chain), writer replaceability · v1.4 +model-card reference -->

@@ -111,7 +111,16 @@ Output: SUMMARY / EVIDENCE / CHANGES / RISKS / BLOCKERS
 
 **Language note:** Field names (Задача/Где/Контекст) are Russian by convention for this user's workflow. For non-Russian coordinators, use equivalent structure: Task / Where / Context / Do-not-touch. The 【】 injection block stays in Chinese regardless.
 
-### Qwen 3.8 Max (agent1st_v5.1-qwen-3.8)
+### Qwen 3.8 Max (agent1st_v5.2-qwen-3.8) — **CURRENT default**
+
+| | |
+|--|--|
+| **Launch** | `opencode --agent A/agent1st_v5.2-qwen-3.8` |
+| **Agent file** | `~/.config/opencode/agents/A/agent1st_v5.2-qwen-3.8.md` |
+| **Absolute** | `/Users/dimk/.config/opencode/agents/A/agent1st_v5.2-qwen-3.8.md` |
+| **v5.1** | **Do not use for new work** — historical/rollback only |
+| **v5.2 delta** | v5.1 + [TICKET] JUDGMENT patches (runtime-boundary fidelity, self-skepticism, evidence hygiene, brief-as-plan, written≠persisted, …) |
+
 
 ```
 ### Context

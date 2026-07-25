@@ -7,6 +7,7 @@
 
 ## [Unreleased]
 
+- **multi-model-orchestration:** Qwen agent pin **v5.2** — default OpenCode agent is `A/agent1st_v5.2-qwen-3.8` (`~/.config/opencode/agents/A/agent1st_v5.2-qwen-3.8.md`); v5.1 retired for new work. Documented in `references/model-card.md` + `routing.md`.
 - **wave-spec v1.2** — de-SEO reframe: universal plan-gate for development, content, skill-port, translation, orchestration, and site rebuild. New `references/program-maps.md` with 4 domain-specific menus (skill-port, translation, fidelity port, SEO as optional §4). SPEC/PLAN templates neutral — SEO workstream enum replaced with domain-agnostic placeholders + program-maps pointer. INTENT Sites/URLs→Targets, Stack neutral. Scaling section rewritten: program→waves pattern with worked examples [TICKET] + [client-project] I0–I7; WooCommerce P0–P7 table removed as default. Quality bar, anti-patterns, positioning de-SEO'd. `references/seo-program-map.md` deleted — content migrated to program-maps §4.
 ### Added
 - **multi-model-orchestration v1.3** — new public skill: coordinate 2+ AI models (GLM 5.2, DeepSeek V4 Pro/Flash, Qwen 3.8 Max, Grok 4.5, Codex 5.5, GPT-5.6) for parallel review, cross-validation, and bulk work via Orca orchestration. Includes [platform] routing table, fidelity port dual review rules, deploy gate with corrected curl probe, lifecycle states with commit→PR→merge chain, and writer replaceability pattern.
