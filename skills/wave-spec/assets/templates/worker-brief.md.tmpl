@@ -1,8 +1,9 @@
 # Task ${TASK_ID} — ${TITLE}
 
-## Role
+## Role / Mode
 
-You are **EXECUTOR**, not strategist. Do not rewrite SPEC/PLAN. Do not expand scope.
+You are **EXECUTOR**, not strategist. **Mode: ${MODE}**  <!-- implement | review-only | research -->
+Do not rewrite SPEC/PLAN. Do not expand scope.
 
 ## Read first (in order)
 
@@ -10,7 +11,7 @@ You are **EXECUTOR**, not strategist. Do not rewrite SPEC/PLAN. Do not expand sc
 2. Last block of `SESSION_HANDOFF.md` if present
 3. `${SPEC_PATH}` (only goal, scope, constraints, sources)
 4. PLAN task `${TASK_ID}` only
-5. Listed sources below
+5. Sources listed below
 
 ## Sources
 
@@ -35,10 +36,13 @@ ${DONE_WHEN}
 - Production deploy / paid purchases / server secrets without human gate
 - "While I'm here" refactors outside Do only
 
-## Report back (5 lines max)
+## Report (worker contract)
 
-1. What was done  
-2. Artifact paths  
-3. Blockers  
-4. Suggested next task id (if any)  
-5. Confidence (low/med/high) + why  
+Send `worker_done` exactly once with a **3-sentence body**: what you did, what you found, what's left.
+Then the structured artifact:
+
+**SUMMARY / EVIDENCE / CHANGES / RISKS / BLOCKERS**
+
+- EVIDENCE = `path:line`, command + exit code, or URL + finding (no unverified claims).
+- CHANGES = files touched, or "None."
+- RISKS / BLOCKERS = or "None observed." / "None."

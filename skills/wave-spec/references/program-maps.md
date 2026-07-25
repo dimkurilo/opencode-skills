@@ -26,7 +26,7 @@ For multi-skill portfolio development (e.g. opencode-skills), cross-platform fid
 - Regression checklist per platform
 
 **Review / lifecycle:**
-- Dual review (GLM static parity ∥ Codex behavioral semantics)
+- Dual review (static-parity reviewer ∥ behavioral-semantics reviewer; example pair GLM ∥ Codex)
 - Deploy probe: file existence, route check, install-path verify
 - Lifecycle gates: Implement → In Review → Commit → PR → Merge → Deploy → Done
 
@@ -38,7 +38,7 @@ For multi-skill portfolio development (e.g. opencode-skills), cross-platform fid
 ### Wave sizing
 - One wave = one skill or one cross-skill contract
 - Inventory+baseline before architecture before port before review
-- Parallel waves OK if artifact paths don't overlap
+- Parallel waves OK if artifact paths don't overlap — canonical rule: "Parallel tasks do not share write paths" (SKILL.md → Quality bar)
 
 ### Anti-patterns
 - Implementing before SPEC/PLAN approved
@@ -88,7 +88,15 @@ For translating a book through multiple quality passes: glossary extraction → 
 ### Anti-patterns
 - Starting translation without frozen glossary
 - Merging passes without synthesis rules
-- Parallel editors on same chapter
+- Parallel editors on same chapter — violates "Parallel tasks do not share write paths" (SKILL.md → Quality bar)
+
+### Worked walk (INTENT → Done)
+1. INTENT: "translate <book> to <lang>, keep the author's voice"; Targets = source file + any existing glossary.
+2. Pilot wave: freeze a shared read-only glossary → draft chapters 1–3 with 3 models × 3 passes → merge via synthesis (stricter wins).
+3. Draft waves: remaining chapters, parallelizable by chapter — each chapter owns its own artifact path (no shared write path).
+4. Literary + QA wave (sequential, needs full draft): voice alignment → term consistency vs frozen glossary → cross-chapter coherence.
+5. Typeset wave: format prep → TOC/index → final proof; deploy probe = rendered PDF/HTML exists at the output path.
+6. Done: all chapters typeset, QA regression green, glossary unchanged since freeze, handoff names any residual/untranslated sections.
 
 ---
 
@@ -120,8 +128,9 @@ For porting a product (SaaS, app, platform) from one stack to another with behav
 - Owner smoke: manual verification on production
 
 **Dual review:**
-- GLM: static parity (file:line matrix, code structure)
-- Codex/equivalents: behavioral semantics (hosted behavior, cost regressions)
+- Static-parity reviewer (file:line matrix, code structure) — e.g. GLM
+- Behavioral-semantics reviewer (hosted behavior, cost regressions) — e.g. Codex
+- Writer ≠ reviewer; single-reviewer fidelity ports NOT accepted
 - Synthesis: stricter wins, all MAJOR closed before In Review
 
 ### Wave sizing
@@ -133,6 +142,14 @@ For porting a product (SaaS, app, platform) from one stack to another with behav
 - Single-model fidelity review (must be dual)
 - Writer = reviewer (banned for fidelity ports)
 - Deploy without probe (RESIDUAL-RISK-OWNER-SMOKE)
+### Worked walk (INTENT → Done)
+1. INTENT: "port <product> from <reference stack> to <target stack> with behavioral parity"; the reference is frozen — capture its behavior, do not edit it.
+2. P0 wave: reference capture (API surface + input→output snapshots) → parity matrix (feature × platform, highest-risk first) → scaffolding + CI + deploy pipeline.
+3. P1→P3 waves: core domain (auth, data model) → API surface → UX/UI; one wave per phase, strict order, each its own artifact path.
+4. Each phase: writer implements → dual review (static-parity ∥ behavioral-semantics, writer ≠ reviewer) → fix-round closes every MAJOR → In Review.
+5. Regression + deploy probe: automated parity tests green; curl new endpoints (response ≠ 404); owner smoke on production.
+6. Done: parity matrix fully closed, deploy-probe evidence cited, any un-smoked surface named RESIDUAL-RISK-OWNER-SMOKE.
+
 
 ---
 

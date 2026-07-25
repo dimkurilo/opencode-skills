@@ -13,9 +13,11 @@
 
 | id | title | owner | state | artifact | notes |
 |----|-------|-------|-------|----------|-------|
-| T01 | | | pending | | |
+| T01 | | | implement_done | | |
 
-States: `pending` | `ready` | `running` | `blocked` | `done` | `failed` | `skipped`
+States (lifecycle — aligns with SKILL.md Lifecycle Gates, NOT a parallel pending|ready|running set):
+`implement_done` | `in_review` | `commit` | `pr` | `merge` | `deploy_gate` | `on_prod` | `done`
+Residual: append `RESIDUAL-RISK-OWNER-SMOKE` to notes when on prod without live smoke. Never mark `done` before deploy proof.
 
 ## Blockers
 

@@ -17,6 +17,10 @@ structured XML artifacts in the repo, any orchestrator CLI.
 
 **You (the agent) execute this skill.** The user does not need to invent the pipeline.
 
+> **Positioning (identity):** wave-spec is a **universal plan-gate + lifecycle skill for 1–3 week product waves across any domain** — development, content, skill-port, translation, orchestration, site rebuild.
+> It is NOT an SEO costume and NOT gsd-core / gsd-coordinator / vv-opencode runtime — no agentic dispatch, no worktree groups, no structured handoff beyond project-local SESSION_HANDOFF.
+> The lifecycle gates below are the contract; full identity and boundaries in [Positioning](#positioning).
+
 ## Modes
 
 | Mode | Trigger | Output |
@@ -96,7 +100,7 @@ After INTENT + context read:
 2. Ask **only** questions that unblock SPEC (max 7). Each question: options + recommended default.
 3. Do **not** interview for things already answered in AGENTS/handoff/research.
 
-If user says «решай сам / use defaults» → mark assumptions explicitly in SPEC.
+If user says «решай сам / use defaults» → mark assumptions explicitly: log them via `assets/templates/ASSUMPTIONS.md.tmpl` and record them in the SPEC `<assumptions>` block.
 
 ### 3. SPEC.xml (structured — agent-facing)
 
@@ -173,6 +177,8 @@ You are EXECUTOR, not strategist.
 - expand scope
 - edit plan/SPEC
 ```
+
+Full brief shape — `ROLE / MODE`, Read first, Do only, Write only, Done when, Forbidden, and the worker report contract — lives in `assets/templates/worker-brief.md.tmpl`.
 
 3. If Orca available, print (do not force) commands:
 
@@ -259,7 +265,7 @@ Executors **do not** rewrite SPEC/PLAN. They may append STATUS notes.
 
 ## References
 
-- `assets/templates/` — INTENT, SPEC.xml, PLAN.xml, STATUS, brief  
+- `assets/templates/` — INTENT, SPEC.xml, PLAN.xml, STATUS, worker-brief, review-synthesis, fix-round-brief, ASSUMPTIONS  
 - `references/program-maps.md` — domain-specific program maps (4 menus: skill-port, translation, fidelity port, SEO)  
 - `references/vv-portability.md` — mapping to vv-opencode tags  
 
@@ -283,7 +289,7 @@ Executors **do not** rewrite SPEC/PLAN. They may append STATUS notes.
 | State | Definition | Gate |
 |-------|-----------|------|
 | **Implement done** | Writer finished, own verification green (build/lint/tests per project), implement notes written | `worker_done` or executor signals completion |
-| **In Review** | Dual review passed: static parity (GLM) ∥ behavioral semantics (Codex/equivalents). 0 MAJOR or all MAJOR fixed. Writer ≠ reviewer | Synthesis: stricter wins, all MAJOR closed |
+| **In Review** | Dual review passed: static-parity reviewer ∥ behavioral-semantics reviewer (example pair GLM ∥ Codex). 0 MAJOR or all MAJOR fixed. Writer ≠ reviewer | Synthesis: stricter wins, all MAJOR closed (template: `review-synthesis.md.tmpl`; action via `fix-round-brief.md.tmpl`) |
 | **Commit** | Public paths committed to branch. Only project-tracked files staged — no dev files (AGENTS.md, SESSION_HANDOFF, .agents/) | `git status` clean of dev files. No merge yet |
 | **PR** | Pull request opened, reviewable by orchestrator/team. All gates below merge verified independently | PR gate: description complete, reviewers assigned |
 | **Merge** | PR approved, merged to main. CI green, no unresolved review threads | Merge gate: CI green |
@@ -297,13 +303,25 @@ Do **not** equate "writer claims Done" with "In Review passed" or "prod-ready". 
 
 **Ban:** «NEXT product» handoff while Deploy gate not passed. Handoff with residual risk must say **RESIDUAL-RISK-OWNER-SMOKE** explicitly — never claim Done without deploy proof.
 
+### Wave closeout checklist
+
+Gate before lifecycle-**Done** — tie the contract to concrete folder artifacts:
+
+- STATUS.md final state = `done` (lifecycle enum); every task row reconciled, no orphan `in_review` / `commit`.
+- SESSION_HANDOFF block appended (project protocol); durable facts → MEMORY.md.
+- `reviews/` and `notes/` archived inside the wave folder (`waves/<date>-<slug>/`).
+- Residual risks named explicitly — `RESIDUAL-RISK-OWNER-SMOKE` when there is no live smoke.
+- Deploy-probe evidence cited: the exact command + output that proves the artifact reached production.
+
+No probe and no named residual = not Done.
+
 ---
 
 ## Fidelity Dual Review
 
 For fidelity ports, reference→platform migrations, or behavioral parity waves:
 
-1. **Dual review mandatory:** GLM (static parity, file:line matrix) ∥ Codex or equivalent behavioral reviewer (hosted semantics, cost/state regressions). Single-reviewer fidelity ports are NOT accepted.
+1. **Dual review mandatory:** a static-parity reviewer (file:line matrix, code structure) ∥ a behavioral-semantics reviewer (hosted semantics, cost/state regressions). Example pair: GLM ∥ Codex — but the ROLE matters, not the product: any two complementary lenses from different model families satisfy this. Single-reviewer fidelity ports are NOT accepted.
 2. **Writer ≠ reviewer.** Flash = explicitly excluded from fidelity reviews (simplifies, [TICKET] post-mortem).
 3. **MAJOR from any reviewer → fix round before In Review.** Stricter severity wins on contradictions.
 4. **No live smoke = RESIDUAL-RISK-OWNER-SMOKE** in handoff. Document explicitly. Do not claim Done — claim Done-with-residual.
@@ -353,3 +371,4 @@ For multi-model orchestration (parallel review, dispatch, fidelity port routing)
 - **v1.0** — initial portable wave-spec from vv-method
 - **v1.1 ([TICKET])** — lifecycle gates (Implement→In Review→Commit→PR→Merge→Deploy Probe→On Prod→Done), fidelity dual review, deploy probe curl pattern, RESIDUAL-RISK-OWNER-SMOKE, NEXT product ban, Installation/SoT section, discoverability pointers, positioning, README bilingual + residual
 - **v1.2 ([TICKET] reframe)** — de-SEO: universal plan-gate across domains. `program-maps.md` (4 menus); SEO optional §4 only. Templates neutral; INTENT Targets + neutral Stack; Scaling examples = [TICKET] + [client-project]; not WooCommerce-default.
+- **v1.3 ([TICKET] post-mortem fix-round)** — templates reconciled with reality: SPEC optional review-provenance (`version`/`review_round`/`accepted_by`/`accepted_at`/`review_sources`) + `<assumptions>` block; PLAN attribute-style tasks as primary idiom (child-elements documented fallback), neutral gate wording, `model_hint` clarified; STATUS state enum = lifecycle states (`implement_done|in_review|commit|pr|merge|deploy_gate|on_prod|done`). Fidelity dual review generalized from model names to roles (static-parity ∥ behavioral-semantics; example pair GLM ∥ Codex; writer≠reviewer, Flash excluded, single-reviewer NOT accepted). New `review-synthesis.md.tmpl`, `fix-round-brief.md.tmpl`, `ASSUMPTIONS.md.tmpl`. Worker-brief aligned to the Orca contract (ROLE/MODE + 3-sentence `worker_done` + SUMMARY/EVIDENCE/CHANGES/RISKS/BLOCKERS). Added wave-closeout checklist, top Positioning block, program-maps quality-bar cross-link + book/fidelity worked walks.

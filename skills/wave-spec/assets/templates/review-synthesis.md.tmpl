@@ -1,0 +1,45 @@
+# Review Synthesis — ${SLUG}
+
+> Coordinator artifact. Written after dual review completes, before the task moves to In Review.
+> Mirrors `notes/[note].md` / [client-project] `reviews/SYNTHESIS-roundN.md`.
+
+**Date:** ${DATE}
+**Mode:** review-only (synthesis of completed reviews)
+**Reports:** ${REVIEW_PATHS}  <!-- e.g. reviews/<reviewer>-roundN.md -->
+**Reviewers:** static-parity: <name> ∥ behavioral-semantics: <name>  <!-- roles, not products; e.g. GLM ∥ Codex -->
+
+## Verdict (coordinator)
+
+**${VERDICT}**  <!-- APPROVE | APPROVE_WITH_CHANGES | CHANGES_REQUESTED -->
+
+<1–2 sentences: what is solid, what must change.>
+
+## Consensus
+
+| Topic | Static-parity reviewer | Behavioral-semantics reviewer | Decision |
+|-------|------------------------|-------------------------------|----------|
+| <topic> | <call> | <call> | <decision> |
+
+## Contradiction resolution (stricter wins)
+
+| Point | Reviewer A | Reviewer B | Coordinator pick |
+|-------|-----------|-----------|------------------|
+| <point> | <call> | <call> | <stricter call + why> |
+
+On contradictions, the **stricter severity wins**. A MAJOR from any reviewer is a MAJOR for the wave.
+
+## MAJOR closure list
+
+| ID | Finding | Source | Status |
+|----|---------|--------|--------|
+| M1 | <finding> | <reviewer> | open → closed (fix-round) / deferred-residual |
+
+All MAJOR must be closed (or named residual) before the task moves to In Review.
+
+## Owner decision needed
+
+- <only choices the owner must make; none → "None.">
+
+## Residual
+
+- <RESIDUAL-RISK-OWNER-SMOKE items, if any; else "None.">

@@ -19,31 +19,31 @@
   </phases>
 
   <tasks>
-    <task id="T01">
-      <title></title>
-      <stream></stream><!-- domain-specific stream id (optional); e.g. "inventory" or "parity-matrix". See references/program-maps.md -->
-      <depends_on></depends_on><!-- e.g. T01 or empty -->
-      <owner>claude-glm</owner><!-- orchestrator|claude-glm|opencode-flash|grok|human -->
-      <model_hint></model_hint>
-      <artifact>research/${SLUG}/T01.md</artifact>
-      <done_when></done_when>
-      <notes></notes>
+    <!-- PRIMARY idiom: attribute-style tasks (what real waves use — [client-project] I0–I7).
+         One line per task; easiest for agents to scan. -->
+    <task id="T01" title="" depends_on="" owner="claude-glm" stream="" artifact="research/${SLUG}/T01.md" done_when="">
+      <!-- owner: orchestrator|claude-glm|opencode-flash|grok|human, or a free-text routing hint
+           (e.g. "deepseek-implement + glm-review"). stream: optional domain stream id (program-maps.md). -->
+      <model_hint><!-- OPTIONAL free-text routing hint, e.g. "glm-5.2 writer + codex reviewer".
+           Not an enum — omit if owner already says who; never leave a bare empty tag. --></model_hint>
+      <status><!-- lifecycle state, tracked authoritatively in STATUS.md:
+           implement_done|in_review|commit|pr|merge|deploy_gate|on_prod|done --></status>
+      <do><!-- optional: concrete steps --></do>
+      <note><!-- optional --></note>
     </task>
 
-    <task id="T02">
-      <title></title>
-      <stream></stream>
-      <depends_on></depends_on>
-      <owner>claude-glm</owner>
-      <model_hint></model_hint>
-      <artifact>research/${SLUG}/T02.md</artifact>
-      <done_when></done_when>
-      <notes></notes>
-    </task>
+    <task id="T02" title="" depends_on="T01" owner="claude-glm" artifact="research/${SLUG}/T02.md" done_when="" />
+
+    <!-- FALLBACK idiom (verbose; use only when an orchestrator cannot emit attributes):
+         <task id="T03">
+           <title></title><depends_on></depends_on><owner>claude-glm</owner>
+           <artifact>research/${SLUG}/T03.md</artifact><done_when></done_when>
+         </task>
+    -->
   </tasks>
 
   <gates>
-    <gate id="G1" owner="human" when="before production CMS changes">
+    <gate id="G1" owner="human" when="before production / irreversible changes">
       Review artifacts and approve deploy/edits.
     </gate>
   </gates>

@@ -1,0 +1,51 @@
+# Fix-round brief — ${SLUG} (round ${ROUND})
+
+> Coordinator → worker dispatch brief for closing review findings.
+> Mirrors `briefs/[brief].md`. Field names are English by default;
+> for this user's workflow the Russian convention (Задача / Где / Сейчас / Должно быть) is equivalent.
+
+## Role / Mode
+
+You are **EXECUTOR** for a fix-round. **Mode: implement.** Close the findings below; do not re-litigate the review verdict.
+
+## Read first
+
+1. `AGENTS.md` (project rules)
+2. The synthesis: `${SYNTHESIS_PATH}` (verdict + MAJOR closure list)
+3. The review(s) being actioned: `${REVIEW_PATHS}`
+4. `${SPEC_PATH}` (scope + constraints only)
+
+## Findings to close
+
+### MAJOR (must all close before In Review)
+
+- **M1** — <finding> → Fix: <action> → Re-verify: <command/check>
+
+### MINOR
+
+- **m1** — <finding> → Fix: <action> → Re-verify: <command/check>
+
+## Do only
+
+- Apply the fixes above, one per finding.
+- Re-run the cited verification per finding.
+
+## Write only
+
+${ARTIFACT_PATHS}
+
+## Done when
+
+- Every MAJOR closed and re-verified; MINOR closed or explicitly deferred with reason.
+- Fix notes written to `${FIX_NOTES_PATH}` with per-finding status + evidence.
+
+## Forbidden
+
+- Re-open the review verdict / expand scope beyond the listed findings.
+- Edit `SPEC.xml`, `PLAN.xml`, or other tasks' artifacts.
+- Claim Done without per-finding re-verification evidence.
+
+## Report (worker contract)
+
+3-sentence `worker_done` body (what you did, what you found, what's left) +
+**SUMMARY / EVIDENCE / CHANGES / RISKS / BLOCKERS**.

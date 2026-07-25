@@ -7,6 +7,16 @@
   <slug>${SLUG}</slug>
   <title>${TITLE}</title>
 
+  <!-- Optional review provenance — fill when the SPEC goes through multi-model review.
+       Mirrors [client-project] SPEC; the lifecycle "In Review → approved" gate reads these. -->
+  <version><!-- e.g. 0.3-accepted --></version>
+  <review_round><!-- integer; 0 if no review --></review_round>
+  <accepted_by><!-- human | orchestrator --></accepted_by>
+  <accepted_at><!-- YYYY-MM-DD --></accepted_at>
+  <review_sources>
+    <file><!-- waves/<slug>/reviews/<reviewer>-roundN.md --></file>
+  </review_sources>
+
   <goal>
     <summary><!-- 1-2 paragraphs --></summary>
     <success_criteria>
@@ -29,6 +39,12 @@
     <constraint id="C-evidence">No invented metrics; every number needs source.</constraint>
     <constraint id="C-stack"><!-- e.g. React + Node.js // Python + FastAPI — repo/platform/language pair --></constraint>
   </constraints>
+
+  <assumptions>
+    <!-- Mark assumptions made when the user said "use defaults / решай сам".
+         Each assumption = a decision the user did NOT make explicitly. See ASSUMPTIONS.md.tmpl. -->
+    <assumption id="AS1" decision="default"><!-- what was assumed + why --></assumption>
+  </assumptions>
 
   <sources>
     <!-- path or URL + date; do not invent -->
