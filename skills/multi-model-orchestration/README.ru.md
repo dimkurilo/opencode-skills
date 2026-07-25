@@ -36,7 +36,7 @@
 
 - **Таблица маршрутизации:** 7 типов задач → модели с evidence из волн I3–[TICKET]
 - **Dual review обязателен:** fidelity-порты требуют GLM 5.2 (static parity) ∥ Codex 5.5 (hosted semantics) — комплементарны, не избыточны
-- **Deploy gate:** curl-проверка доказывает существование новых роутов перед handoff (исправленные `curl`-паттерны: без `-L` для auth-gated + `-sIL -w` для финального статуса)
+- **Deploy / smoke gate:** доказать, что поставленная поверхность существует перед handoff (принцип + curl-примеры в `references/routing.md`)
 - **Жизненный цикл:** 7 явных гейтов: implement → review → commit → PR → merge → deploy → done. Не схлопывать в «writer Done»
 - **Writer replaceable:** фраза владельца «сейчас writer=X» мгновенно назначает писателя — без переписывания скилла
 
@@ -66,9 +66,10 @@ multi-model-orchestration/
 ├── README.md             # Английская версия
 ├── README.ru.md          # Этот файл — русское описание
 └── references/
-    ├── routing.md        # Полная таблица маршрутизации, шаблоны брифа под модель
-    ├── worker-contract.md # Спека output contract, формат worker_done
-    └── failure-handling.md # Политика таймаутов, эскалация, circuit-breaker
+    ├── routing.md         # Таблица маршрутизации, брифы, deploy/smoke gate
+    ├── worker-contract.md # Output contract, live worker_done CLI, written≠persisted
+    ├── failure-handling.md # Таймауты, эскалация, circuit-breaker
+    └── model-card.md      # Роли, «не путать с», evidence, owner pin, launch pins
 ```
 
 ## Лицензия

@@ -8,19 +8,24 @@ Updated: 2026-07-26.
 
 ---
 
-## Agent pins (OpenCode launch)
+## Agent pins (launch from this skill alone)
 
-| Model | Agent file (SoT under `~/.config/opencode/agents/`) | Launch |
-|-------|------------------------------------------------------|--------|
-| **Qwen 3.8 Max** | **`A/agent1st_v5.2-qwen-3.8`** ← **current** (v5.1 retired for new work) | `opencode --agent A/agent1st_v5.2-qwen-3.8` |
-| GLM 5.2 | `A/agent1st_v13-glm` | `opencode --agent A/agent1st_v13-glm` |
-| DeepSeek V4 Pro | `A/agent1st_v36-pro` | `opencode --agent A/agent1st_v36-pro --model opencode-go/deepseek-v4-pro` |
-| DeepSeek V4 Flash | `A/agent1st_v36-flash` | `opencode --agent A/agent1st_v36-flash --model opencode-go/deepseek-v4-flash` |
+| Model | Pin / CLI | Launch (Orca terminal or shell) |
+|-------|-----------|----------------------------------|
+| **Qwen 3.8 Max** | OpenCode agent **`A/agent1st_qwen-3.8`** (versionless) | `opencode --agent A/agent1st_qwen-3.8` |
+| **GLM 5.2** | OpenCode `A/agent1st_v13-glm` | `opencode --agent A/agent1st_v13-glm` · fallback model: `-m zai-coding-plan/glm-5.2` |
+| **DeepSeek V4 Pro** | OpenCode `A/agent1st_v36-pro` | `opencode --agent A/agent1st_v36-pro` · if agent not found: `opencode -m opencode-go/deepseek-v4-pro` |
+| **DeepSeek V4 Flash** | OpenCode `A/agent1st_v36-flash` | `opencode --agent A/agent1st_v36-flash` · fallback: `-m opencode-go/deepseek-v4-flash` |
+| **Codex 5.5** | **Native Codex CLI** (not an OpenCode `A/` agent) | `orca terminal create --command "codex" --json` · or shell `codex` · optional: `codex --model gpt-5.5` / effort flags per host |
+| **GPT-5.6** | **Native Codex CLI** (lean coding family) | `orca terminal create --command 'codex --model gpt-5.6' --json` · or `codex --model gpt-5.6` |
+| **Grok 4.5** | Orchestrator / Grok CLI | Coordinator session (this skill). Worker research: host Grok CLI if available — **not** for product implement. |
 
-**Qwen v5.2 (2026-07-25/26):** absolute path  
-`/Users/dimk/.config/opencode/agents/A/agent1st_v5.2-qwen-3.8.md`  
-= v5.1 + JUDGMENT-layer patches from [TICKET] combat (R1–R6, RW1–RW9): runtime-boundary fidelity, writer self-skepticism, sibling consistency, evidence hygiene, fidelity temp, brief-as-plan gate, P17 ops, mechanism-vs-effect, cross-family pre-mortem, worktree hygiene, written≠persisted.  
-**Do not launch `A/agent1st_v5.1-qwen-3.8` for new waves** — keep v5.1 only as historical reference on disk.
+**OpenCode agents** live under `~/.config/opencode/agents/` (nested `A/` → launch name **`A/<stem>`**, e.g. `A/agent1st_qwen-3.8`).  
+**Qwen versionless pin:** skills always pin `A/agent1st_qwen-3.8`. Versioned `v5.1` / `v5.2` files may remain as history/rollback only. Protocol patches (incl. written≠persisted) live **inside the agent file** — bumping protocol does not require a skill edit.
+
+**Codex / GPT are not missing pins:** they are **outside** OpenCode agent files. Security gate and fidelity merge gate still **route to Codex 5.5** via the native Codex CLI above. Do not invent a fake `A/agent1st-codex` unless the host actually provides one.
+
+**written≠persisted is a skill-wide worker gate**, not only a Qwen patch — see `worker-contract.md` and SKILL.md §2d.
 
 ---
 
@@ -28,7 +33,7 @@ Updated: 2026-07-26.
 
 | Model | Role | Не путать с | Evidence 1-liner |
 |-------|------|-------------|------------------|
-| **Qwen 3.8 Max** (`v5.2` agent) | Fidelity writer · RLS reviewer | General writer | [TICKET]: 5832-case byte-identical prompt matrix, 0 failures, build/tsc green. Best RLS alignment — caught `is_active_user()` MAJOR with concrete one-line fix. |
+| **Qwen 3.8 Max** (`agent1st_qwen-3.8`) | Fidelity writer · RLS reviewer | General writer | [TICKET]: 5832-case byte-identical prompt matrix, 0 failures, build/tsc green. Best RLS alignment — caught `is_active_user()` MAJOR with concrete one-line fix. |
 | **GLM 5.2** | Multi-file writer · Static parity reviewer | Sole reviewer | I4/I5: ~15 min multi-file implement, ~10 min fix-round, build green. [TICKET]: 40+ verification points, 9 functions byte-checked, 0 false positives — best static parity auditor. |
 | **Codex 5.5** | Merge gate · Behavioral regression gate | "Just another reviewer" | I4: caught UNIQUE(user_id,nonce) cross-user MAJOR. [TICKET]: caught abort/cost MAJOR that GLM's static review missed. Best hosted-semantics gate in the stack — unique role, not redundant. |
 | **DeepSeek V4 Pro** | Depth analyst · Race/ordering | Security gate · Sole merge gate | I4: best depth on 10-constraint matrix, resurrection races. But under-severity on RLS — rated disabled-user SELECT + global nonce as PASS/soft O* while Codex/Qwen independently rated MAJOR. |
@@ -73,6 +78,7 @@ The orchestrator reads the owner pin and routes accordingly. The model card docu
 4. **Codex = "just another reviewer"** → Codex = the behavioral regression gate. [TICKET]: caught abort/cost MAJOR that GLM's static review missed. Unique role — "ещё reviewer" understates its gate function.
 5. **Writer self-review** → No model reviews its own work on fidelity/security tasks. Dual review = different families.
 6. **Pro-only merge decision** → Pro under-calls security severity. Merge decisions need behavioral semantics gate (Codex).
+7. **written≠persisted** → Claim `worker_done` / CHANGES without `ls`/`git status` proof. [TICKET]: notes said model-card NEW while public path missing. Gate binds **all** workers (`worker-contract.md`).
 
 ---
 

@@ -36,7 +36,7 @@ Routing depends on task type, not model preference. See `references/routing.md` 
 
 - **Routing table:** 7 task types mapped to model families with evidence from I3–[TICKET] waves
 - **Dual review mandatory:** fidelity ports require GLM 5.2 (static parity) ∥ Codex 5.5 (hosted semantics) — complementary, not redundant
-- **Deploy gate:** curl probe proves new routes exist before handoff (corrected `curl` patterns, dual: no-`-L` for auth-gated + `-sIL -w` for final status)
+- **Deploy / smoke gate:** prove shipped surface exists before handoff (principle + curl examples in `references/routing.md`)
 - **Lifecycle:** 7 explicit gates: implement → review → commit → PR → merge → deploy → done. No collapsing into "writer Done"
 - **Writer replaceable:** owner phrase «сейчас writer=X» pins writer instantly — no skill rewrite
 
@@ -66,9 +66,10 @@ multi-model-orchestration/
 ├── README.md             # This file
 ├── README.ru.md          # Russian version
 └── references/
-    ├── routing.md        # Full model routing table, brief templates per model
-    ├── worker-contract.md # Output contract spec, worker_done format
-    └── failure-handling.md # Timeout policy, escalation, circuit-breaker
+    ├── routing.md         # Full model routing table, brief templates, deploy/smoke gate
+    ├── worker-contract.md # Output contract, live worker_done CLI, written≠persisted gate
+    ├── failure-handling.md # Timeout policy, escalation, circuit-breaker
+    └── model-card.md      # Roles, «не путать с», evidence 1-liners, owner pin, launch pins
 ```
 
 ## License

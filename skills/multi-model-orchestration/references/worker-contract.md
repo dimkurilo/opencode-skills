@@ -2,7 +2,7 @@
 
 ## Output Contract (mandatory for every worker)
 
-Every worker ends with exactly this structure:
+Every worker ends with exactly this structure (in the **report file** and/or notes — not necessarily the full `worker_done` body):
 
 ```
 SUMMARY: [1-3 sentences: what was done, what was found]
@@ -15,8 +15,9 @@ BLOCKERS: [what prevents completion, or "None"]
 Rules:
 - `worker_done` sent exactly once, even on failure.
 - After `worker_done` → idle. Do not poll or continue.
-- review-only mode: CHANGES must be "None". Findings only.
+- review-only mode: CHANGES must be "None". Findings only (except the review report path if the brief allows writing it).
 - implement mode: CHANGES lists every modified file.
+- **written≠persisted gate (ALL workers, implement mode):** before `worker_done`, run `git status --short` and/or `ls -la` / `wc -l` and confirm **every** path in CHANGES / `--files-modified` exists on disk with expected content. A claimed file missing on disk = **FAIL** — do **not** send success `worker_done`. Report FAIL in `--subject` and list missing paths in `--body` / report. Trusting self-report without disk proof caused [TICKET] BLOCK (notes claimed `model-card.md` NEW while `ls` showed absent).
 
 ---
 
@@ -36,30 +37,42 @@ TASK:
 <the actual brief — model-specific format>
 
 LIFECYCLE:
-- Do the work. Then send worker_done exactly once:
+- Do the work. Then send worker_done exactly once (live Orca CLI — discrete flags, NOT a JSON --payload blob):
   orca orchestration send --to <coordinator_handle> --type worker_done \
-    --subject "<short status>" \
-    --body "<SUMMARY / EVIDENCE / CHANGES / RISKS / BLOCKERS>" \
-    --payload '{"taskId":"<id>","dispatchId":"<id>","filesModified":[...]}' --json
+    --subject "<PASS|FAIL|PARTIAL — short status>" \
+    --body "<3-sentence executive summary: what you did, what you found, what's left>" \
+    --task-id <TASK_ID> \
+    --dispatch-id <DISPATCH_ID> \
+    --files-modified "path/a,path/b" \
+    --report-path "<optional path to full report with SUMMARY/EVIDENCE/CHANGES/RISKS/BLOCKERS>" \
+    --json
+- --body = short exec summary for the coordinator inbox. Full SUMMARY/EVIDENCE/CHANGES/RISKS/BLOCKERS → report file via --report-path (or in notes). Do not pack the entire 5-field contract into --body.
+- --files-modified = comma-separated paths (empty or omit when review-only with no report file, or list the report path if you wrote one).
 - Blocked → send ask or escalation. Do not thrash.
 - After worker_done → idle (end turn).
-- Heartbeat only if preamble asks for it.
+- Heartbeat only if preamble asks for it (typical inject: every ~5 min while still working):
+  orca orchestration send --to <coordinator_handle> --type heartbeat \
+    --subject "alive" \
+    --task-id <TASK_ID> --dispatch-id <DISPATCH_ID> \
+    --json
+  Heartbeat = alive, not done. Coordinator must not restart on heartbeat alone.
 ```
 
 ---
 
-## worker_done Payload Schema
+## worker_done field map (logical → live CLI)
 
-```json
-{
-  "taskId": "<task_id>",
-  "dispatchId": "<dispatch_id>",
-  "filesModified": ["path/a", "path/b"],
-  "reportPath": "<optional: path to detailed report file>",
-  "status": "PASS | FAIL | PARTIAL",
-  "duration": "<optional: wall-clock time>"
-}
-```
+| Logical field | Live CLI flag / channel | Notes |
+|---------------|-------------------------|-------|
+| taskId | `--task-id` | Required for lifecycle authority |
+| dispatchId | `--dispatch-id` | Required for lifecycle authority |
+| status | `--subject` prefix | e.g. `PASS: …` / `FAIL: …` / `PARTIAL: …` |
+| summary | `--body` | 3 sentences max |
+| filesModified | `--files-modified` | Comma-separated paths |
+| reportPath | `--report-path` | Optional path to full contract artifact |
+| duration | optional in report file | Not a separate CLI flag |
+
+Do **not** use `--payload '{"taskId":...}'` as the primary form — older docs used a JSON payload; current Orca orchestration send accepts the discrete flags above (as injected by `dispatch --inject`).
 
 ---
 

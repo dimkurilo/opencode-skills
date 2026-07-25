@@ -2,11 +2,11 @@
 name: multi-model-orchestration
 description: >-
   Coordinate 2+ AI models (GLM 5.2, DeepSeek V4 Pro/Flash, Qwen 3.8 Max, Grok 4.5,
-  GPT-5.6) for parallel review, cross-validation, or bulk work via Orca orchestration.
-  Use when the coordinator says "обсудите этот вопрос с 2 моделями", "multi-model review",
-  "cross-validate with N models", "parallel architecture specs", or any task requiring
-  independent perspectives from different model families. Do NOT use for single-model
-  tasks, trivial edits, or when §1 decision tree says solo.
+  Codex 5.5, GPT-5.6) for parallel review, cross-validation, or bulk work via Orca
+  orchestration. Use when the coordinator says "обсудите этот вопрос с 2 моделями",
+  "multi-model review", "cross-validate with N models", "parallel architecture specs",
+  or any task requiring independent perspectives from different model families.
+  Do NOT use for single-model tasks, trivial edits, or when §1 decision tree says solo.
 ---
 
 # Multi-Model Orchestration
@@ -73,7 +73,7 @@ Otherwise → solo.
 |------|----------|-----|
 | Deep analysis, cross-audit, verification points | **DeepSeek V4 Pro** | 1M context, structured thinking |
 | Long multi-file implement, architecture synthesis | **GLM 5.2** | 1M state continuity, long-horizon |
-| Complex analysis, multimodal, cross-examination | **Qwen 3.8 Max** | 2.4T weights, native vision, CoT |
+| Complex analysis, multimodal, cross-examination, **fidelity writer** | **Qwen 3.8 Max** | 2.4T weights, native vision, CoT; default fidelity port writer (§2c) |
 | Security / RLS / auth / Storage review | **Codex 5.5 + Qwen Max** (+ Pro for depth) | Gate + RLS; not Pro-only (I4 lesson) |
 | Fast research, SEO/tools, speed loops | **Grok 4.5** | Speed, tool-native |
 | Bulk mechanical, inventory, simple edits | **DeepSeek V4 Flash** | Cheap, fast |
@@ -90,25 +90,13 @@ Full routing details + brief templates: `references/routing.md`.
 
 ---
 
-## 2b. [platform] — Deploy Gate ([client-project] post-merge)
+## 2b. Deploy / smoke gate (prove surface exists before signoff)
 
-Before handoff to NEXT_SESSION after merge: run one curl check that new routes return ≠ 404. `307 → /login` is OK (route exists, Auth middleware redirects). `404` = route missing → fix before handoff.
+**Principle:** after merge/deploy (or skill install), prove the shipped surface exists before handoff. Do not claim Done on a missing route, missing skill file, or dead install path.
 
-For non-Platform waves: adapt route/smoke probes to the target deploy surface — the principle (prove route exists before signoff) is universal; the specific commands below are [client-project]/Next.js patterns.
+Adapt the probe to the target stack. **Canonical examples** (web curl dual-pattern + skills-repo check): `references/routing.md` → **Deploy / smoke gate**.
 
-```bash
-# Auth-protected routes — prove route exists behind auth (no -L so redirect is the proof):
-curl -sI https://<deploy-url>/api/<new-route> | head -1
-# Expected: HTTP/... 307 (redirect to login = route exists) or 302.
-# 404 = route missing → fix before handoff.
-
-# OR probe final status (follow redirects, get final HTTP code + effective URL):
-curl -sIL -o /dev/null -w '%{http_code} %{url_effective}\n' https://<deploy-url>/api/<new-route>
-# Interpret: final 200/307/401/403 ≠ 404 = route exists.
-# final 404 = route missing.
-```
-
-Evidence: [TICKET] had untracked route files (balance, refine) — if deployed without tracking, 404. This gate catches missing routes before the orchestrator signs off.
+Evidence: [TICKET] had untracked route files (balance, refine) — if deployed without tracking, 404. The same class of bug is "claimed done, surface missing."
 
 ---
 
@@ -119,7 +107,7 @@ Any task labeled "fidelity port" / "reference→platform" / "behavioral parity":
 2. **Writer = Qwen 3.8 Max** (default) or GLM 5.2 (owner override). Both confirmed fidelity-capable. Flash = explicitly excluded (simplifies, per I3 post-mortem).
 3. **MAJOR any → fix round before In Review.** Codex MAJOR rated on behavioral semantics carries equal weight to GLM's static findings.
 4. **No live smoke = RESIDUAL-RISK-OWNER-SMOKE** in handoff. If paid-generation budget prevents live smoke ([TICKET] pattern), document explicitly. Do not claim Done — claim Done-with-residual.
-5. **Deploy gate:** curl new routes before handoff (§2b).
+5. **Deploy gate:** prove shipped surface before handoff (§2b / routing.md).
 
 ---
 
@@ -127,7 +115,7 @@ Any task labeled "fidelity port" / "reference→platform" / "behavioral parity":
 
 | State | Definition | Gate |
 |-------|-----------|------|
-| **Implement done** | Writer finished, build/tsc/lint green, own notes written | `worker_done` with implement notes |
+| **Implement done** | Writer finished, build/tsc/lint green, own notes written; **every claimed path exists on disk** | Before `worker_done`: `git status --short` and/or `ls`/`wc -l` prove each CHANGES path. Claimed-but-missing = FAIL (written≠persisted). Then `worker_done` + implement notes |
 | **In Review** | Dual review passed (0 MAJOR or all MAJOR fixed), fix-round complete if any MAJOR | Synthesis: stricter wins, all MAJOR closed |
 | **Commit + PR** | Public paths committed to branch, PR opened, reviewable | `git add skills/<name>/` only; `git status` clean of dev files. No merge yet |
 | **Merge** | PR approved, merged to main | Merge gate: CI green, no unresolved review threads |
@@ -193,7 +181,8 @@ Model-specific wrapping:
 
 | Event | Action |
 |-------|--------|
-| `worker_done` | Read artifacts → gate/synthesize |
+| `worker_done` | Read artifacts → **verify claimed files on disk if implement** → gate/synthesize |
+| `heartbeat` | Worker alive, **not done**. Keep waiting. Do not restart; do not treat as completion |
 | `escalation` / `decision_gate` | Human or coordinator decision. Not blind re-dispatch |
 | timeout / count:0 | Liveness check (`terminal read`). NOT restart. Wait again |
 | 3 consecutive failures | Circuit-break. Route to different model or escalate to human |
@@ -241,6 +230,7 @@ After all workers complete:
 6. Cross-QA "always" without expensive error → cost without gain
 7. Slash-commands through `orca terminal send` (they don't work — use plain text briefs)
 8. Treating brief template labels as fixed-language (structure is language-agnostic; labels match coordinator's working language per §8)
+9. Claiming files in CHANGES/`worker_done` without disk proof (written≠persisted — [TICKET]). Verify with `git status`/`ls` first
 
 ---
 
@@ -305,7 +295,8 @@ Purpose: post-mortem traceability. Not a journal — one block per wave, 5-8 lin
 | Grok 4.5 | Low-Medium | Speed-critical, research |
 | DeepSeek V4 Pro | Medium | Deep analysis, cross-audit |
 | GLM 5.2 | Medium | Long multi-file, architecture |
-| Qwen 3.8 Max | High | Complex reasoning, multimodal, cross-examination |
+| Qwen 3.8 Max | High | Complex reasoning, multimodal, fidelity writer, cross-examination |
+| Codex 5.5 | High | Security/RLS gate, behavioral regression, fidelity merge gate |
 | GPT-5.6 | High | Lean outcome-focused, pro mode |
 
 Budget rule: use cheapest model that can do the task. Escalate to expensive models only when:
@@ -322,5 +313,5 @@ Coordinator names models to human BEFORE dispatch — human can veto expensive c
 - `references/routing.md` — full model routing table, brief templates per model, examples
 - `references/worker-contract.md` — output contract spec, inject preamble, worker_done format
 - `references/failure-handling.md` — timeout policy, escalation, self-correction, circuit-breaker
-- `references/model-card.md` — model roles + «не путать с» + evidence 1-liners + owner pin
-<!-- Changelog: v1.0 initial · v1.1 +MCP policy, +audit log, +cost guidance, +Orca fallback, universalized briefs · v1.2 dispatch sequence fix, description cleanup, anti-pattern #8 alignment, universal language markers, coordinator universality · v1.3 [platform] routing, fidelity port rules, deploy gate (corrected curl), lifecycle states (commit→PR→merge chain), writer replaceability · v1.4 +model-card reference -->
+- `references/model-card.md` — model roles + «не путать с» + evidence 1-liners + owner pin + launch pins
+<!-- Changelog: v1.0 · v1.1 MCP/audit/cost · v1.2 dispatch fix · v1.3 [platform] · v1.4 model-card · v1.5 Qwen postmortem P0–P2: live worker_done CLI, written≠persisted gate, Codex/GPT launch pins, README model-card, cost Codex, deploy gate principle + canonical routing curl, heartbeat §5, Solo Defaults, fidelity writer in §2 -->

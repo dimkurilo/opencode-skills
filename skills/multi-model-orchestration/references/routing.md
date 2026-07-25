@@ -39,8 +39,9 @@
 - **Fidelity dual review mandatory:** any behavioral port task (generator, vectorizer, any reference→platform) MUST have dual review (GLM∥Codex) — static parity + hosted semantics are complementary, not redundant ([TICKET] evidence). No single-reviewer fidelity port.
 - **No live smoke = owner residual gate:** if paid-generation budget prevents live smoke ([TICKET] pattern), document explicitly in handoff as RESIDUAL-RISK-OWNER-SMOKE. Do not claim Done without live smoke — claim Done-with-residual.
 
-**Deploy gate ([platform], post-merge):**
-Before handoff to NEXT_SESSION after merge: run one curl check that new routes return ≠ 404. `307 → /login` is OK (route exists, redirects). `404` = route missing → fix before handoff.
+**Deploy / smoke gate (canonical — post-merge or post-deploy handoff):**  
+**Principle:** prove the shipped surface exists before signoff. Adapt the probe to the target (HTTP route, CLI binary, package install, skill load path).  
+Web / Next.js auth-gated example ([client-project] [platform]): `307 → /login` OK (route exists); `404` = missing → fix before handoff.
 ```bash
 # Auth-protected routes — prove route exists behind auth (no -L so redirect is the proof):
 curl -sI https://<deploy-url>/api/<new-route> | head -1
@@ -52,11 +53,28 @@ curl -sIL -o /dev/null -w '%{http_code} %{url_effective}\n' https://<deploy-url>
 # Interpret: final 200/307/401/403 ≠ 404 = route exists.
 # final 404 = route missing.
 ```
+Skills-repo / non-web example: after install, `test -f ~/.config/opencode/skills/<name>/SKILL.md` and `bash .agents/scripts/lint-skill.sh skills/<name>/SKILL.md` (or host equivalent).
 
 **Writer GLM ↔ Qwen replaceable:**
-Owner phrase «сейчас writer=X» (X = GLM or Qwen) instantly pins the writer model for the current wave. No skill rewrite needed. The orchestrator reads this phrase from NEXT_SESSION §2 or owner chat and routes accordingly. Both GLM and Qwen have confirmed fidelity-writer capability ([TICKET]: Qwen write/GLM review; I4/I5: GLM write/Codex∥Pro review). The model card in docs/orchestration/ tracks current writer capabilities.
+Owner phrase «сейчас writer=X» (X = GLM or Qwen) instantly pins the writer model for the current wave. No skill rewrite needed. The orchestrator reads this phrase from NEXT_SESSION §2 or owner chat and routes accordingly. Both GLM and Qwen have confirmed fidelity-writer capability ([TICKET]: Qwen write/GLM review; I4/I5: GLM write/Codex∥Pro review). See `references/model-card.md` for current roles + launch pins.
 
 ## Solo Defaults (when NOT multi)
+
+Use **one** model only. Skip Orca multi-dispatch.
+
+| Situation | Default solo |
+|-----------|----------------|
+| Clear single deliverable, linear, &lt; 2–3h | Cheapest model that can finish (§1 SOLO) |
+| Multi-file product implement (3+ files) | GLM 5.2 |
+| Fidelity / deep port solo (no dual review budget) | Qwen 3.8 Max — **document residual risk** (no dual review) |
+| Deep race / audit / protocol draft | DeepSeek V4 Pro |
+| Bulk / inventory / 1–2 file hotfix | DeepSeek V4 Flash |
+| Research / browse / SEO tools | Grok 4.5 |
+| Lean outcome coding | GPT-5.6 (Codex CLI) |
+| Security/RLS alone | Prefer dual later; if solo, Codex 5.5 + explicit residual note |
+
+If §1 later says multi (expensive error, parallel pieces) — stop solo and open multi with writer ≠ reviewer.
+
 ---
 
 ## Brief Templates Per Model
@@ -111,15 +129,15 @@ Output: SUMMARY / EVIDENCE / CHANGES / RISKS / BLOCKERS
 
 **Language note:** Field names (Задача/Где/Контекст) are Russian by convention for this user's workflow. For non-Russian coordinators, use equivalent structure: Task / Where / Context / Do-not-touch. The 【】 injection block stays in Chinese regardless.
 
-### Qwen 3.8 Max (agent1st_v5.2-qwen-3.8) — **CURRENT default**
+### Qwen 3.8 Max (agent1st_qwen-3.8) — **CURRENT default**
 
 | | |
 |--|--|
-| **Launch** | `opencode --agent A/agent1st_v5.2-qwen-3.8` |
-| **Agent file** | `~/.config/opencode/agents/A/agent1st_v5.2-qwen-3.8.md` |
-| **Absolute** | `/Users/dimk/.config/opencode/agents/A/agent1st_v5.2-qwen-3.8.md` |
-| **v5.1** | **Do not use for new work** — historical/rollback only |
-| **v5.2 delta** | v5.1 + [TICKET] JUDGMENT patches (runtime-boundary fidelity, self-skepticism, evidence hygiene, brief-as-plan, written≠persisted, …) |
+| **Launch** | `opencode --agent A/agent1st_qwen-3.8` |
+| **Agent file** | `~/.config/opencode/agents/A/agent1st_qwen-3.8.md` |
+| **Absolute** | `/Users/dimk/.config/opencode/agents/A/agent1st_qwen-3.8.md` |
+| **Pin** | **Versionless** — skills always pin `A/agent1st_qwen-3.8`. Versioned `v5.1` / `v5.2` files may remain on disk as history/rollback only, never the launch target for new work. |
+| **Protocol** | [TICKET] JUDGMENT patches (runtime-boundary fidelity, self-skepticism, evidence hygiene, brief-as-plan, written≠persisted, …) live **inside the agent file** — bumping the protocol does not require a skill edit. |
 
 
 ```
