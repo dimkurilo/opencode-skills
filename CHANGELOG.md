@@ -7,6 +7,36 @@
 
 ## [Unreleased]
 
+### Added
+- **multi-model-orchestration v1.3** — new public skill: coordinate 2+ AI models (GLM 5.2, DeepSeek V4 Pro/Flash, Qwen 3.8 Max, Grok 4.5, Codex 5.5, GPT-5.6) for parallel review, cross-validation, and bulk work via Orca orchestration. Includes [platform] routing table, fidelity port dual review rules, deploy gate with corrected curl probe, lifecycle states with commit→PR→merge chain, and writer replaceability pattern.
+
+### Changed
+- **SKILL.md (multi-model-orchestration):** expanded from v1.2 with 4 new subsections (§2b–§2d), deploy gate curl pattern corrected from `-sI -L | head -1` to dual-pattern (no-`-L` for auth-protected, `-sIL -w` for final status).
+- **routing.md:** added [platform] routing table section (7 task types, synthesis rules, deploy gate, writer replaceability). Codex naming standardized to "Codex 5.5".
+
+### Fixed
+- **Deploy probe (MAJOR):** corrected `curl -sI -L ... | head -1` which read first redirect status, not final. New dual pattern: `-sI` (no `-L`) for auth-gated route existence proof; `-sIL -w '%{http_code} %{url_effective}'` for final status probe.
+- **Lifecycle chain (MAJOR):** added explicit commit→PR→merge steps between In Review and Deploy gate in SKILL.md §2d to prevent premature Linear Done before merge/deploy/owner smoke.
+
+ 
+## [0.8.0] - 2026-07-16
+
+### Added
+- **project-bootstrap inspector** - read-only `inspect_project.sh` inventory with `KEEP` / `MOVE` / `REMOVE` / `OPTIONAL` / `UNKNOWN` signals; suspected secrets are reported only by location.
+- **project-bootstrap verifier** - deterministic `verify_bootstrap.sh` gate for the universal-min and explicit owner-multicli presets.
+- **Compatibility and migration references** - host-vs-model loading boundaries, thin adapter rules, GSD separation, and reversible brownfield examples.
+- **Codex metadata** - `agents/openai.yaml` for skill discovery and a default invocation prompt.
+
+### Changed
+- **project-bootstrap architecture** - universal core is now one short `AGENTS.md`; the explicit owner-multicli preset adds bounded `SESSION_HANDOFF.md` and curated `.agents/memory/MEMORY.md`.
+- **Workflow** - modes are `new`, `inspect`, and `migrate`; existing projects require a read-only manifest and owner-approved proposed diff before writes.
+- **Continuity** - handoff is an update-in-place snapshot; memory is curated and bounded rather than an unlimited append-only journal.
+- **README EN/RU** - rewritten around minimal bootstrap, safe migration, platform adapters, and selective GSD.
+
+### Removed
+- **Mandatory process scaffolding** - Variant E, automatic GRACE/closing anchors, model profiles, root `plan.md`, keyword-selected architecture, always-on cross-audit, and required GSD/memory/rules.
+- **Legacy templates and scripts** - classifier, handoff-conformity gate, persona/command/model/rule/script templates, daily notes, and the internal `.plan.md` artifact.
+
 ## [0.7.0] - 2026-07-16
 
 ### Removed

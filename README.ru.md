@@ -10,15 +10,17 @@
 
 | Скилл | Описание |
 |-------|----------|
-| [project-bootstrap](skills/project-bootstrap/) | «Дом» для одного агента по [Agent Playbook](https://agents.md). **v2**: Variant E (правила в начале и конце файла), GRACE-якоря, классификация проекта (ops / код / агент / контент), closing anchors под DeepSeek и GLM, двойной аудит. Пишет AGENTS.md, SESSION_HANDOFF.md, MEMORY.md, правила, скиллы, персоны, слеш-команды. 14 шаблонов, 50+ переменных, 6 фаз. [Подробнее](skills/project-bootstrap/README.ru.md) |
+| [project-bootstrap](skills/project-bootstrap/) | Минимальная кросс-платформенная настройка проекта для Codex, Grok, OpenCode, ZCode и хостов GLM/DeepSeek. Универсальное ядро — короткий `AGENTS.md`; bounded handoff/memory, адаптеры и selective GSD подключаются осознанно. Есть read-only inspection, обратимая миграция и детерминированная проверка. [Подробнее](skills/project-bootstrap/README.ru.md) |
 | [vs-architect](skills/vs-architect/) | Verbalized Sampling (arXiv 2510.01171): несколько вариантов решения с оценками вероятности - архитектура, отладка, стратегия, креатив. |
+| [multi-model-orchestration](skills/multi-model-orchestration/) | Координация 2+ AI-моделей (GLM 5.2, DeepSeek V4 Pro/Flash, Qwen 3.8 Max, Grok 4.5, GPT-5.6) для параллельного ревью, кросс-валидации и массовой работы через Orca. Таблица маршрутизации, правила dual review, deploy gate, жизненный цикл. [Подробнее](skills/multi-model-orchestration/README.ru.md) |
 
 ### Какой скилл когда?
 
 | Нужно… | Скилл |
 |--------|--------|
-| Дом для одного CLI-агента (AGENTS / MEMORY / HANDOFF) | **project-bootstrap** |
+| Минимальный агентский контракт проекта или безопасная миграция legacy | **project-bootstrap** |
 | Разные варианты решения с вероятностями | **vs-architect** |
+| Координация 2+ AI-моделей для параллельного ревью, кросс-валидации, массовой работы | **multi-model-orchestration** |
 
 ## Установка
 
@@ -31,6 +33,8 @@ ln -sfn ~/Projects/opencode-skills/skills/project-bootstrap \
   ~/.config/opencode/skills/project-bootstrap
 ln -sfn ~/Projects/opencode-skills/skills/vs-architect \
   ~/.config/opencode/skills/vs-architect
+ln -sfn ~/Projects/opencode-skills/skills/multi-model-orchestration \
+  ~/.config/opencode/skills/multi-model-orchestration
 ```
 
 ### Ручная
@@ -38,6 +42,7 @@ ln -sfn ~/Projects/opencode-skills/skills/vs-architect \
 ```bash
 cp -R skills/project-bootstrap ~/.config/opencode/skills/project-bootstrap
 cp -R skills/vs-architect ~/.config/opencode/skills/vs-architect
+cp -R skills/multi-model-orchestration ~/.config/opencode/skills/multi-model-orchestration
 ```
 
 После копирования opencode подхватит скилл при следующем запуске.
@@ -52,8 +57,9 @@ opencode-skills/
 ├── LICENSE                 # MIT
 ├── .gitignore
 └── skills/
-    ├── project-bootstrap/  # Single-CLI Agent Playbook
+    ├── project-bootstrap/  # Минимальный кросс-платформенный bootstrap
     └── vs-architect/       # Verbalized Sampling
+    └── multi-model-orchestration/  # Координация нескольких моделей через Orca
 ```
 
 ## Как создать свой скилл
