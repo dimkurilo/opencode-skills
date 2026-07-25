@@ -1,0 +1,44 @@
+# Task ${TASK_ID} — ${TITLE}
+
+## Role
+
+You are **EXECUTOR**, not strategist. Do not rewrite SPEC/PLAN. Do not expand scope.
+
+## Read first (in order)
+
+1. `AGENTS.md` (project rules)
+2. Last block of `SESSION_HANDOFF.md` if present
+3. `${SPEC_PATH}` (only goal, scope, constraints, sources)
+4. PLAN task `${TASK_ID}` only
+5. Listed sources below
+
+## Sources
+
+${SOURCES}
+
+## Do only
+
+${DO_ONLY}
+
+## Write only (these paths)
+
+${ARTIFACT_PATHS}
+
+## Done when
+
+${DONE_WHEN}
+
+## Forbidden
+
+- Invent traffic, positions, frequencies, or competitor stats without a cited source
+- Edit `SPEC.xml`, `PLAN.xml`, or other tasks' artifacts
+- Production deploy / paid purchases / server secrets without human gate
+- "While I'm here" refactors outside Do only
+
+## Report back (5 lines max)
+
+1. What was done  
+2. Artifact paths  
+3. Blockers  
+4. Suggested next task id (if any)  
+5. Confidence (low/med/high) + why  

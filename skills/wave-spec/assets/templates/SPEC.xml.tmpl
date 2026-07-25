@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- wave-spec SPEC — agent-facing contract. status: draft | approved | done | cancelled -->
+<spec>
+  <status>draft</status>
+  <kind>wave</kind><!-- program | wave | task -->
+  <created>${DATE}</created>
+  <slug>${SLUG}</slug>
+  <title>${TITLE}</title>
+
+  <goal>
+    <summary><!-- 1-2 paragraphs --></summary>
+    <success_criteria>
+      <criterion id="S1" measurable="true"><!-- checkable outcome --></criterion>
+      <criterion id="S2" measurable="true"></criterion>
+    </success_criteria>
+  </goal>
+
+  <scope>
+    <in>
+      <item></item>
+    </in>
+    <out>
+      <item></item>
+    </out>
+  </scope>
+
+  <constraints>
+    <constraint id="C-deploy">No production deploy without human gate.</constraint>
+    <constraint id="C-evidence">No invented metrics; every number needs source.</constraint>
+    <constraint id="C-stack"><!-- e.g. WordPress + WooCommerce --></constraint>
+  </constraints>
+
+  <sources>
+    <!-- path or URL + date; do not invent -->
+    <source type="file" path="" as_of=""></source>
+  </sources>
+
+  <!-- For program-level SEO or large builds: workstreams. For small waves: omit or keep short. -->
+  <workstreams>
+    <stream id="tech">Technical SEO / indexation / crawl</stream>
+    <stream id="perf">Performance / CWV / caching</stream>
+    <stream id="onpage">Titles, meta, templates, schema</stream>
+    <stream id="content">Category/product/content system</stream>
+    <stream id="geo">GEO / AEO / AI citation readiness</stream>
+    <stream id="analytics">GSC / Metrika / reporting cadence</stream>
+  </workstreams>
+
+  <risks>
+    <risk id="R1" severity="high">
+      <description></description>
+      <mitigation></mitigation>
+    </risk>
+  </risks>
+
+  <acceptance>
+    <check id="A1"></check>
+  </acceptance>
+
+  <roles>
+    <orchestrator>grok</orchestrator>
+    <executors>
+      <executor id="claude-glm">Claude Code + GLM 5.2</executor>
+      <executor id="opencode-flash">OpenCode + cheap model</executor>
+      <executor id="human">Human gates</executor>
+    </executors>
+  </roles>
+
+  <todos>
+    <!-- unknown facts — never invent -->
+    <todo id="TBD1"></todo>
+  </todos>
+</spec>

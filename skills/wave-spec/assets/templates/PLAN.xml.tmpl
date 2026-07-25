@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- wave-spec PLAN — depends_on empty = ready for parallel dispatch after approve -->
+<plan>
+  <status>draft</status>
+  <spec>./SPEC.xml</spec>
+  <created>${DATE}</created>
+  <slug>${SLUG}</slug>
+
+  <meta>
+    <summary></summary>
+    <waves_count>1</waves_count>
+  </meta>
+
+  <!-- Program mode: use phases. Wave mode: use tasks only (single phase). -->
+  <phases>
+    <phase id="P0" title="Baseline &amp; access">
+      <outcome></outcome>
+    </phase>
+  </phases>
+
+  <tasks>
+    <task id="T01">
+      <title></title>
+      <stream>tech</stream><!-- tech|perf|onpage|content|geo|analytics -->
+      <depends_on></depends_on><!-- e.g. T01 or empty -->
+      <owner>claude-glm</owner><!-- orchestrator|claude-glm|opencode-flash|grok|human -->
+      <model_hint></model_hint>
+      <artifact>research/${SLUG}/T01.md</artifact>
+      <done_when></done_when>
+      <notes></notes>
+    </task>
+
+    <task id="T02">
+      <title></title>
+      <stream>onpage</stream>
+      <depends_on></depends_on>
+      <owner>claude-glm</owner>
+      <model_hint></model_hint>
+      <artifact>research/${SLUG}/T02.md</artifact>
+      <done_when></done_when>
+      <notes></notes>
+    </task>
+  </tasks>
+
+  <gates>
+    <gate id="G1" owner="human" when="before production CMS changes">
+      Review artifacts and approve deploy/edits.
+    </gate>
+  </gates>
+
+  <parallel_policy>
+    Tasks may run in parallel only if depends_on is satisfied and artifact paths do not overlap.
+  </parallel_policy>
+</plan>
