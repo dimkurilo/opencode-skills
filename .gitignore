@@ -35,3 +35,11 @@ NEXT_SESSION_ORCHESTRA*.md
 
 # Local-only archive of unpublished skill (not part of public product)
 skills/project-orchestra/
+
+# Local orchestration handoff (NOT public) — [TICKET]
+docs/orchestration/
+docs/platform/
+SESSION_HANDOFF_ORCH.md
+
+# Local wave artifacts (not public skill product)
+waves/
