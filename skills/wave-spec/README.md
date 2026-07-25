@@ -1,10 +1,10 @@
 # wave-spec
 
-Portable plan-gate skill (vv-method, multi-CLI). INTENT → interview → structured SPEC.xml + PLAN.xml → human approve → worker briefs → STATUS/handoff.
+Portable plan-gate skill (vv-method, multi-CLI). INTENT → interview → structured SPEC.xml + PLAN.xml → human approve → worker briefs → STATUS/handoff. Universal: development, content, skill-port, translation, orchestration, site rebuild.
 
 ## When to use
 
-Use when starting a sprint/wave, or when multi-session SEO/engineering work must not skip planning. Works in Grok, Claude Code, OpenCode, ZCode — writes files in the project, does not require vv-opencode runtime.
+Use when starting a sprint/wave, or when multi-session development/content/skill-port/translation work must not skip planning. Works in Grok, Claude Code, OpenCode, ZCode — writes files in the project, does not require vv-opencode runtime.
 
 **Do NOT use** for trivial one-line edits already approved by the user.
 
@@ -24,6 +24,6 @@ Implement done → In Review (dual review) → Commit → PR → Merge → Deplo
 
 ## References
 
-- `references/seo-program-map.md` — workstream checklist for full-site SEO
+- `references/program-maps.md` — domain-specific program maps (4 menus: skill-port, translation, fidelity port, SEO)
 - `references/vv-portability.md` — mapping to vv-opencode tags
 - `assets/templates/` — INTENT, SPEC, PLAN, STATUS, worker brief templates

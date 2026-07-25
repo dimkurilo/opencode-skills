@@ -27,7 +27,7 @@
   <constraints>
     <constraint id="C-deploy">No production deploy without human gate.</constraint>
     <constraint id="C-evidence">No invented metrics; every number needs source.</constraint>
-    <constraint id="C-stack"><!-- e.g. WordPress + WooCommerce --></constraint>
+    <constraint id="C-stack"><!-- e.g. React + Node.js // Python + FastAPI — repo/platform/language pair --></constraint>
   </constraints>
 
   <sources>
@@ -35,14 +35,14 @@
     <source type="file" path="" as_of=""></source>
   </sources>
 
-  <!-- For program-level SEO or large builds: workstreams. For small waves: omit or keep short. -->
+  <!-- Domain-specific workstreams. Pick from references/program-maps.md for your domain.
+       List only relevant streams; do NOT copy all. Omit for small waves.
+       Example ids are domain-specific — see program-maps §1–§4
+       Example (fidelity port): inventory | parity | scaffolding | core | api | ux
+       Example (translation): glossary | draft | literary | qa | typeset
+  -->
   <workstreams>
-    <stream id="tech">Technical SEO / indexation / crawl</stream>
-    <stream id="perf">Performance / CWV / caching</stream>
-    <stream id="onpage">Titles, meta, templates, schema</stream>
-    <stream id="content">Category/product/content system</stream>
-    <stream id="geo">GEO / AEO / AI citation readiness</stream>
-    <stream id="analytics">GSC / Metrika / reporting cadence</stream>
+    <stream id="example"><!-- domain-specific, from program-maps --></stream>
   </workstreams>
 
   <risks>

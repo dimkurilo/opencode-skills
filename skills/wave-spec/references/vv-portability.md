@@ -21,7 +21,7 @@
 
 ## Drop from vv (unless big rewrite)
 
-- Mandatory multi-thousand-line architecture dump for every SEO wave
+- Mandatory multi-thousand-line architecture dump for every wave
 - Framework-only commands
 - Dual design-context unless code rewrite
 

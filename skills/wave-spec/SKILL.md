@@ -4,9 +4,10 @@ description: >
   Portable plan-gate skill (vv-method, multi-CLI): INTENT → interview → structured SPEC.xml
   + PLAN.xml → human approve → worker briefs → STATUS/handoff. Use when the user starts a
   sprint/wave, says "wave-spec", "spec first", "составь спеку/план", "interview then plan",
-  or begins multi-session SEO/engineering work that must not skip planning. Works in Grok,
-  Claude Code, OpenCode, ZCode — writes files in the project, does not require vv-opencode
-  runtime. Do NOT use for trivial one-line edits already approved by the user.
+  or begins multi-session development, content, skill-port, translation, or orchestration work
+  that must not skip planning. Works in Grok, Claude Code, OpenCode, ZCode — writes files
+  in the project, does not require vv-opencode runtime. Do NOT use for trivial one-line edits
+  already approved by the user.
 ---
 
 # wave-spec
@@ -20,11 +21,11 @@ structured XML artifacts in the repo, any orchestrator CLI.
 
 | Mode | Trigger | Output |
 |------|---------|--------|
-| `program` | Big multi-week project (full SEO, site rebuild) | `roadmap/PROGRAM_SPEC.xml` + `roadmap/PROGRAM_PLAN.xml` |
+| `program` | Multi-skill portfolio, fidelity port, book translation, site rebuild — multi-wave project | `roadmap/PROGRAM_SPEC.xml` + `roadmap/PROGRAM_PLAN.xml` |
 | `wave` (default) | One sprint 2–7 days / one theme | `waves/<date>-<slug>/…` |
 | `task` | Single atomic task inside approved wave | `waves/.../tasks/TNN-*.xml` + worker brief |
 
-Default: if unclear, start **wave**. If user describes a whole site/SEO program with no roadmap yet → **program** first, then first **wave**.
+Default: if unclear, start **wave**. If user describes a program with no roadmap yet → **program** first, then first **wave**.
 
 ## Installation / SoT
 
@@ -77,7 +78,8 @@ If missing → write a draft INTENT from conversation and ask user to correct:
 ```markdown
 # INTENT
 ## What I want (freeform)
-## Sites / URLs
+## Targets (project / repo / site / book — if any)
+## Stack / context (if known)
 ## Constraints (budget, no-deploy, region, language)
 ## Success in my words
 ## Out of scope (if known)
@@ -113,7 +115,7 @@ Required sections:
 | `scope/in` `scope/out` | explicit |
 | `constraints` | tech, legal, deploy gates, model roles |
 | `sources` | existing files/URLs with dates — no invented metrics |
-| `architecture` or `workstreams` | for SEO: tech / content / on-page / off-page / geo-aeo / analytics |
+| `architecture` or `workstreams` | domain-specific (see `references/program-maps.md` — pick relevant streams, do NOT copy all) |
 | `risks` | with mitigation |
 | `acceptance` | checklist that proves wave/program done |
 
@@ -215,28 +217,24 @@ GRACE anchors: optional in INTENT/STATUS; for XML use attributes `id="…"` on e
 
 ---
 
-## Scaling: tens of sessions (e.g. full WooCommerce SEO)
+## Scaling: tens of sessions (program → waves)
 
 Do **not** put the entire project into one wave.
 
-1. **Program** once: workstreams + phase order + definition of done for the site.  
+1. **Program** once: workstreams + phase order + definition of done for the domain.  
 2. **Waves** repeatedly: each wave = one theme that fits 1–5 sessions.  
-3. Example SEO program phases (adapt to evidence, do not invent site state):
+3. Pick domain-specific phase order from `references/program-maps.md`. Examples:
 
-| Phase | Theme | Typical artifacts |
-|-------|--------|-------------------|
-| P0 | Inventory + access + baseline | crawl notes, GSC/Metrika baseline, plugin list |
-| P1 | Technical SEO foundations | robots, sitemap, indexation, canonical, redirects |
-| P2 | Performance / CWV | PSI report, theme/plugin plan, caching |
-| P3 | On-page templates | product/category/home schema + title patterns |
-| P4 | Content system | briefs, category texts, blog/GEO policy |
-| P5 | GEO/AEO | AI bot access, FAQ/schema, citation pages |
-| P6 | Internal links + nav | silo map, hub pages |
-| P7 | Measurement cadence | dashboards, monthly checklist |
+| Domain | Shape | Program phases |
+|--------|-------|---------------|
+| **Skill-port / orchestration** | opencode-skills [TICKET] [client-project] [client-project] I0–I7 | P0 Inventory+baseline → P1 Architecture/contract → P2 Port/fidelity → P3 Review/lifecycle → P4 Dispatch → P5 Documentation → P6 Release |
+| **Book translation** | multi-pass: glossary→draft→literary→QA→typeset | P0 Glossary freeze → P1 Draft (3 models × 3 passes) → P2 Literary adaptation → P3 Consistency QA → P4 Typesetting |
+| **Product fidelity port** | SaaS/platform: reference→parity→port→regress→probe→review | P0 Reference capture → P1 Parity matrix → P2 Scaffolding+CI → P3 Core domain → P4 API surface → P5 UX/UI → P6 Regression+deploy probe |
+| **Site/content rebuild** | SEO, content audit, site migration | P0 Inventory+access+baseline → P1 Technical foundations → P2 Performance/CWV → P3 Templates+schema → P4 Content system → P5 GEO/AEO → P6 Internal links+nav → P7 Measurement cadence |
 
 **First session after skill install:** program SPEC/PLAN **or** one wave if program already exists in `plan.md`.
 
-Never force «10 GEO prompts» — only tasks that appear in INTENT + evidence.
+Tasks must appear in INTENT + evidence — never force irrelevant workstreams.
 
 ---
 
@@ -257,12 +255,12 @@ Executors **do not** rewrite SPEC/PLAN. They may append STATUS notes.
 - Every task has **one primary artifact path**.  
 - Parallel tasks **do not share write paths**.  
 - Deploy / paid tools / production CMS = `owner=human` gate.  
-- No fabricated SEO metrics (positions, traffic) without source.
+- No fabricated metrics (traffic, positions, conversion rates, benchmark scores) without source.
 
 ## References
 
 - `assets/templates/` — INTENT, SPEC.xml, PLAN.xml, STATUS, brief  
-- `references/seo-program-map.md` — optional workstream checklist for full-site SEO  
+- `references/program-maps.md` — domain-specific program maps (4 menus: skill-port, translation, fidelity port, SEO)  
 - `references/vv-portability.md` — mapping to vv-opencode tags  
 
 ## Anti-patterns
@@ -272,7 +270,7 @@ Executors **do not** rewrite SPEC/PLAN. They may append STATUS notes.
 - Freeform-only plan with no SPEC.  
 - XML for INTENT (wrong layer).  
 - Requiring vv-opencode CLI to use this skill.  
-- Assuming the site goal is «GEO prompts» without INTENT.
+- Assuming domain-specific workstreams without INTENT + evidence.
 
 ---
 
@@ -345,8 +343,7 @@ Evidence: [TICKET] had untracked route files — if deployed without tracking, 4
 
 ## Positioning
 
-wave-spec is a **light plan-gate + lifecycle skill for 1–3 week product/SEO waves**. It is NOT gsd-core, gsd-coordinator, or vv-opencode runtime — no agentic dispatch, no worktree groups, no structured handoff beyond project-local SESSION_HANDOFF. The lifecycle gates above are the contract; everything else is project protocol.
-
+wave-spec is a **universal plan-gate + lifecycle skill for 1–3 week product waves across any domain** (development, content, skill-port, translation, orchestration, site rebuild). It is NOT gsd-core, gsd-coordinator, or vv-opencode runtime — no agentic dispatch, no worktree groups, no structured handoff beyond project-local SESSION_HANDOFF. The lifecycle gates above are the contract; everything else is project protocol.
 For multi-model orchestration (parallel review, dispatch, fidelity port routing): see `skills/multi-model-orchestration/` — a separate skill for [platform]-level coordination. wave-spec delegates to it when multi-model review is needed; multi-model does NOT own the plan-gate pipeline.
 
 ---
@@ -355,3 +352,4 @@ For multi-model orchestration (parallel review, dispatch, fidelity port routing)
 
 - **v1.0** — initial portable wave-spec from vv-method
 - **v1.1 ([TICKET])** — lifecycle gates (Implement→In Review→Commit→PR→Merge→Deploy Probe→On Prod→Done), fidelity dual review, deploy probe curl pattern, RESIDUAL-RISK-OWNER-SMOKE, NEXT product ban, Installation/SoT section, discoverability pointers, positioning, README bilingual + residual
+- **v1.2 ([TICKET] reframe)** — de-SEO: universal plan-gate across domains. `program-maps.md` (4 menus); SEO optional §4 only. Templates neutral; INTENT Targets + neutral Stack; Scaling examples = [TICKET] + [client-project]; not WooCommerce-default.
