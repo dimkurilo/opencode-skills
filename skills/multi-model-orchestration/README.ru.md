@@ -20,21 +20,28 @@
 
 ## Модели
 
-| Модель | Лучшая роль | Стоимость |
-|--------|-------------|-----------|
-| GLM 5.2 | Многофайловая реализация, архитектурный синтез | Средняя |
-| Qwen 3.8 Max | Fidelity-порт writer, сложные рассуждения, multimodal | Высокая |
-| DeepSeek V4 Pro | Глубокий анализ, кросс-аудит, race conditions | Средняя |
-| DeepSeek V4 Flash | Массовая механика, инвентаризация, хотфиксы | Низкая |
-| Grok 4.5 | Оркестрация, быстрый поиск, speed loops | Низкая-средняя |
-| Codex 5.5 | Ревью безопасности/RLS, behavioural regression gate | Высокая |
-| GPT-5.6 | Lean outcome-focused кодинг | Высокая |
+| Модель | Family | Лучшая роль | Стоимость |
+|--------|--------|-------------|-----------|
+| Qwen Code | Alibaba | Основной кодер (implement), нативная оркестрация | Высокая |
+| GLM 5.2 | Zhipu | Многофайловая реализация, архитектурный синтез, static parity review | Средняя |
+| Qwen 3.8 Max | Alibaba | Fidelity-порт writer, сложные рассуждения, multimodal | Высокая |
+| DeepSeek V4 Pro | DeepSeek | Глубокий анализ, кросс-аудит, race conditions | Средняя |
+| DeepSeek V4 Flash | DeepSeek | Массовая механика, инвентаризация, хотфиксы | Низкая |
+| Grok 4.5 | xAI | Оркестрация, быстрый поиск, speed loops | Безлимит |
+| Codex 5.5 | OpenAI | Ревью безопасности/RLS, behavioural regression gate (уникальная роль) | Высокая |
+| GPT-5.6 | OpenAI | Lean outcome-focused кодинг | Высокая |
 
-Маршрутизация зависит от типа задачи, а не от предпочтений модели. Полная таблица с evidence-якорями — в `references/routing.md`.
+Маршрутизация зависит от типа задачи, а не от предпочтений модели. **Cross-family правило:** writer.family ≠ reviewer.family. Полная таблица с evidence-якорями и cross-family парами — в `references/routing.md`.
 
 ## [platform] highlights
 
-- **Таблица маршрутизации:** 7 типов задач → модели с evidence из волн I3–[TICKET]
+- **Qwen Code first-class:** отдельный CLI (`qwen --approval-mode yolo`), `/effort` вместо `/variants`, нативный worker_done. Не OpenCode-агент
+- **Family field + cross-family маршрутизация:** у каждой модели family (Alibaba, Zhipu, DeepSeek, OpenAI, xAI). Writer ≠ reviewer на уровне family, не только модели
+- **PRE-DISPATCH GATE (§3):** обязательный 6-пунктный чеклист перед каждым dispatch (model-card, --agent, variant/effort + sleep 3, dispatch --inject, cross-family, полнота брифа)
+- **POST-WORKER_DONE последовательность:** verify files → Linear comment → dispatch reviewer → wait → synthesis → ТОЛЬКО ПОТОМ In Review. Без сокращений
+- **Hard Prohibitions:** 10 запретов с правильными альтернативами в `references/prohibitions.md`
+- **Codex 5.5 behavioral gate:** уникальная роль — нашёл abort/cost MAJOR, который GLM пропустил. НЕ «ещё один ревьювер»
+- **Таблица маршрутизации:** 7+ типов задач → модели с evidence из волн I3–[TICKET]
 - **Dual review обязателен:** fidelity-порты требуют GLM 5.2 (static parity) ∥ Codex 5.5 (hosted semantics) — комплементарны, не избыточны
 - **Deploy / smoke gate:** доказать, что поставленная поверхность существует перед handoff (принцип + curl-примеры в `references/routing.md`)
 - **Жизненный цикл:** 7 явных гейтов: implement → review → commit → PR → merge → deploy → done. Не схлопывать в «writer Done»
@@ -66,10 +73,11 @@ multi-model-orchestration/
 ├── README.md             # Английская версия
 ├── README.ru.md          # Этот файл — русское описание
 └── references/
-    ├── routing.md         # Таблица маршрутизации, брифы, deploy/smoke gate
-    ├── worker-contract.md # Output contract, live worker_done CLI, written≠persisted
-    ├── failure-handling.md # Таймауты, эскалация, circuit-breaker
-    └── model-card.md      # Роли, «не путать с», evidence, owner pin, launch pins
+    ├── routing.md         # Таблица маршрутизации, брифы, cross-family pairs, deploy/smoke gate
+    ├── worker-contract.md # Output contract, live worker_done CLI, written≠persisted, парсинг Orca JSON
+    ├── failure-handling.md # Таймауты, эскалация, circuit-breaker, model-specific failure modes
+    ├── model-card.md      # Роли, family field, «не путать с», evidence, owner pin, launch pins, Qwen Code
+    └── prohibitions.md    # 10 жёстких запретов с правильными альтернативами
 ```
 
 ## Лицензия
