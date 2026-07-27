@@ -29,7 +29,6 @@ A skill for [opencode](https://github.com/opencode-ai/opencode) agents that coor
 | DeepSeek V4 Flash | DeepSeek | Bulk mechanical, inventory, hotfixes | Low |
 | Grok 4.5 | xAI | Orchestration, fast research, speed loops | Unlimited |
 | Codex 5.5 | OpenAI | Security/RLS review, behavioral regression gate (unique role) | High |
-| GPT-5.6 | OpenAI | Lean outcome-focused coding | High |
 
 Routing depends on task type, not model preference. **Cross-family rule:** writer.family ≠ reviewer.family. See `references/routing.md` for the full table with evidence anchors and cross-family pairs.
 

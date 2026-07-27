@@ -10,7 +10,7 @@ Use when starting a sprint/wave, or when multi-session development/content/skill
 
 ## Key features (v1.4)
 
-- **LAUNCH.md auto-generation (step 6b):** worker launch commands from model-card.md + PLAN.xml roles, cross-family check (writer.family ≠ reviewer.family), per-model review brief templates (DeepSeek, GLM, Codex/GPT, Qwen Code), prohibitions section, versioning on role change
+- **LAUNCH.md auto-generation (step 6b):** worker launch commands from model-card.md + PLAN.xml roles, cross-family check (writer.family ≠ reviewer.family), per-model review brief templates (DeepSeek, GLM, Codex, Qwen Code), prohibitions section, versioning on role change
 - **NEXT_SESSION pattern (step 6c):** unique files `NEXT_SESSION_I{N}.md` per iteration (never overwrite), copy-paste block with full path (format by orchestrator model), root pointer `NEXT_SESSION.md`, 10 iteration-specific sections (no SKILL.md duplication)
 - **Iteration handoff (step 7):** unique per-iteration files `iterations/I{N}-<slug>.handoff.md`, root SESSION_HANDOFF.md as pointer only
 - **Linear workflow generation (step 6d):** parametric `.agents/rules/linear-workflow.md` from wave parameters, APPEND on new wave in same project

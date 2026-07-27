@@ -29,7 +29,6 @@
 | DeepSeek V4 Flash | DeepSeek | Массовая механика, инвентаризация, хотфиксы | Низкая |
 | Grok 4.5 | xAI | Оркестрация, быстрый поиск, speed loops | Безлимит |
 | Codex 5.5 | OpenAI | Ревью безопасности/RLS, behavioural regression gate (уникальная роль) | Высокая |
-| GPT-5.6 | OpenAI | Lean outcome-focused кодинг | Высокая |
 
 Маршрутизация зависит от типа задачи, а не от предпочтений модели. **Cross-family правило:** writer.family ≠ reviewer.family. Полная таблица с evidence-якорями и cross-family парами — в `references/routing.md`.
 

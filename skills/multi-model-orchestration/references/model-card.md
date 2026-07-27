@@ -23,13 +23,12 @@ Updated: 2026-07-26.
 | **DeepSeek V4 Pro** | DeepSeek | OpenCode `A/agent1st_v36-pro` | `opencode --agent A/agent1st_v36-pro` · if agent not found: `opencode -m opencode-go/deepseek-v4-pro` |
 | **DeepSeek V4 Flash** | DeepSeek | OpenCode `A/agent1st_v36-flash` | `opencode --agent A/agent1st_v36-flash` · fallback: `-m opencode-go/deepseek-v4-flash` |
 | **Codex 5.5** | OpenAI | **Native Codex CLI** (not an OpenCode `A/` agent) | `orca terminal create --command "codex" --json` · or shell `codex` · optional: `codex --model gpt-5.5` / effort flags per host |
-| **GPT-5.6** | OpenAI | **Native Codex CLI** (lean coding family) | `orca terminal create --command 'codex --model gpt-5.6' --json` · or `codex --model gpt-5.6` |
 | **Grok 4.5** | xAI | Orchestrator / Grok CLI | Coordinator session (this skill). Worker research: host Grok CLI if available — **not** for product implement. |
 
 **OpenCode agents** live under `~/.config/opencode/agents/` (nested `A/` → launch name **`A/<stem>`**, e.g. `A/agent1st_qwen-3.8`).  
 **Qwen versionless pin:** skills always pin `A/agent1st_qwen-3.8`. Versioned `v5.1` / `v5.2` files may remain as history/rollback only. Protocol patches (incl. written≠persisted) live **inside the agent file** — bumping protocol does not require a skill edit.
 
-**Codex / GPT are not missing pins:** they are **outside** OpenCode agent files. Security gate and fidelity merge gate still **route to Codex 5.5** via the native Codex CLI above. Do not invent a fake `A/agent1st-codex` unless the host actually provides one.
+**Codex is not a missing pin:** it is **outside** OpenCode agent files. Security gate and fidelity merge gate still **route to Codex 5.5** via the native Codex CLI above. Do not invent a fake `A/agent1st-codex` unless the host actually provides one.
 
 **written≠persisted is a skill-wide worker gate**, not only a Qwen patch — see `worker-contract.md` and SKILL.md §2d.
 
@@ -109,7 +108,7 @@ The orchestrator reads the owner pin and routes accordingly. The model card docu
 | Qwen 3.8 Max | Alibaba | DeepSeek Pro, GLM 5.2, Codex 5.5 | OpenCode Qwen (Alibaba) |
 | GLM 5.2 | Zhipu | Qwen Code, DeepSeek Pro, Codex 5.5 | — |
 | DeepSeek Pro | DeepSeek | Qwen Code, GLM 5.2, Codex 5.5 | DeepSeek Flash (DeepSeek) |
-| Codex 5.5 | OpenAI | Qwen Code, GLM 5.2, DeepSeek Pro | GPT-5.6 (OpenAI) |
+| Codex 5.5 | OpenAI | Qwen Code, GLM 5.2, DeepSeek Pro | — |
 
 ---
 

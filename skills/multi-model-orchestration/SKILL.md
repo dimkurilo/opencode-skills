@@ -2,7 +2,7 @@
 name: multi-model-orchestration
 description: >-
   Coordinate 2+ AI models (GLM 5.2, DeepSeek V4 Pro/Flash, Qwen 3.8 Max, Grok 4.5,
-  Codex 5.5, GPT-5.6) for parallel review, cross-validation, or bulk work via Orca
+  Codex 5.5) for parallel review, cross-validation, or bulk work via Orca
   orchestration. Use when the coordinator says "обсудите этот вопрос с 2 моделями",
   "multi-model review", "cross-validate with N models", "parallel architecture specs",
   or any task requiring independent perspectives from different model families.
@@ -79,7 +79,6 @@ Otherwise → solo.
 | **Behavioral regression gate** | **Codex 5.5** | OpenAI | Unique role — caught abort/cost MAJOR GLM missed. NOT "just another reviewer" |
 | Fast research, SEO/tools, speed loops | **Grok 4.5** | xAI | Speed, tool-native |
 | Bulk mechanical, inventory, simple edits | **DeepSeek V4 Flash** | DeepSeek | Cheap, fast |
-| Lean contracts, outcome-focused coding | **GPT-5.6** | OpenAI | Goal+Success, lean prompts |
 | Cross-QA (review someone else's work) | **Different family** | — | Blind-spot detection |
 | **Fidelity port** (generator, vectorizer, reference→platform) | **Qwen 3.8 Max** write · **GLM 5.2** ∥ **Codex 5.5** review | Alibaba · Zhipu ∥ OpenAI | [TICKET] evidence: Qwen byte-identical prompt matrix; GLM exhaustive static parity; Codex behavioral regression gate (caught abort/cost MAJOR). Dual review mandatory — complementary, not redundant |
 | **Orchestration / dispatch / handoff** | **Grok 4.5** | xAI | Orchestrator NEVER implements (§3 role lock). Dispatch → wait → synthesize → gate |
@@ -197,7 +196,6 @@ Model-specific wrapping:
 - **Qwen 3.8 Max**: Context → Objective → Steps → Examples → Response Format. CoT ok.
 - **Qwen Code**: Standard worker-contract (ROLE/MODE/TASK/DONE/OUTPUT). No special wrapping — native CoT.
 - **Grok**: Task → Done. Lean.
-- **GPT-5.6**: Goal → Success → Context → Constraints → Autonomy → Stop.
 
 ---
 
@@ -361,7 +359,6 @@ Purpose: post-mortem traceability. Not a journal — one block per wave, 5-8 lin
 | Qwen 3.8 Max (OpenCode) | High | Complex reasoning, multimodal, fidelity writer |
 | **Qwen Code** | **High** | Implement (medium effort), native orchestration |
 | Codex 5.5 | High | Security/RLS gate, behavioral regression (unique role) |
-| GPT-5.6 | High | Lean outcome-focused, pro mode |
 
 Budget rule: use cheapest model that can do the task. Escalate to expensive models only when:
 - Task requires depth Flash/Grok cannot provide

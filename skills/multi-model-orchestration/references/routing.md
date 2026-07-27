@@ -19,7 +19,6 @@
 | **Security / RLS / auth / Storage review** | **Codex 5.5 + Qwen Max** (parallel) | OpenAI + Alibaba | + DeepSeek Pro for race/depth | **Pro-only** as sole security gate; writer self-review |
 | **Behavioral regression gate** | **Codex 5.5** | OpenAI | — | "Just another reviewer" framing |
 | Multimodal (screenshots, images) | Qwen 3.8 Max | Alibaba | — | GLM (text-only) |
-| Lean outcome-focused coding | GPT-5.6 | OpenAI | Grok 4.5 | — |
 | Protocol/skill review (3-model) | GLM + DeepSeek Pro + Qwen Max | Zhipu + DeepSeek + Alibaba | — | — |
 
 **Evidence ([client-project] I4, 2026-07-25):** same review task ×3 → Codex best merge gate (user-scoped idempotency MAJOR); Qwen best RLS (`is_active_user`); Pro best race depth but under-severity on RLS. Synthesis: any MAJOR from any N → fix before merge; prefer stricter severity.
@@ -74,7 +73,6 @@ Use **one** model only. Skip Orca multi-dispatch.
 | Deep race / audit / protocol draft | DeepSeek V4 Pro |
 | Bulk / inventory / 1–2 file hotfix | DeepSeek V4 Flash |
 | Research / browse / SEO tools | Grok 4.5 |
-| Lean outcome coding | GPT-5.6 (Codex CLI) |
 | Security/RLS alone | Prefer dual later; if solo, Codex 5.5 + explicit residual note |
 
 If §1 later says multi (expensive error, parallel pieces) — stop solo and open multi with writer ≠ reviewer.
@@ -203,30 +201,6 @@ Qwen Code does not require model-specific wrapping — native CoT, understands s
 
 **Rules:** Lean. Task + Done carry the load. No think-directives. No persona in user-prompt.
 
-### GPT-5.6
-
-```
-### Goal
-[1-2 sentences, verb-first: user-visible outcome]
-
-### Success
-- Acceptance: [what must be true]
-- Validation: [test / command]
-
-### Context
-- Files: [paths]
-- Evidence: [what's known / what's missing]
-
-### Constraints
-- Invariants: [hard rules only]
-- Do not touch: [boundaries]
-
-### Autonomy
-- Mode: Research only | Plan first | Execute
-```
-
-**Rules:** Lean contracts. Goal + Success carry load. No 【】. No "think step by step". No thick scaffolding.
-
 ---
 
 ## Codex 5.5 — Behavioral Regression Gate (unique role)
@@ -268,7 +242,7 @@ Codex 5.5 is NOT "just another reviewer". Unique role: behavioral regression gat
 | Qwen 3.8 Max | Alibaba | DeepSeek Pro, GLM 5.2, Codex 5.5 | OpenCode Qwen (Alibaba) |
 | GLM 5.2 | Zhipu | Qwen Code, DeepSeek Pro, Codex 5.5 | — |
 | DeepSeek Pro | DeepSeek | Qwen Code, GLM 5.2, Codex 5.5 | DeepSeek Flash (DeepSeek) |
-| Codex 5.5 | OpenAI | Qwen Code, GLM 5.2, DeepSeek Pro | GPT-5.6 (OpenAI) |
+| Codex 5.5 | OpenAI | Qwen Code, GLM 5.2, DeepSeek Pro | — |
 
 **Rule:** writer.family ≠ reviewer.family. Violation = blind-spot risk ([TICKET] evidence).
 

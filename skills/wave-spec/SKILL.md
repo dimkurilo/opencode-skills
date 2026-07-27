@@ -226,7 +226,7 @@ Mandatory sections:
 - Tools and agents table (role, tool, command, mode, **family**)
 - **Cross-family check:** writer.family ≠ reviewer.family (instruction: "verify → replace if same", NOT a static "✓")
 - Full orchestration cycle (atomic bash block per tool)
-- Review brief templates per model (DeepSeek, GLM, Codex/GPT, Qwen Code — from routing.md)
+- Review brief templates per model (DeepSeek, GLM, Codex, Qwen Code — from routing.md)
 - "Prohibited" section (vv-controller, terminal send, skip sleep 3, result.id, Qwen without yolo, launch without model-card check, same-family review, coordinator writes code)
 
 **Versioning:** on role change mid-wave (owner pin "сейчас writer=X") — regenerate LAUNCH.md, save previous as `LAUNCH.v{N}.md`.

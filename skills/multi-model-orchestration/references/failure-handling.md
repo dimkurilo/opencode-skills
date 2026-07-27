@@ -67,7 +67,6 @@ After 3 consecutive failures on one task (any combination of models):
 | Qwen 3.8 Max | Reasoning not preserved across turns | Verbalize key state to content field |
 | Qwen Code | Without `--approval-mode yolo` blocks orca commands. Effort persists across sessions | Always `--approval-mode yolo`. Always `/effort <val>` explicitly + `sleep 3` before dispatch |
 | Grok 4.5 | "I'll do it myself" instead of routing. 3+ identical tool calls → loop (P15/P18) | Explicit scope boundaries in brief. 3 identical actions → circuit-break + text response to user |
-| GPT-5.6 | Over-asking without autonomy policy | Include compact autonomy policy in brief |
 
 ---
 
