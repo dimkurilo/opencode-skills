@@ -203,10 +203,13 @@ Full brief shape — `ROLE / MODE`, Read first, Do only, Write only, Done when, 
 3. If Orca available, print (do not force) commands:
 
 ```bash
-orca terminal create --worktree active --title <id> --command "claude" --json
-# or opencode / grok
-orca terminal send --terminal <handle> --text "$(cat tasks/<id>.brief.md)" --enter --json
+# Full atomic cycle — see LAUNCH.md (step 6b) for per-model commands
+orca terminal create --worktree active --title <id> --command "opencode --agent <pin>" --json
+# Set variant/effort + sleep 3 (MANDATORY)
+# task-create → parse result.task.id → dispatch --inject (NOT terminal send)
 ```
+
+See step 6b (LAUNCH.md generation) for complete per-model launch cycles with `dispatch --inject`.
 
 Orchestrator tracks progress in STATUS.md.
 
