@@ -218,6 +218,30 @@ Codex 5.5 is NOT "just another reviewer". Unique role: behavioral regression gat
 **Launch:** `codex` (native CLI, not OpenCode agent)
 **Family:** OpenAI
 
+### Codex 5.5 brief template
+
+```
+### Goal
+[1-2 sentences: what to review — behavioral semantics focus]
+
+### Success
+- Acceptance: [what must be true for behavioral correctness]
+- Validation: [test / command / state transition check]
+
+### Context
+- Files: [paths]
+- Evidence: [what's known about behavioral semantics]
+
+### Constraints
+- Invariants: [hard rules — abort, cost, state transitions]
+- Do not touch: [boundaries]
+
+### Autonomy
+- Mode: Research only
+```
+
+**Rules:** Lean contracts. Goal + Success carry load. Focus on behavioral semantics (abort, cost, state transitions) — not static parity (that's GLM's job). No 【】. No "think step by step".
+
 ---
 
 ## Qwen Code vs OpenCode Qwen

@@ -96,6 +96,22 @@ TASK_ID=$(orca orchestration task-create --spec "<brief>" --json | \
 
 `terminal send` does NOT inject the lifecycle preamble (ROLE/SCOPE/MODE/COORDINATOR_HANDLE/TASK_ID/DISPATCH_ID). Without it, the worker cannot send `worker_done` through the protocol. **The only path for task delivery is `dispatch --inject`.** Exception: manual debugging (not orchestration).
 
+## worker_done Delivery Rule
+
+**worker_done MUST be sent via `orca orchestration send --type worker_done` CLI command.** Printing the report as text in chat is NOT a substitute — the coordinator's `check --wait` only receives messages sent through the orchestration protocol.
+
+If you print the report as text AND send worker_done via CLI — that's fine (coordinator gets the signal, human sees the report). But worker_done via CLI is mandatory.
+
+```bash
+orca orchestration send --to <coordinator_handle> --type worker_done \
+  --subject "<PASS|FAIL|PARTIAL — short status>" \
+  --body "<3-sentence executive summary>" \
+  --task-id <TASK_ID> --dispatch-id <DISPATCH_ID> \
+  --files-modified "path/a,path/b" \
+  --report-path "<optional>" \
+  --json
+```
+
 ---
 
 ## Qwen Code Note

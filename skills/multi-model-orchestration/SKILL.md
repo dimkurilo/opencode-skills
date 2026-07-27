@@ -300,6 +300,14 @@ orca orchestration check --wait --types worker_done,escalation,decision_gate \
 orca terminal read --terminal <handle> --json
 ```
 
+**Fallback when worker_done doesn't arrive:** if `check --wait` times out, do NOT assume failure.
+1. `terminal read --terminal <worker_handle>` — check if worker is still active
+2. If active → repeat `check --wait` (rolling window)
+3. If terminal gone → worker crashed, re-create + re-dispatch
+4. If worker printed report as TEXT but didn't send worker_done → read the text, treat as completion, manually advance
+
+**Shell timeout rule:** when running `check --wait` from a shell subprocess, the shell timeout MUST be ≥ the Orca `--timeout-ms`. Otherwise the shell kills the check before the worker finishes. For 15-min Orca waits, set shell timeout to 600000ms (10 min) minimum, or run check in background mode.
+
 For non-TUI fallback: `opencode run --agent <agent> --model <model> --prompt "<brief>"`.
 
 ---
@@ -359,8 +367,10 @@ Coordinator names models to human BEFORE dispatch — human can veto expensive c
 ## References (load on-demand)
 
 - `references/routing.md` — full model routing table, brief templates per model, cross-family pairs, examples
-- `references/worker-contract.md` — output contract spec, inject preamble, worker_done format, Orca JSON parsing
+- `references/worker-contract.md` — output contract spec, inject preamble, worker_done format, Orca JSON parsing, worker_done delivery rule
 - `references/failure-handling.md` — timeout policy, escalation, self-correction, circuit-breaker
 - `references/model-card.md` — model roles + family field + «не путать с» + evidence 1-liners + owner pin + launch pins + Qwen Code
-- `references/prohibitions.md` — 10 hard prohibitions with correct alternatives
+- `references/prohibitions.md` — 11 hard prohibitions with correct alternatives
+- **`orca-cli` skill** — terminal ops, worktree management, handoffs. Load via `orca skills get orca-cli`
+- **`orchestration` skill** — task/dispatch/wait, worker_done authority, coordinator loops. Load via `orca skills get orchestration`
 <!-- Changelog: v1.0 · v1.1 MCP/audit/cost · v1.2 dispatch fix · v1.3 [platform] · v1.4 model-card · v1.5 Qwen postmortem P0–P2 · v1.6 [TICKET]: Qwen Code first-class, family field + cross-family routing, PRE-DISPATCH GATE (§3), POST-WORKER_DONE sequence, §10 atomic full cycles, prohibitions.md, Codex behavioral gate, cost Grok unlimited -->
