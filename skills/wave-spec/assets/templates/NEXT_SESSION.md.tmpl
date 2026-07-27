@@ -2,84 +2,105 @@
 
 ---
 
-# NEXT_SESSION — {{iteration_id}} ({{wave_slug}})
+# {{iteration_id}} — {{iteration_title}}
 
-## §0 Role Lock
+{{linear_task}}. SPEC: {{spec_path}} ({{spec_section}}).
+Previous: {{prev_iteration}} done ({{prev_commit}}).
 
-Orchestrator: dispatch → wait → synthesize → gate. Does NOT write code.
-Writer ≠ reviewer (cross-family). Coordinator does not edit worker files.
+---
 
-## §1 Current State
+## Шаг 0. Загрузи источники
 
-Iteration: {{iteration_id}}. Status: {{status}}.
-Previous: {{prev_iteration}} → {{prev_handoff_path}}
-
-## §2 Routing (check current I{N})
-
-| Role | Tool | Command | Mode | Family |
-|------|------|---------|------|--------|
-{{roles_table}}
-
-Cross-family: writer.family ≠ reviewer.family.
-Availability: check model-card.md before launch.
-
-**Briefs per model (from routing.md):**
-- Grok: Task → Scope → Context → Constraints → Done → Autonomy
-- Qwen Code: ROLE/MODE/TASK/DONE/OUTPUT (standard worker-contract)
-- DeepSeek: Задача → Где → Сейчас → Должно быть → Контекст → Не трогать + 【思维模式要求】
-- GLM: Goal → Context → Constraints → Done
-
-## §2b Deploy Gate
-
-curl -sI https://<url>/<route> | head -1 → 307/302 = OK, 404 = FAIL.
-No probe = RESIDUAL-RISK-OWNER-SMOKE.
-
-## §3 Keys / Access
-
-.env, Vercel, Supabase — do not commit. See ACCESS_CHECKLIST.md.
-
-## §4 Iteration Plan
-
-See PLAN.xml task {{iteration_id}}.
-LAUNCH.md: {{launch_path}}
-
-### Worker brief (INLINE — copy-paste, do not compose your own)
-
-{{inline_worker_brief}}
-
-### Atomic launch block (ONE block per worker — do not split)
-
-```bash
-# {{worker_name}} — full cycle: create → mode → sleep → task-create → dispatch → wait
-HANDLE=$(orca terminal create --worktree active --title worker-{{worker_name}} \
-  --command "{{launch_command}}" --json | \
-  python3 -c "import json,sys; print(json.load(sys.stdin)['result']['terminal']['handle'])")
-
-orca terminal send --terminal $HANDLE --text "{{mode_command}}" --enter --json
-sleep 3  # MANDATORY
-
-TASK_ID=$(orca orchestration task-create --spec "$(cat <<'BRIEF'
-{{inline_worker_brief}}
-BRIEF
-)" --json | python3 -c "import json,sys; print(json.load(sys.stdin)['result']['task']['id'])")
-orca orchestration dispatch --task $TASK_ID --to $HANDLE --inject --json
-
-orca orchestration check --wait --types worker_done,escalation,decision_gate \
-  --timeout-ms {{timeout_ms}} --json
+Выполни и прочитай вывод:
 ```
+orca skills get orchestration
+```
+Это единственный источник по dispatch/wait/worker_done. Не NEXT_SESSION, не память, не кэш.
 
-## §10 Audit Log
+Затем прочитай:
+- `{{spec_path}}` — секция {{spec_section}}
+- `.agents/rules/linear-workflow.md` — §2, §5
 
-After wave: block in SESSION_HANDOFF.md.
-Format: Models, Task, Verdict, Duration, Key findings, Decisions, Artifacts.
+**Gate:** можешь назвать 3 команды из гайда для dispatch? Если нет — перечитай.
 
-## §12 Linear Protocol
+## Шаг 1. Linear: In Progress
 
-See .agents/rules/linear-workflow.md. {{language}} language, checklists, project.
-Parent: {{linear_parent}}. Task: {{linear_task}}.
+```
+orca linear status set {{linear_task}} --to "In Progress" --json
+```
+**Gate:** вывод содержит `"ok": true`.
 
-## §13 Handoff Pointers
+## Шаг 2. Brief
 
-SESSION_HANDOFF.md → pointer to iteration.
-MEMORY.md → durable facts.
-LAUNCH.md → launch commands.
+Создай `{{brief_path}}`.
+
+Содержимое brief — из SPEC {{spec_section}}. Структура:
+- ROLE: Worker. Writer: {{writer_tool}}.
+- MODE: {{mode}}. worker_done = bash-команда `orca orchestration send --type worker_done`. Текстовый отчёт в чат = FAILURE.
+- SCOPE: {{scope_paths}}
+- Steps: из SPEC
+- DONE: {{done_criteria}}. `git status --short` перед worker_done.
+- Constraints: {{constraints}}
+
+**Gate:** файл существует (`ls {{brief_path}}`).
+
+## Шаг 3. Dispatch
+
+Построй команды САМ из гайда (шаг 0). Последовательность:
+1. terminal create (worktree active, command "{{writer_launch}}")
+2. terminal wait --for tui-idle (timeout 60s)
+3. terminal send "{{writer_mode_command}}" + sleep 3
+4. task-create (spec = brief файл)
+5. dispatch --task --to --inject
+6. check --wait --types worker_done,escalation,decision_gate --timeout-ms 900000
+
+ЗАПРЕЩЕНО: terminal send с текстом задачи после dispatch --inject.
+ЗАПРЕЩЕНО: copy-paste bash из этого файла — строй из гайда.
+
+**Gate:** check --wait вернул сообщение с type=worker_done.
+Если timeout: terminal read → если working → repeat wait. Если idle без worker_done → terminal send "Отправь worker_done через orca orchestration send CLI."
+
+## Шаг 4. Verify
+
+```
+git status --short
+```
+**Gate:** файлы из {{scope_paths}} в выводе. Сверь с CHANGES из worker_done.
+
+## Шаг 5. Review ({{reviewer_name}})
+
+Тот же dispatch-flow из гайда. Worker: `{{reviewer_launch}}`.
+Brief: ревью {{scope_paths}}. Фокус: {{review_focus}}.
+**Gate:** worker_done от ревьювера получен. Синтез: MAJOR → fix-round, 0 MAJOR → дальше.
+
+## Шаг 6. Commit + push
+
+```
+git add -A && git commit -m "{{linear_task}} | {{iteration_id}}: {{iteration_title}}" && git push
+```
+**Gate:** push без ошибок.
+
+## Шаг 7. Linear: отчёт + In Review
+
+По linear-workflow.md §5:
+1. Обновить описание {{linear_task}}: чеклисты [x], файлы, верификация
+2. Комментарий-отчёт (§5.3 формат)
+3. Статус: In Review
+
+**Gate:** комментарий существует. Статус = In Review. Done НЕ ставить.
+
+## Шаг 8. Handoff
+
+Создать `NEXT_SESSION_{{next_iteration_id}}.md` (этот же формат: шаги + gates, без bash-рецептов).
+Обновить указатель в `NEXT_SESSION.md`.
+Commit + push handoff.
+
+---
+
+## Failure
+
+- 3 consecutive failures → escalate human
+- Пользователь пишет → СТОП → ответь текстом
+- Worker напечатал текстом → terminal send: "worker_done = bash-команда. Не текст."
+- Heartbeat/активность = worker жив. НЕ перезапускать.
+- check count:0 = checkpoint, НЕ failure → repeat wait

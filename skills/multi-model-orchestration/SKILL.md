@@ -248,65 +248,46 @@ Key gates (details in prohibitions.md):
 
 ---
 
-## 10. Orca Commands Quick Reference
+## 10. Orca Commands — Build From Guide, Not From Memory
 
-### OpenCode worker (DeepSeek / GLM / Qwen via OpenCode) — full atomic cycle
+**Step 0 before any dispatch:** run `orca skills get orchestration` and read the output. This is the authoritative source for dispatch/wait/worker_done commands. Do NOT copy-paste bash from this skill, from NEXT_SESSION files, or from memory.
 
-```bash
-# ONE atomic block: create → variant → sleep → task-create → dispatch → wait
-HANDLE=$(orca terminal create --worktree active --title worker-<name> \
-  --command "opencode --agent <AGENT_FROM_MODEL_CARD>" --json | \
-  python3 -c "import json,sys; print(json.load(sys.stdin)['result']['terminal']['handle'])")
+### Required sequence per worker
 
-# Variant (MANDATORY — persists across sessions)
-orca terminal send --terminal $HANDLE --text "/variants <xhigh|medium>" --enter --json
-sleep 3  # MANDATORY: race condition between variant and dispatch
+Build the exact commands from the orchestration guide. The sequence is:
 
-# Dispatch (NOT terminal send!)
-TASK_ID=$(orca orchestration task-create --spec "<brief>" --json | \
-  python3 -c "import json,sys; print(json.load(sys.stdin)['result']['task']['id'])")
-orca orchestration dispatch --task $TASK_ID --to $HANDLE --inject --json
+1. **terminal create** — worktree active, command = launch from model-card.md
+2. **terminal wait --for tui-idle** — timeout 60s (agent must be ready before dispatch)
+3. **terminal send** — variant/effort command + **sleep 3** (race condition prevention)
+4. **task-create** — spec = brief content or brief file path
+5. **dispatch --task --to --inject** — injects lifecycle preamble
+6. **check --wait --types worker_done,escalation,decision_gate** — rolling wait
 
-# Wait
-orca orchestration check --wait --types worker_done,escalation,decision_gate \
-  --timeout-ms 900000 --json
-```
+### Verification gates
 
-### Qwen Code worker — full atomic cycle
+- After step 2: terminal is idle (ready for input). If not idle → wait more.
+- After step 5: dispatch confirmed in output.
+- After step 6: worker_done received. **Timeout ≠ failure** → terminal read → if working → repeat wait.
+- If worker printed report as text but no worker_done → terminal send: "worker_done = orca orchestration send CLI command. Not text."
 
-```bash
-# ONE atomic block: create → effort → sleep → task-create → dispatch → wait
-HANDLE=$(orca terminal create --worktree active --title worker-<name> \
-  --command "qwen --approval-mode yolo" --json | \
-  python3 -c "import json,sys; print(json.load(sys.stdin)['result']['terminal']['handle'])")
+### Shell timeout rule
 
-# Effort (MANDATORY — persists across sessions)
-orca terminal send --terminal $HANDLE --text "/effort <medium|high|xhigh|max>" --enter --json
-sleep 3  # MANDATORY
+When running `check --wait` from a shell subprocess, the shell timeout MUST be ≥ the Orca `--timeout-ms`. For 15-min Orca waits, either:
+- Run check in background mode (`is_background: true`) and poll later
+- Or set shell timeout to 600000ms with Orca timeout ≤ 540000ms
 
-# Dispatch
-TASK_ID=$(orca orchestration task-create --spec "<brief>" --json | \
-  python3 -c "import json,sys; print(json.load(sys.stdin)['result']['task']['id'])")
-orca orchestration dispatch --task $TASK_ID --to $HANDLE --inject --json
+### Fallback when worker_done doesn't arrive
 
-# Wait (longer timeout for Qwen Code — complex tasks)
-orca orchestration check --wait --types worker_done,escalation,decision_gate \
-  --timeout-ms 1800000 --json
-```
+1. `terminal read --terminal <worker_handle>` — check if worker is still active
+2. If active → repeat `check --wait` (rolling window)
+3. If terminal gone → worker crashed, re-create + re-dispatch
+4. Check `/private/tmp/task_<id>*` for report files (some models write there)
 
 ### Liveness check (on timeout)
 
 ```bash
 orca terminal read --terminal <handle> --json
 ```
-
-**Fallback when worker_done doesn't arrive:** if `check --wait` times out, do NOT assume failure.
-1. `terminal read --terminal <worker_handle>` — check if worker is still active
-2. If active → repeat `check --wait` (rolling window)
-3. If terminal gone → worker crashed, re-create + re-dispatch
-4. If worker printed report as TEXT but didn't send worker_done → read the text, treat as completion, manually advance
-
-**Shell timeout rule:** when running `check --wait` from a shell subprocess, the shell timeout MUST be ≥ the Orca `--timeout-ms`. Otherwise the shell kills the check before the worker finishes. For 15-min Orca waits, set shell timeout to 600000ms (10 min) minimum, or run check in background mode.
 
 For non-TUI fallback: `opencode run --agent <agent> --model <model> --prompt "<brief>"`.
 

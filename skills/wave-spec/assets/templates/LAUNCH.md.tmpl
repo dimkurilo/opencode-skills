@@ -1,7 +1,7 @@
-# LAUNCH.md — worker launch commands ({{wave_slug}})
+# LAUNCH.md — worker launch reference ({{wave_slug}})
 
 > Rule 1: always specify tool and mode explicitly.
-> Rule 2: `sleep 3` between variant/effort and dispatch --inject.
+> Rule 2: build dispatch commands from `orca skills get orchestration`, NOT from this file.
 > Rule 3: dispatch --inject, NOT terminal send.
 > Rule 4: writer.family ≠ reviewer.family (cross-family).
 
@@ -19,31 +19,26 @@ Writer: {{writer_name}} ({{writer_family}})
 Reviewer: {{reviewer_name}} ({{reviewer_family}})
 → Verify: families differ. If same — REPLACE reviewer before dispatch.
 
-## Full cycle ({{tool_name}})
+## Dispatch sequence (build from `orca skills get orchestration`)
 
-```bash
-# ONE atomic block: create → variant/effort → sleep 3 → task-create → dispatch → wait
-HANDLE=$(orca terminal create --worktree active --title worker-<name> \
-  --command "{{launch_command}}" --json | \
-  python3 -c "import json,sys; print(json.load(sys.stdin)['result']['terminal']['handle'])")
+Do NOT copy-paste bash from here. Load the orchestration guide and build commands yourself.
 
-# {{mode_command}} (MANDATORY — persists across sessions)
-orca terminal send --terminal $HANDLE --text "{{mode_value}}" --enter --json
-sleep 3  # MANDATORY: race condition
+Required sequence per worker:
+1. `terminal create` — worktree active, command from table above
+2. `terminal wait --for tui-idle` — timeout 60s
+3. `terminal send` — mode command (variant/effort) + `sleep 3`
+4. `task-create` — spec = brief file
+5. `dispatch --task --to --inject`
+6. `check --wait --types worker_done,escalation,decision_gate`
 
-# Dispatch (NOT terminal send!)
-TASK_ID=$(orca orchestration task-create --spec "<brief>" --json | \
-  python3 -c "import json,sys; print(json.load(sys.stdin)['result']['task']['id'])")
-orca orchestration dispatch --task $TASK_ID --to $HANDLE --inject --json
-
-# Wait
-orca orchestration check --wait --types worker_done,escalation,decision_gate \
-  --timeout-ms {{timeout_ms}} --json
-```
+Verification gates:
+- After step 2: terminal is idle (ready for input)
+- After step 5: dispatch confirmed
+- After step 6: worker_done received (timeout ≠ failure → terminal read → repeat)
 
 ## Review brief templates per model
 
-Copy-paste the matching template. Do NOT compose your own prompt.
+Copy-paste the matching template into the brief file. Do NOT compose your own prompt.
 
 ### DeepSeek V4 Pro
 
@@ -92,18 +87,18 @@ Output: SUMMARY / EVIDENCE / CHANGES / RISKS / BLOCKERS
 
 ```
 ### Goal
-[1-2 sentences: what to review]
+[1-2 sentences: what to review — behavioral semantics focus]
 
 ### Success
-- Acceptance: [what must be true]
-- Validation: [test / command]
+- Acceptance: [what must be true for behavioral correctness]
+- Validation: [test / command / state transition check]
 
 ### Context
 - Files: [paths]
-- Evidence: [what's known]
+- Evidence: [what's known about behavioral semantics]
 
 ### Constraints
-- Invariants: [hard rules]
+- Invariants: [hard rules — abort, cost, state transitions]
 - Do not touch: [boundaries]
 
 ### Autonomy
@@ -176,4 +171,5 @@ Mode: review-only | implement
 - Qwen Code without `--approval-mode yolo` → blocks orca commands
 - Launching without checking model-card.md → model may be unavailable
 - Writer + reviewer from same family → blind-spot risk
-- Coordinator writing code → role lock violation (dispatch → wait → synthesize → gate)
+- Coordinator writing code → role lock violation
+- Copy-paste bash from this file → build from `orca skills get orchestration`

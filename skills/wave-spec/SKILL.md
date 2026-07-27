@@ -233,16 +233,30 @@ Mandatory sections:
 
 ### 6c. NEXT_SESSION generation (at iteration handoff)
 
+**Format principle (model-agnostic):** any LLM orchestrator will execute a ready-made bash block blindly without validating against the source. Therefore NEXT_SESSION uses **steps + verification gates**, NOT copy-paste bash recipes.
+
 Pattern:
 1. **Unique file per iteration:** `NEXT_SESSION_I{N}.md` (e.g. `NEXT_SESSION_[ITER].md`). Never overwrite previous iteration's file.
-2. **Copy-paste block at top:** format depends on orchestrator model (from SPEC `<orchestrator>`). Must include **full path** to the NEXT_SESSION file. Agent knows who it is — don't write "You are Grok 4.5". But the full path is mandatory.
-3. **Root pointer:** `NEXT_SESSION.md` (no suffix) — only a pointer + table of iteration files, not full instructions.
-4. **Create on completion:** after finishing iteration, create `NEXT_SESSION_I{N+1}.md` and update the pointer.
+2. **Copy-paste block at top:** short imperative (3-4 lines). Must include **full path** to the NEXT_SESSION file. Format by orchestrator model (from SPEC `<orchestrator>`).
+3. **Step 0 = load source:** `orca skills get orchestration` — the orchestrator MUST read the actual guide, not guess from cache. This is the single most important step.
+4. **Each step = action + verification gate:** a concrete verifiable fact in the output (e.g. `"ok": true`, file exists, worker_done received). NOT "check that X is correct".
+5. **No copy-paste bash blocks:** the orchestrator builds dispatch commands from the orchestration guide itself. NEXT_SESSION provides the SEQUENCE (create → wait → variant → sleep → task-create → dispatch → check) but NOT the exact bash.
+6. **Linear woven into flow:** In Progress at step 1, comment + In Review at step 7. NOT "at the end if you remember".
+7. **Root pointer:** `NEXT_SESSION.md` (no suffix) — only a pointer + table of iteration files.
+8. **Create on completion:** after finishing iteration, create `NEXT_SESSION_I{N+1}.md` and update the pointer.
 
-Template: `assets/templates/NEXT_SESSION.md.tmpl` — ONE template with `{{copy_paste_block}}` variable.
+Template: `assets/templates/NEXT_SESSION.md.tmpl` — step-based format with gates.
 
-**10 sections** (iteration-specific only; static rules §5–§9, §11 are in multi-model SKILL.md, not duplicated):
-Copy-paste block, §0 Role Lock, §1 Current State, §2 Routing, §2b Deploy Gate, §3 Keys/Access, §4 Iteration Plan, §10 Audit Log, §12 Linear Protocol, §13 Handoff Pointers.
+**Step structure (8 steps):**
+- Step 0: Load sources (orchestration guide + SPEC + linear-workflow)
+- Step 1: Linear In Progress
+- Step 2: Create brief file
+- Step 3: Dispatch (build from guide, no copy-paste bash)
+- Step 4: Verify (git status)
+- Step 5: Review (same dispatch flow)
+- Step 6: Commit + push
+- Step 7: Linear comment + In Review
+- Step 8: Handoff (create next NEXT_SESSION)
 
 Copy-paste format by orchestrator:
 
