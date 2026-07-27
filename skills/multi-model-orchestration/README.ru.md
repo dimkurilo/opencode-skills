@@ -38,7 +38,7 @@
 - **Family field + cross-family маршрутизация:** у каждой модели family (Alibaba, Zhipu, DeepSeek, OpenAI, xAI). Writer ≠ reviewer на уровне family, не только модели
 - **PRE-DISPATCH GATE (§3):** обязательный 6-пунктный чеклист перед каждым dispatch (model-card, --agent, variant/effort + sleep 3, dispatch --inject, cross-family, полнота брифа)
 - **POST-WORKER_DONE последовательность:** verify files → Linear comment → dispatch reviewer → wait → synthesis → ТОЛЬКО ПОТОМ In Review. Без сокращений
-- **Hard Prohibitions:** 10 запретов с правильными альтернативами в `references/prohibitions.md`
+- **Hard Prohibitions:** 11 запретов с правильными альтернативами в `references/prohibitions.md`
 - **Codex 5.5 behavioral gate:** уникальная роль — нашёл abort/cost MAJOR, который GLM пропустил. НЕ «ещё один ревьювер»
 - **Таблица маршрутизации:** 7+ типов задач → модели с evidence из волн I3–[TICKET]
 - **Dual review обязателен:** fidelity-порты требуют GLM 5.2 (static parity) ∥ Codex 5.5 (hosted semantics) — комплементарны, не избыточны
@@ -76,7 +76,7 @@ multi-model-orchestration/
     ├── worker-contract.md # Output contract, live worker_done CLI, written≠persisted, парсинг Orca JSON
     ├── failure-handling.md # Таймауты, эскалация, circuit-breaker, model-specific failure modes
     ├── model-card.md      # Роли, family field, «не путать с», evidence, owner pin, launch pins, Qwen Code
-    └── prohibitions.md    # 10 жёстких запретов с правильными альтернативами
+    └── prohibitions.md    # 11 жёстких запретов с правильными альтернативами
 ```
 
 ## Лицензия

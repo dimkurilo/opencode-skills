@@ -38,7 +38,7 @@ Routing depends on task type, not model preference. **Cross-family rule:** write
 - **Family field + cross-family routing:** every model has a family (Alibaba, Zhipu, DeepSeek, OpenAI, xAI). Writer ≠ reviewer at family level, not just model level
 - **PRE-DISPATCH GATE (§3):** 6-point mandatory checklist before every dispatch (model-card check, --agent, variant/effort + sleep 3, dispatch --inject, cross-family, brief completeness)
 - **POST-WORKER_DONE sequence:** verify files → Linear comment → dispatch reviewer → wait → synthesis → THEN In Review. No shortcuts
-- **Hard Prohibitions:** 10 rules with correct alternatives in `references/prohibitions.md`
+- **Hard Prohibitions:** 11 rules with correct alternatives in `references/prohibitions.md`
 - **Codex 5.5 behavioral gate:** unique role — caught abort/cost MAJOR that GLM's static review missed. NOT "just another reviewer"
 - **Routing table:** 7+ task types mapped to model families with evidence from I3–[TICKET] waves
 - **Dual review mandatory:** fidelity ports require GLM 5.2 (static parity) ∥ Codex 5.5 (hosted semantics) — complementary, not redundant
@@ -76,7 +76,7 @@ multi-model-orchestration/
     ├── worker-contract.md # Output contract, live worker_done CLI, written≠persisted gate, Orca JSON parsing
     ├── failure-handling.md # Timeout policy, escalation, circuit-breaker, model-specific failure modes
     ├── model-card.md      # Roles, family field, «не путать с», evidence, owner pin, launch pins, Qwen Code
-    └── prohibitions.md    # 10 hard prohibitions with correct alternatives
+    └── prohibitions.md    # 11 hard prohibitions with correct alternatives
 ```
 
 ## License

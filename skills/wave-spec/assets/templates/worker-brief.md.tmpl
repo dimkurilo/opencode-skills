@@ -38,7 +38,9 @@ ${DONE_WHEN}
 
 ## Report (worker contract)
 
-Send `worker_done` exactly once with a **3-sentence body**: what you did, what you found, what's left.
+Send `worker_done` exactly once via `orca orchestration send --type worker_done` CLI command.
+**Text report in chat alone = FAILURE.** The coordinator only receives signals sent through the orchestration protocol.
+Body = 3-sentence summary: what you did, what you found, what's left.
 Then the structured artifact:
 
 **SUMMARY / EVIDENCE / CHANGES / RISKS / BLOCKERS**

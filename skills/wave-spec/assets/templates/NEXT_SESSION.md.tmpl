@@ -21,13 +21,12 @@ orca skills get orchestration
 - `{{spec_path}}` — секция {{spec_section}}
 - `.agents/rules/linear-workflow.md` — §2, §5
 
-**Gate:** можешь назвать 3 команды из гайда для dispatch? Если нет — перечитай.
+**Gate:** в твоём следующем действии используются 3 команды из гайда: `task-create`, `dispatch --inject`, `check --wait`. Если не можешь их назвать — перечитай гайд.
 
 ## Шаг 1. Linear: In Progress
 
-```
-orca linear status set {{linear_task}} --to "In Progress" --json
-```
+Поставь статус {{linear_task}} в In Progress (команду строй из linear-workflow.md §2).
+
 **Gate:** вывод содержит `"ok": true`.
 
 ## Шаг 2. Brief
@@ -62,10 +61,10 @@ orca linear status set {{linear_task}} --to "In Progress" --json
 
 ## Шаг 4. Verify
 
-```
-git status --short
-```
-**Gate:** файлы из {{scope_paths}} в выводе. Сверь с CHANGES из worker_done.
+Проверь что файлы из {{scope_paths}} существуют на диске (git status или ls).
+Сверь с CHANGES из worker_done.
+
+**Gate:** каждый файл из {{scope_paths}} присутствует в выводе git status.
 
 ## Шаг 5. Review ({{reviewer_name}})
 
@@ -75,10 +74,10 @@ Brief: ревью {{scope_paths}}. Фокус: {{review_focus}}.
 
 ## Шаг 6. Commit + push
 
-```
-git add -A && git commit -m "{{linear_task}} | {{iteration_id}}: {{iteration_title}}" && git push
-```
-**Gate:** push без ошибок.
+Закоммить только публичные пути (skills/, README, CHANGELOG). НЕ stage dev-файлы (AGENTS.md, SESSION_HANDOFF.md, .agents/).
+Запушь в main.
+
+**Gate:** `git status --short` не показывает dev-файлы в staged. Commit hash существует. Push без ошибок.
 
 ## Шаг 7. Linear: отчёт + In Review
 
@@ -91,9 +90,11 @@ git add -A && git commit -m "{{linear_task}} | {{iteration_id}}: {{iteration_tit
 
 ## Шаг 8. Handoff
 
-Создать `NEXT_SESSION_{{next_iteration_id}}.md` (этот же формат: шаги + gates, без bash-рецептов).
-Обновить указатель в `NEXT_SESSION.md`.
-Commit + push handoff.
+Создай `NEXT_SESSION_{{next_iteration_id}}.md` (этот же формат: шаги + gates, без bash-рецептов).
+Обнови указатель в `NEXT_SESSION.md`.
+Закоммить + запушь handoff.
+
+**Gate:** `NEXT_SESSION_{{next_iteration_id}}.md` существует. `NEXT_SESSION.md` указывает на него. Commit + push успешны.
 
 ---
 
