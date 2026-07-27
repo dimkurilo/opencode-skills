@@ -9,26 +9,29 @@
 
 ### Added
 - **wave-spec v1.4.0** ([TICKET]):
-  - LAUNCH.md auto-generation (step 6b): cross-family check, per-model brief templates, prohibitions, versioning
-  - NEXT_SESSION pattern (step 6c): unique files `NEXT_SESSION_I{N}.md`, copy-paste block with full path, root pointer, 10 sections
+  - LAUNCH.md auto-generation (step 6b): cross-family check, per-model brief templates (6 models), prohibitions, versioning. No copy-paste bash — sequence description only
+  - NEXT_SESSION pattern (step 6c): **steps + verification gates format** (model-agnostic). Step 0 = load `orca skills get orchestration`. 8 steps with concrete gates. No copy-paste bash blocks. Linear woven into flow (step 1 = In Progress, step 7 = comment + In Review)
   - Iteration handoff (step 7): unique per-iteration files, root SESSION_HANDOFF.md as pointer
-  - Linear workflow generation (step 6d): parametric template, APPEND on new wave
+  - Linear workflow generation (step 6d): parametric template with {{language}}, APPEND on new wave
   - Linear validation checklist in dispatch prep
   - PLAN.xml `<roles>` with family + `<family_rule>`
   - Post-mortem → skill update in closeout checklist
   - New templates: LAUNCH.md.tmpl, iteration-handoff.md.tmpl, NEXT_SESSION.md.tmpl, linear-workflow.md.tmpl
+  - worker-brief.md.tmpl + fix-round-brief.md.tmpl: written≠persisted gate + worker_done CLI rule
 - **multi-model-orchestration v1.6.0** ([TICKET]):
   - Qwen Code first-class: separate CLI, `/effort`, native worker_done, `--approval-mode yolo`
   - Family field for all models (Alibaba, Zhipu, DeepSeek, OpenAI, xAI) + cross-family routing
   - PRE-DISPATCH GATE (§3): 6-point mandatory checklist before every dispatch
   - POST-WORKER_DONE sequence: verify → Linear → reviewer → wait → synthesis → In Review
-  - §10 atomic full cycles (OpenCode + Qwen Code) with sleep 3, result.task.id, dispatch --inject
-  - Hard Prohibitions: 10 rules in `references/prohibitions.md`
-  - Codex 5.5 behavioral regression gate (unique role)
+  - §10 "Build From Guide, Not From Memory": sequence with gates, no copy-paste bash. References orca-cli + orchestration skills
+  - Hard Prohibitions: **11 rules** in `references/prohibitions.md` (single source of truth)
+  - Codex 5.5 behavioral regression gate (unique role) + brief template in routing.md
   - Qwen Code brief template, Qwen Code vs OpenCode Qwen table, cross-family pairs table
   - Orca JSON parsing table (result.task.id), terminal send prohibition, Qwen Code failure mode
   - Grok circuit-break on 3+ identical tool calls (P15/P18)
+  - worker-contract.md: worker_done delivery rule (CLI only, not text)
   - Cost guidance: Qwen Code (high), Grok (unlimited)
+  - GPT-5.6 removed (not used)
 
 ### Changed
 - **multi-model-orchestration v1.5** (Qwen skill postmortem P0–P2):
