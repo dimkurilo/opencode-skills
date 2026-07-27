@@ -1,12 +1,6 @@
 ---
 name: multi-model-orchestration
-description: >-
-  Coordinate 2+ AI models (GLM 5.2, DeepSeek V4 Pro/Flash, Qwen 3.8 Max, Grok 4.5,
-  Codex 5.5) for parallel review, cross-validation, or bulk work via Orca
-  orchestration. Use when the coordinator says "обсудите этот вопрос с 2 моделями",
-  "multi-model review", "cross-validate with N models", "parallel architecture specs",
-  or any task requiring independent perspectives from different model families.
-  Do NOT use for single-model tasks, trivial edits, or when §1 decision tree says solo.
+description: "Coordinate 2+ AI models (GLM 5.2, DeepSeek V4 Pro/Flash, Qwen 3.8 Max, Grok 4.5, Codex 5.5) for parallel review, cross-validation, or bulk work via Orca orchestration. Use when the coordinator says \"обсудите этот вопрос с 2 моделями\", \"multi-model review\", \"cross-validate with N models\", \"parallel architecture specs\", or any task requiring independent perspectives from different model families. Do NOT use for single-model tasks, trivial edits, or when §1 decision tree says solo."
 ---
 
 # Multi-Model Orchestration
