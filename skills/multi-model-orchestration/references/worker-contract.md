@@ -76,6 +76,34 @@ Do **not** use `--payload '{"taskId":...}'` as the primary form — older docs u
 
 ---
 
+## Parsing Orca JSON Responses
+
+| Command | Correct path | Common mistake |
+|---------|-------------|----------------|
+| `task-create --json` | `result.task.id` | ~~`result.id`~~ |
+| `terminal create --json` | `result.terminal.handle` | ~~`result.handle`~~ |
+| `dispatch --json` | `result.dispatch.id` | — |
+
+Python one-liner pattern:
+```bash
+TASK_ID=$(orca orchestration task-create --spec "<brief>" --json | \
+  python3 -c "import json,sys; print(json.load(sys.stdin)['result']['task']['id'])")
+```
+
+---
+
+## terminal send Prohibition
+
+`terminal send` does NOT inject the lifecycle preamble (ROLE/SCOPE/MODE/COORDINATOR_HANDLE/TASK_ID/DISPATCH_ID). Without it, the worker cannot send `worker_done` through the protocol. **The only path for task delivery is `dispatch --inject`.** Exception: manual debugging (not orchestration).
+
+---
+
+## Qwen Code Note
+
+Qwen Code (`qwen --approval-mode yolo`) natively understands worker_done, heartbeat, escalation — no inject preamble wrapping needed for lifecycle. However, `--approval-mode yolo` is mandatory for Orca workers (without it, orca commands block on confirmation). Effort (`/effort medium|high|xhigh|max`) persists across sessions — always set explicitly.
+
+---
+
 ## Coordinator Synthesis Template
 
 After collecting N worker reports:

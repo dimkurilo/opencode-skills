@@ -2,21 +2,25 @@
 
 ## Full Routing Table
 
-| Task type | Primary | Alternative | Avoid |
-|-----------|---------|-------------|-------|
-| Architecture spec (independent) | GLM 5.2 + DeepSeek Pro (parallel) | Qwen Max | Flash |
-| Cross-audit of 2 specs | DeepSeek Pro | Qwen Max | Flash |
-| Architecture synthesis | GLM 5.2 | Qwen Max | Flash |
-| Deep code analysis (PHP/CMS/legacy) | DeepSeek Pro | GLM 5.2 | Flash (without files) |
-| Multi-file implement (3+ files) | GLM 5.2 | Grok 4.5 | Flash |
-| Complex debugging (unknown root cause) | Qwen 3.8 Max | DeepSeek Pro | Flash |
-| Research / SEO / browse | Grok 4.5 | Qwen Max | — |
-| Bulk inventory / meta lists | Flash | Grok 4.5 | Pro (waste) |
-| Cross-QA / review | Different family than writer | — | Same family |
-| **Security / RLS / auth / Storage review** | **Codex 5.5 + Qwen Max** (parallel) | + DeepSeek Pro for race/depth | **Pro-only** as sole security gate; writer self-review |
-| Multimodal (screenshots, images) | Qwen 3.8 Max | — | GLM (text-only) |
-| Lean outcome-focused coding | GPT-5.6 | Grok 4.5 | — |
-| Protocol/skill review (3-model) | GLM + DeepSeek Pro + Qwen Max | — | — |
+> **Перед запуском:** проверить доступность модели в `model-card.md`. Пины и статусы меняются.
+
+| Task type | Primary | Family | Alternative | Avoid |
+|-----------|---------|--------|-------------|-------|
+| Architecture spec (independent) | GLM 5.2 + DeepSeek Pro (parallel) | Zhipu + DeepSeek | Qwen Max | Flash |
+| Cross-audit of 2 specs | DeepSeek Pro | DeepSeek | Qwen Max | Flash |
+| Architecture synthesis | GLM 5.2 | Zhipu | Qwen Max | Flash |
+| Deep code analysis (PHP/CMS/legacy) | DeepSeek Pro | DeepSeek | GLM 5.2 | Flash (without files) |
+| Multi-file implement (3+ files) | GLM 5.2 | Zhipu | Qwen Code | Flash |
+| **Implement (Qwen Code)** | **Qwen Code** (`qwen --approval-mode yolo`, `/effort medium`) | **Alibaba** | GLM 5.2 | vv-controller, OpenCode Qwen as reviewer |
+| Complex debugging (unknown root cause) | Qwen 3.8 Max | Alibaba | DeepSeek Pro | Flash |
+| Research / SEO / browse | Grok 4.5 | xAI | Qwen Max | — |
+| Bulk inventory / meta lists | Flash | DeepSeek | Grok 4.5 | Pro (waste) |
+| Cross-QA / review | Different family than writer | — | — | Same family |
+| **Security / RLS / auth / Storage review** | **Codex 5.5 + Qwen Max** (parallel) | OpenAI + Alibaba | + DeepSeek Pro for race/depth | **Pro-only** as sole security gate; writer self-review |
+| **Behavioral regression gate** | **Codex 5.5** | OpenAI | — | "Just another reviewer" framing |
+| Multimodal (screenshots, images) | Qwen 3.8 Max | Alibaba | — | GLM (text-only) |
+| Lean outcome-focused coding | GPT-5.6 | OpenAI | Grok 4.5 | — |
+| Protocol/skill review (3-model) | GLM + DeepSeek Pro + Qwen Max | Zhipu + DeepSeek + Alibaba | — | — |
 
 **Evidence ([client-project] I4, 2026-07-25):** same review task ×3 → Codex best merge gate (user-scoped idempotency MAJOR); Qwen best RLS (`is_active_user`); Pro best race depth but under-severity on RLS. Synthesis: any MAJOR from any N → fix before merge; prefer stricter severity.
 
@@ -165,6 +169,20 @@ Mode: review-only | implement
 
 **Rules:** CoT works ("разбери шаг за шагом"). Few-shot examples > constraints. Separators ### help parsing. Prompt chaining > mega-prompt for complex tasks.
 
+### Qwen Code (qwen --approval-mode yolo)
+
+| | |
+|--|--|
+| **Launch** | `qwen --approval-mode yolo` |
+| **Family** | Alibaba |
+| **Effort** | `/effort medium` (implement) · `/effort xhigh` (review/analysis) |
+| **Orchestration** | Native: worker_done, heartbeat, escalation |
+| **Approval** | `--approval-mode yolo` MANDATORY for Orca worker |
+| **Cross-family review** | Reviewer: DeepSeek Pro or GLM 5.2 (NOT OpenCode Qwen — same family) |
+
+Brief format: standard worker-contract (ROLE/MODE/TASK/DONE/OUTPUT).
+Qwen Code does not require model-specific wrapping — native CoT, understands structured briefs.
+
 ### Grok 4.5
 
 ```
@@ -208,6 +226,51 @@ Mode: review-only | implement
 ```
 
 **Rules:** Lean contracts. Goal + Success carry load. No 【】. No "think step by step". No thick scaffolding.
+
+---
+
+## Codex 5.5 — Behavioral Regression Gate (unique role)
+
+Codex 5.5 is NOT "just another reviewer". Unique role: behavioral regression gate.
+- [TICKET]: caught abort/cost MAJOR that GLM's static review missed
+- I4: caught UNIQUE(user_id,nonce) cross-user MAJOR
+- Hosted-semantics gate: checks what static parity misses
+
+**Mandatory in:**
+- Security / RLS / auth review (parallel with Qwen Max)
+- Fidelity port merge gate (GLM static ∥ Codex behavioral)
+- Any task with behavioral semantics (abort, cost, state transitions)
+
+**Launch:** `codex` (native CLI, not OpenCode agent)
+**Family:** OpenAI
+
+---
+
+## Qwen Code vs OpenCode Qwen
+
+| | Qwen Code | OpenCode Qwen |
+|--|-----------|---------------|
+| CLI | `qwen` | `opencode --agent A/agent1st_qwen-3.8` |
+| Family | Alibaba | Alibaba |
+| Mode | `/effort medium\|high\|xhigh\|max` | `/variants default\|low\|medium\|xhigh` |
+| Approval | `--approval-mode yolo` mandatory | `--auto` or allow-rules |
+| Orchestration | Native worker_done | Via inject preamble |
+| Cross-family review | Reviewer: DeepSeek / GLM | Reviewer: DeepSeek / GLM |
+| **Do NOT assign** | As reviewer for OpenCode Qwen (same family) | As reviewer for Qwen Code (same family) |
+
+---
+
+## Cross-Family Pairs (writer.family ≠ reviewer.family)
+
+| Writer | Family | Valid reviewers | Invalid reviewers |
+|--------|--------|----------------|-------------------|
+| Qwen Code | Alibaba | DeepSeek Pro, GLM 5.2, Codex 5.5 | OpenCode Qwen (Alibaba) |
+| Qwen 3.8 Max | Alibaba | DeepSeek Pro, GLM 5.2, Codex 5.5 | OpenCode Qwen (Alibaba) |
+| GLM 5.2 | Zhipu | Qwen Code, DeepSeek Pro, Codex 5.5 | — |
+| DeepSeek Pro | DeepSeek | Qwen Code, GLM 5.2, Codex 5.5 | DeepSeek Flash (DeepSeek) |
+| Codex 5.5 | OpenAI | Qwen Code, GLM 5.2, DeepSeek Pro | GPT-5.6 (OpenAI) |
+
+**Rule:** writer.family ≠ reviewer.family. Violation = blind-spot risk ([TICKET] evidence).
 
 ---
 

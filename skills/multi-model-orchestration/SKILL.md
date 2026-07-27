@@ -69,18 +69,22 @@ Otherwise → solo.
 
 ## 2. Routing — Which Model for What
 
-| Work | Route to | Why |
-|------|----------|-----|
-| Deep analysis, cross-audit, verification points | **DeepSeek V4 Pro** | 1M context, structured thinking |
-| Long multi-file implement, architecture synthesis | **GLM 5.2** | 1M state continuity, long-horizon |
-| Complex analysis, multimodal, cross-examination, **fidelity writer** | **Qwen 3.8 Max** | 2.4T weights, native vision, CoT; default fidelity port writer (§2c) |
-| Security / RLS / auth / Storage review | **Codex 5.5 + Qwen Max** (+ Pro for depth) | Gate + RLS; not Pro-only (I4 lesson) |
-| Fast research, SEO/tools, speed loops | **Grok 4.5** | Speed, tool-native |
-| Bulk mechanical, inventory, simple edits | **DeepSeek V4 Flash** | Cheap, fast |
-| Lean contracts, outcome-focused coding | **GPT-5.6** | Goal+Success, lean prompts |
-| Cross-QA (review someone else's work) | **Different family** | Blind-spot detection |
-| **Fidelity port** (generator, vectorizer, reference→platform) | **Qwen 3.8 Max** write · **GLM 5.2** ∥ **Codex 5.5** review | [TICKET] evidence: Qwen byte-identical prompt matrix; GLM exhaustive static parity; Codex behavioral regression gate (caught abort/cost MAJOR). Dual review mandatory — complementary, not redundant |
-| **Orchestration / dispatch / handoff** | **Grok 4.5** | Orchestrator NEVER implements (§3 role lock). Dispatch → wait → synthesize → gate |
+| Work | Route to | Family | Why |
+|------|----------|--------|-----|
+| Deep analysis, cross-audit, verification points | **DeepSeek V4 Pro** | DeepSeek | 1M context, structured thinking |
+| Long multi-file implement, architecture synthesis | **GLM 5.2** | Zhipu | 1M state continuity, long-horizon |
+| **Implement (primary coder)** | **Qwen Code** (`qwen --approval-mode yolo`, `/effort medium`) | Alibaba | Native orchestration, worker_done. Reviewer: DeepSeek Pro or GLM 5.2 (NOT OpenCode Qwen) |
+| Complex analysis, multimodal, cross-examination, **fidelity writer** | **Qwen 3.8 Max** | Alibaba | 2.4T weights, native vision, CoT; default fidelity port writer (§2c) |
+| Security / RLS / auth / Storage review | **Codex 5.5 + Qwen Max** (+ Pro for depth) | OpenAI + Alibaba | Gate + RLS; not Pro-only (I4 lesson) |
+| **Behavioral regression gate** | **Codex 5.5** | OpenAI | Unique role — caught abort/cost MAJOR GLM missed. NOT "just another reviewer" |
+| Fast research, SEO/tools, speed loops | **Grok 4.5** | xAI | Speed, tool-native |
+| Bulk mechanical, inventory, simple edits | **DeepSeek V4 Flash** | DeepSeek | Cheap, fast |
+| Lean contracts, outcome-focused coding | **GPT-5.6** | OpenAI | Goal+Success, lean prompts |
+| Cross-QA (review someone else's work) | **Different family** | — | Blind-spot detection |
+| **Fidelity port** (generator, vectorizer, reference→platform) | **Qwen 3.8 Max** write · **GLM 5.2** ∥ **Codex 5.5** review | Alibaba · Zhipu ∥ OpenAI | [TICKET] evidence: Qwen byte-identical prompt matrix; GLM exhaustive static parity; Codex behavioral regression gate (caught abort/cost MAJOR). Dual review mandatory — complementary, not redundant |
+| **Orchestration / dispatch / handoff** | **Grok 4.5** | xAI | Orchestrator NEVER implements (§3 role lock). Dispatch → wait → synthesize → gate |
+
+**Cross-family rule:** writer.family ≠ reviewer.family. Qwen Code (Alibaba) writer → reviewer must be DeepSeek/Zhipu/OpenAI, NOT OpenCode Qwen (also Alibaba). Full pairs: `references/routing.md` → Cross-Family Pairs.
 
 **Writer replaceable:** owner phrase «сейчас writer=X» (GLM or Qwen) pins writer instantly — no skill rewrite. Both have confirmed fidelity-implementer capability. See `references/routing.md` for the full [platform] routing table with evidence anchors.
 
@@ -136,19 +140,38 @@ Do not equate "writer claims Done" with "In Review passed" or "prod-ready". Do n
 2. SELECT models (§2) — name them explicitly to human
 3. CREATE terminals (one per worker, same worktree)
 4. BUILD briefs (model-specific pattern — see references/routing.md)
-5. DISPATCH: task-create --spec "<brief>" → dispatch --inject
-6. WAIT: check --wait --types worker_done,escalation,decision_gate
-7. GATE: read artifacts → synthesize → decide next
-8. REPORT to human: consensus / contradictions / gaps
+5. PRE-DISPATCH GATE (mandatory before EVERY worker):
+   a. model-card.md checked → model available, pin current
+   b. --agent / --approval-mode yolo specified in command
+   c. variant/effort set + sleep 3
+   d. dispatch --inject (NOT terminal send)
+   e. writer.family ≠ reviewer.family (cross-family)
+   f. Brief contains: ROLE/SCOPE/MODE/DONE + written≠persisted gate
+   If ANY item fails — DO NOT dispatch. Fix first.
+6. DISPATCH: task-create → parse result.task.id → dispatch --inject
+7. WAIT: check --wait --types worker_done,escalation,decision_gate
+8. POST-WORKER_DONE SEQUENCE (do not skip):
+   a. git status --short → verify claimed files exist (written≠persisted)
+   b. Linear comment (project protocol, if applicable)
+   c. Dispatch reviewer (model-specific brief INLINE, not lazy prompt)
+   d. Wait reviewer worker_done
+   e. Synthesis (stricter wins)
+   f. ONLY THEN: In Review / next step
+9. GATE: read artifacts → synthesize → decide next
+10. REPORT to human: consensus / contradictions / gaps
 ```
 
-### Role Lock (coordinator session)
+**User message interrupt:** if the user sends a message while coordinator is in a tool-calling loop — IMMEDIATELY stop the loop. Respond with text: current status + what's next. Do not continue tool calls without acknowledging the user.
+
+### Role Lock (coordinator session) — HARD GATE
 
 ```
 ORCHESTRATOR: dispatch → wait → synthesize → gate.
+If coordinator edits ANY worker file → STOP. Undo. Re-dispatch to worker.
 Review-only worker_done ≠ right to edit files. Implement = new task.
 Heartbeat ≠ done. One timeout ≠ fail → liveness check → wait again.
 Max 3 workers per wave. Do not "help" workers by editing in coord session.
+3+ identical tool calls → circuit-break → text response to user.
 ```
 
 ---
@@ -171,7 +194,8 @@ After worker_done → idle (end turn).
 Model-specific wrapping:
 - **GLM 5.2**: Goal → Context → Constraints → Done. No 【】. No "think step by step".
 - **DeepSeek**: Задача → Где → Контекст → Не трогать + 【思维模式要求】 at end.
-- **Qwen**: Context → Objective → Steps → Examples → Response Format. CoT ok.
+- **Qwen 3.8 Max**: Context → Objective → Steps → Examples → Response Format. CoT ok.
+- **Qwen Code**: Standard worker-contract (ROLE/MODE/TASK/DONE/OUTPUT). No special wrapping — native CoT.
 - **Grok**: Task → Done. Lean.
 - **GPT-5.6**: Goal → Success → Context → Constraints → Autonomy → Stop.
 
@@ -222,7 +246,9 @@ After all workers complete:
 
 ## 9. Anti-Patterns
 
-1. Coordinator writes code "while worker thinks"
+**Hard Prohibitions (10 rules with alternatives): `references/prohibitions.md`**
+
+1. Coordinator writes code "while worker thinks" — HARD GATE: undo + re-dispatch (§3)
 2. 3 models on a linear task
 3. Restart worker because of silence
 4. Flash-only on complex core without file access
@@ -231,24 +257,61 @@ After all workers complete:
 7. Slash-commands through `orca terminal send` (they don't work — use plain text briefs)
 8. Treating brief template labels as fixed-language (structure is language-agnostic; labels match coordinator's working language per §8)
 9. Claiming files in CHANGES/`worker_done` without disk proof (written≠persisted — [TICKET]). Verify with `git status`/`ls` first
+10. Tool-calling loop > 3 identical actions without text output → violation. STOP + text summary to user
+11. `terminal send` for task delivery (no lifecycle preamble → worker_done won't arrive). Only `dispatch --inject`
+12. Writer + reviewer from same model family (blind-spot risk). Cross-family mandatory
 
 ---
 
 ## 10. Orca Commands Quick Reference
 
+### OpenCode worker (DeepSeek / GLM / Qwen via OpenCode) — full atomic cycle
+
 ```bash
-# Create worker terminal (same worktree)
-orca terminal create --worktree active --title worker-<name> --command "opencode" --json
-orca terminal wait --terminal <handle> --for tui-idle --timeout-ms 60000 --json
+# ONE atomic block: create → variant → sleep → task-create → dispatch → wait
+HANDLE=$(orca terminal create --worktree active --title worker-<name> \
+  --command "opencode --agent <AGENT_FROM_MODEL_CARD>" --json | \
+  python3 -c "import json,sys; print(json.load(sys.stdin)['result']['terminal']['handle'])")
 
-# Dispatch task
-orca orchestration task-create --spec "<brief>" --json
-orca orchestration dispatch --task <id> --to <handle> --inject --json
+# Variant (MANDATORY — persists across sessions)
+orca terminal send --terminal $HANDLE --text "/variants <xhigh|medium>" --enter --json
+sleep 3  # MANDATORY: race condition between variant and dispatch
 
-# Wait for completion
-orca orchestration check --wait --types worker_done,escalation,decision_gate --timeout-ms 900000 --json
+# Dispatch (NOT terminal send!)
+TASK_ID=$(orca orchestration task-create --spec "<brief>" --json | \
+  python3 -c "import json,sys; print(json.load(sys.stdin)['result']['task']['id'])")
+orca orchestration dispatch --task $TASK_ID --to $HANDLE --inject --json
 
-# Liveness check (on timeout)
+# Wait
+orca orchestration check --wait --types worker_done,escalation,decision_gate \
+  --timeout-ms 900000 --json
+```
+
+### Qwen Code worker — full atomic cycle
+
+```bash
+# ONE atomic block: create → effort → sleep → task-create → dispatch → wait
+HANDLE=$(orca terminal create --worktree active --title worker-<name> \
+  --command "qwen --approval-mode yolo" --json | \
+  python3 -c "import json,sys; print(json.load(sys.stdin)['result']['terminal']['handle'])")
+
+# Effort (MANDATORY — persists across sessions)
+orca terminal send --terminal $HANDLE --text "/effort <medium|high|xhigh|max>" --enter --json
+sleep 3  # MANDATORY
+
+# Dispatch
+TASK_ID=$(orca orchestration task-create --spec "<brief>" --json | \
+  python3 -c "import json,sys; print(json.load(sys.stdin)['result']['task']['id'])")
+orca orchestration dispatch --task $TASK_ID --to $HANDLE --inject --json
+
+# Wait (longer timeout for Qwen Code — complex tasks)
+orca orchestration check --wait --types worker_done,escalation,decision_gate \
+  --timeout-ms 1800000 --json
+```
+
+### Liveness check (on timeout)
+
+```bash
 orca terminal read --terminal <handle> --json
 ```
 
@@ -292,11 +355,12 @@ Purpose: post-mortem traceability. Not a journal — one block per wave, 5-8 lin
 | Model | Relative cost | When justified |
 |-------|--------------|----------------|
 | DeepSeek V4 Flash | Low | Bulk, mechanical, inventory |
-| Grok 4.5 | Low-Medium | Speed-critical, research |
-| DeepSeek V4 Pro | Medium | Deep analysis, cross-audit |
-| GLM 5.2 | Medium | Long multi-file, architecture |
-| Qwen 3.8 Max | High | Complex reasoning, multimodal, fidelity writer, cross-examination |
-| Codex 5.5 | High | Security/RLS gate, behavioral regression, fidelity merge gate |
+| Grok 4.5 | **Unlimited** (orchestrator) | Speed-critical, research, orchestration |
+| DeepSeek V4 Pro | Medium | Deep analysis, cross-audit, cross-family reviewer |
+| GLM 5.2 | Medium | Long multi-file, architecture, static parity review |
+| Qwen 3.8 Max (OpenCode) | High | Complex reasoning, multimodal, fidelity writer |
+| **Qwen Code** | **High** | Implement (medium effort), native orchestration |
+| Codex 5.5 | High | Security/RLS gate, behavioral regression (unique role) |
 | GPT-5.6 | High | Lean outcome-focused, pro mode |
 
 Budget rule: use cheapest model that can do the task. Escalate to expensive models only when:
@@ -310,8 +374,9 @@ Coordinator names models to human BEFORE dispatch — human can veto expensive c
 
 ## References (load on-demand)
 
-- `references/routing.md` — full model routing table, brief templates per model, examples
-- `references/worker-contract.md` — output contract spec, inject preamble, worker_done format
+- `references/routing.md` — full model routing table, brief templates per model, cross-family pairs, examples
+- `references/worker-contract.md` — output contract spec, inject preamble, worker_done format, Orca JSON parsing
 - `references/failure-handling.md` — timeout policy, escalation, self-correction, circuit-breaker
-- `references/model-card.md` — model roles + «не путать с» + evidence 1-liners + owner pin + launch pins
-<!-- Changelog: v1.0 · v1.1 MCP/audit/cost · v1.2 dispatch fix · v1.3 [platform] · v1.4 model-card · v1.5 Qwen postmortem P0–P2: live worker_done CLI, written≠persisted gate, Codex/GPT launch pins, README model-card, cost Codex, deploy gate principle + canonical routing curl, heartbeat §5, Solo Defaults, fidelity writer in §2 -->
+- `references/model-card.md` — model roles + family field + «не путать с» + evidence 1-liners + owner pin + launch pins + Qwen Code
+- `references/prohibitions.md` — 10 hard prohibitions with correct alternatives
+<!-- Changelog: v1.0 · v1.1 MCP/audit/cost · v1.2 dispatch fix · v1.3 [platform] · v1.4 model-card · v1.5 Qwen postmortem P0–P2 · v1.6 [TICKET]: Qwen Code first-class, family field + cross-family routing, PRE-DISPATCH GATE (§3), POST-WORKER_DONE sequence, §10 atomic full cycles, prohibitions.md, Codex behavioral gate, cost Grok unlimited -->

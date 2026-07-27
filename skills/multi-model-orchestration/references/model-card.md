@@ -10,15 +10,21 @@ Updated: 2026-07-26.
 
 ## Agent pins (launch from this skill alone)
 
-| Model | Pin / CLI | Launch (Orca terminal or shell) |
-|-------|-----------|----------------------------------|
-| **Qwen 3.8 Max** | OpenCode agent **`A/agent1st_qwen-3.8`** (versionless) | `opencode --agent A/agent1st_qwen-3.8` |
-| **GLM 5.2** | OpenCode `A/agent1st_v13-glm` | `opencode --agent A/agent1st_v13-glm` · fallback model: `-m zai-coding-plan/glm-5.2` |
-| **DeepSeek V4 Pro** | OpenCode `A/agent1st_v36-pro` | `opencode --agent A/agent1st_v36-pro` · if agent not found: `opencode -m opencode-go/deepseek-v4-pro` |
-| **DeepSeek V4 Flash** | OpenCode `A/agent1st_v36-flash` | `opencode --agent A/agent1st_v36-flash` · fallback: `-m opencode-go/deepseek-v4-flash` |
-| **Codex 5.5** | **Native Codex CLI** (not an OpenCode `A/` agent) | `orca terminal create --command "codex" --json` · or shell `codex` · optional: `codex --model gpt-5.5` / effort flags per host |
-| **GPT-5.6** | **Native Codex CLI** (lean coding family) | `orca terminal create --command 'codex --model gpt-5.6' --json` · or `codex --model gpt-5.6` |
-| **Grok 4.5** | Orchestrator / Grok CLI | Coordinator session (this skill). Worker research: host Grok CLI if available — **not** for product implement. |
+> **Правило доступности:** перед запуском любой модели проверить её статус в этой таблице.
+> Доступность может меняться (временные ограничения тарифа, новые лимиты).
+> Модель помечена ⚠️ — временно недоступна, использовать замену.
+> Модель без пометки — доступна, запускать по указанному пину.
+
+| Model | Family | Pin / CLI | Launch (Orca terminal or shell) |
+|-------|--------|-----------|----------------------------------|
+| **Qwen 3.8 Max** | Alibaba | OpenCode agent **`A/agent1st_qwen-3.8`** (versionless) | `opencode --agent A/agent1st_qwen-3.8` |
+| **Qwen Code** | Alibaba | **Separate CLI** `qwen` (NOT an OpenCode agent) | `qwen --approval-mode yolo` |
+| **GLM 5.2** | Zhipu | OpenCode `A/agent1st_v13-glm` | `opencode --agent A/agent1st_v13-glm` · fallback model: `-m zai-coding-plan/glm-5.2` |
+| **DeepSeek V4 Pro** | DeepSeek | OpenCode `A/agent1st_v36-pro` | `opencode --agent A/agent1st_v36-pro` · if agent not found: `opencode -m opencode-go/deepseek-v4-pro` |
+| **DeepSeek V4 Flash** | DeepSeek | OpenCode `A/agent1st_v36-flash` | `opencode --agent A/agent1st_v36-flash` · fallback: `-m opencode-go/deepseek-v4-flash` |
+| **Codex 5.5** | OpenAI | **Native Codex CLI** (not an OpenCode `A/` agent) | `orca terminal create --command "codex" --json` · or shell `codex` · optional: `codex --model gpt-5.5` / effort flags per host |
+| **GPT-5.6** | OpenAI | **Native Codex CLI** (lean coding family) | `orca terminal create --command 'codex --model gpt-5.6' --json` · or `codex --model gpt-5.6` |
+| **Grok 4.5** | xAI | Orchestrator / Grok CLI | Coordinator session (this skill). Worker research: host Grok CLI if available — **not** for product implement. |
 
 **OpenCode agents** live under `~/.config/opencode/agents/` (nested `A/` → launch name **`A/<stem>`**, e.g. `A/agent1st_qwen-3.8`).  
 **Qwen versionless pin:** skills always pin `A/agent1st_qwen-3.8`. Versioned `v5.1` / `v5.2` files may remain as history/rollback only. Protocol patches (incl. written≠persisted) live **inside the agent file** — bumping protocol does not require a skill edit.
@@ -29,12 +35,38 @@ Updated: 2026-07-26.
 
 ---
 
+## Qwen Code (separate CLI — NOT an OpenCode agent)
+
+| Parameter | Value |
+|-----------|-------|
+| **CLI** | `qwen` (separate binary) |
+| **Family** | **Alibaba** |
+| **Launch** | `qwen --approval-mode yolo` |
+| **Effort** | `/effort medium` (implement) · `/effort high` · `/effort xhigh` (review) · `/effort max` |
+| **Orchestration** | Native: worker_done, heartbeat, escalation |
+| **Approval** | `--approval-mode yolo` MANDATORY for Orca worker |
+| **Role** | Primary coder (medium effort) |
+| **Cross-family review** | Reviewer: DeepSeek Pro (DeepSeek) or GLM 5.2 (Zhipu). NOT OpenCode Qwen (same family) |
+| **Do not confuse** | OpenCode Qwen (`opencode --agent A/agent1st_qwen-3.8`) — different CLI, `/variants` instead of `/effort`, SAME family |
+
+### Effort vs Variants (do not confuse!)
+
+| CLI | Command | Values |
+|-----|---------|--------|
+| **Qwen Code** | `/effort` | `medium`, `high`, `xhigh`, `max` |
+| **OpenCode** | `/variants` | `default`, `low`, `medium`, `xhigh` |
+
+Both persist across sessions. Always set explicitly.
+
+---
+
 ## 30-Second Role Table
 
 | Model | Role | Не путать с | Evidence 1-liner |
 |-------|------|-------------|------------------|
 | **Qwen 3.8 Max** (`agent1st_qwen-3.8`) | Fidelity writer · RLS reviewer | General writer | [TICKET]: 5832-case byte-identical prompt matrix, 0 failures, build/tsc green. Best RLS alignment — caught `is_active_user()` MAJOR with concrete one-line fix. |
-| **GLM 5.2** | Multi-file writer · Static parity reviewer | Sole reviewer | I4/I5: ~15 min multi-file implement, ~10 min fix-round, build green. [TICKET]: 40+ verification points, 9 functions byte-checked, 0 false positives — best static parity auditor. |
+| **Qwen Code** (`qwen --approval-mode yolo`) | Primary coder (implement) · Native orchestration | OpenCode Qwen (same family, different CLI) | Native worker_done/heartbeat. `/effort` not `/variants`. `--approval-mode yolo` mandatory for Orca. Cross-family reviewer: DeepSeek Pro or GLM 5.2. |
+| **GLM 5.2** | Multi-file writer (default) · Static parity reviewer (best in stack) | Sole reviewer | I4/I5: ~15 min multi-file implement, ~10 min fix-round, build green. [TICKET]: 40+ verification points, 9 functions byte-checked, 0 false positives — best static parity auditor. **Перед запуском проверить доступность** — возможны временные ограничения тарифа. При недоступности: DeepSeek V4 Pro или Qwen 3.8 Max. |
 | **Codex 5.5** | Merge gate · Behavioral regression gate | "Just another reviewer" | I4: caught UNIQUE(user_id,nonce) cross-user MAJOR. [TICKET]: caught abort/cost MAJOR that GLM's static review missed. Best hosted-semantics gate in the stack — unique role, not redundant. |
 | **DeepSeek V4 Pro** | Depth analyst · Race/ordering | Security gate · Sole merge gate | I4: best depth on 10-constraint matrix, resurrection races. But under-severity on RLS — rated disabled-user SELECT + global nonce as PASS/soft O* while Codex/Qwen independently rated MAJOR. |
 | **DeepSeek V4 Flash** | Bulk · Hotfix · Simple edits | Multi-file writer · Fidelity writer | I3 post-mortem: edge-case SQL bugs after RLS changes, lock leaks after reorder, in-memory guards on serverless. "Almost right, then hotfix" — not primary on multi-file tasks. |
@@ -61,12 +93,23 @@ The orchestrator reads the owner pin and routes accordingly. The model card docu
 
 | Task type | Writer | Review | Notes |
 |-----------|--------|--------|-------|
+| **Implement (Qwen Code)** | Qwen Code (`qwen --approval-mode yolo`, `/effort medium`) | DeepSeek Pro (DeepSeek) or GLM 5.2 (Zhipu) | Cross-family mandatory. NOT OpenCode Qwen as reviewer (same Alibaba family). |
 | **Fidelity port** | Qwen 3.8 Max (default) | GLM 5.2 ∥ Codex 5.5 | Dual review mandatory. Flash explicitly excluded (I3: simplifies). Writer ≠ reviewer — cross-family. |
 | **Security / RLS / auth** | Codex + Qwen (parallel) | + Pro (depth supplement) | **Never Pro-only as sole gate** (I4 under-severity lesson). Pro = correctness/depth, not gate authority. |
-| **Multi-file implement** (3+ files) | GLM 5.2 (default, owner can swap to Qwen) | Pro + Codex | Writer ≠ reviewer mandatory. Owner pin overrides default. |
+| **Multi-file implement** (3+ files) | GLM 5.2 (default, owner can swap to Qwen) | Pro + Codex or Qwen Code | Writer ≠ reviewer mandatory. Owner pin overrides default. |
 | **Deep race / ordering** | DeepSeek V4 Pro | Codex 5.5 (behavioral semantics) | Pro for depth on lock ordering, constraint matrices. Codex for hosted semantics — complementary. |
 | **Bulk / hotfix** (1-2 files) | Flash | — | Solo OK for trivial. Not multi-file. |
 | **Orchestration** | Grok 4.5 | — | Never implements (§3 role lock). |
+
+### Cross-family pairs (writer.family ≠ reviewer.family)
+
+| Writer | Family | Valid reviewers | Invalid reviewers |
+|--------|--------|----------------|-------------------|
+| Qwen Code | Alibaba | DeepSeek Pro, GLM 5.2, Codex 5.5 | OpenCode Qwen (Alibaba) |
+| Qwen 3.8 Max | Alibaba | DeepSeek Pro, GLM 5.2, Codex 5.5 | OpenCode Qwen (Alibaba) |
+| GLM 5.2 | Zhipu | Qwen Code, DeepSeek Pro, Codex 5.5 | — |
+| DeepSeek Pro | DeepSeek | Qwen Code, GLM 5.2, Codex 5.5 | DeepSeek Flash (DeepSeek) |
+| Codex 5.5 | OpenAI | Qwen Code, GLM 5.2, DeepSeek Pro | GPT-5.6 (OpenAI) |
 
 ---
 
@@ -74,11 +117,13 @@ The orchestrator reads the owner pin and routes accordingly. The model card docu
 
 1. **Flash as multi-file writer** → I3: edge-case bugs, almost-right-then-hotfix. Flash = bulk/hotfix only.
 2. **Pro as sole security gate** → I4: under-severity on RLS. Pro = depth supplement, not gate authority.
-3. **Writer = reviewer (same model family)** → Blind-spot risk. Cross-family review mandatory for product code.
+3. **Writer = reviewer (same model family)** → Blind-spot risk. Cross-family review mandatory for product code. Qwen Code writer + OpenCode Qwen reviewer = BOTH Alibaba = violation.
 4. **Codex = "just another reviewer"** → Codex = the behavioral regression gate. [TICKET]: caught abort/cost MAJOR that GLM's static review missed. Unique role — "ещё reviewer" understates its gate function.
 5. **Writer self-review** → No model reviews its own work on fidelity/security tasks. Dual review = different families.
 6. **Pro-only merge decision** → Pro under-calls security severity. Merge decisions need behavioral semantics gate (Codex).
 7. **written≠persisted** → Claim `worker_done` / CHANGES without `ls`/`git status` proof. [TICKET]: notes said model-card NEW while public path missing. Gate binds **all** workers (`worker-contract.md`).
+8. **Qwen Code without `--approval-mode yolo`** → Blocks orca commands on confirmation prompts. Always `qwen --approval-mode yolo` for Orca workers.
+9. **Launching model without checking availability** → Pins and availability change. Check this table before every launch. ⚠️ = temporarily unavailable.
 
 ---
 
