@@ -127,7 +127,7 @@ Required sections:
 
 ### 4. PLAN.xml (waves, deps, owners)
 
-Template: `assets/templates/PLAN.xml.tmpl`  
+Template: `assets/templates/PLAN.xml.tmpl`
 Write to: `…/PLAN.xml`
 
 Required:
@@ -135,6 +135,26 @@ Required:
 - `waves` or for single wave: `tasks` with `id`, `title`, `depends_on`, `owner` (orchestrator|claude|opencode|grok|human), `model_hint`, `artifact` path, `done_when`
 - Parallel groups: tasks with empty/non-overlapping `depends_on` and different `artifact` paths
 - `gates`: human approval points (deploy, purchase, CMS production)
+- `roles`: orchestrator + executors with tool/agent/flags/effort/**family** + `<family_rule>`:
+
+```xml
+<roles>
+  <orchestrator family="xAI">grok-4.5</orchestrator>
+  <executors>
+    <executor id="qwen-code" tool="qwen" flags="--approval-mode yolo" effort="/effort medium" family="Alibaba">
+      Primary coder
+    </executor>
+    <executor id="deepseek-pro" tool="opencode" agent="A/agent1st_v36-pro" family="DeepSeek">
+      Reviewer (cross-family with writer)
+    </executor>
+    <executor id="glm" tool="opencode" agent="A/agent1st_v13-glm" family="Zhipu" optional="true">
+      Optional reviewer / multi-file writer (availability per model-card.md)
+    </executor>
+  </executors>
+  <launch_file>LAUNCH.md</launch_file>
+  <family_rule>writer.family ≠ reviewer.family</family_rule>
+</roles>
+```
 
 For **program** PLAN: only high-level phases (Phase 0…N) and what the **first wave** will be.  
 For **wave** PLAN: atomic tasks (3–12), not 50.
@@ -190,6 +210,67 @@ orca terminal send --terminal <handle> --text "$(cat tasks/<id>.brief.md)" --ent
 
 Orchestrator tracks progress in STATUS.md.
 
+### 6b. LAUNCH.md generation (after approve, before dispatch)
+
+Generate `waves/<date>-<slug>/LAUNCH.md` from:
+1. `multi-model-orchestration/references/model-card.md` — agent pins, commands, **model family**
+2. `PLAN.xml` — roles from `<roles>` section
+3. `multi-model-orchestration/references/routing.md` — brief templates per model
+
+Template: `assets/templates/LAUNCH.md.tmpl`
+
+Mandatory sections:
+- Tools and agents table (role, tool, command, mode, **family**)
+- **Cross-family check:** writer.family ≠ reviewer.family (instruction: "verify → replace if same", NOT a static "✓")
+- Full orchestration cycle (atomic bash block per tool)
+- Review brief templates per model (DeepSeek, GLM, Codex/GPT, Qwen Code — from routing.md)
+- "Prohibited" section (vv-controller, terminal send, skip sleep 3, result.id, Qwen without yolo, launch without model-card check, same-family review, coordinator writes code)
+
+**Versioning:** on role change mid-wave (owner pin "сейчас writer=X") — regenerate LAUNCH.md, save previous as `LAUNCH.v{N}.md`.
+
+### 6c. NEXT_SESSION generation (at iteration handoff)
+
+Pattern:
+1. **Unique file per iteration:** `NEXT_SESSION_I{N}.md` (e.g. `NEXT_SESSION_[ITER].md`). Never overwrite previous iteration's file.
+2. **Copy-paste block at top:** format depends on orchestrator model (from SPEC `<orchestrator>`). Must include **full path** to the NEXT_SESSION file. Agent knows who it is — don't write "You are Grok 4.5". But the full path is mandatory.
+3. **Root pointer:** `NEXT_SESSION.md` (no suffix) — only a pointer + table of iteration files, not full instructions.
+4. **Create on completion:** after finishing iteration, create `NEXT_SESSION_I{N+1}.md` and update the pointer.
+
+Template: `assets/templates/NEXT_SESSION.md.tmpl` — ONE template with `{{copy_paste_block}}` variable.
+
+**10 sections** (iteration-specific only; static rules §5–§9, §11 are in multi-model SKILL.md, not duplicated):
+Copy-paste block, §0 Role Lock, §1 Current State, §2 Routing, §2b Deploy Gate, §3 Keys/Access, §4 Iteration Plan, §10 Audit Log, §12 Linear Protocol, §13 Handoff Pointers.
+
+Copy-paste format by orchestrator:
+
+| Orchestrator | Copy-paste format |
+|-------------|-------------------|
+| **Grok 4.5** | ### Task / ### Autonomy |
+| **GLM 5.2** | ### Goal / ### Constraints / ### Done |
+| **DeepSeek Pro** | Задача / Где / Должно быть / Не трогать + 【】 |
+| **Qwen 3.8 Max** | ### Context / ### Objective / ### Constraints |
+| **Flash** | Simplified DeepSeek |
+
+Default (if orchestrator not specified): Grok format.
+
+### 6d. Linear workflow generation (if project uses Linear)
+
+Generate `.agents/rules/linear-workflow.md` from wave parameters:
+- `{{parent_epic}}`, `{{project_name}}`, `{{team_key}}`, `{{language}}`, `{{iteration_map}}`
+
+Template: `assets/templates/linear-workflow.md.tmpl`
+
+**On new wave in same project:** APPEND to §11 (wave history), do NOT overwrite the file.
+
+### Linear validation (if project uses Linear)
+
+- [ ] Task created in correct project (default from AGENTS.md / linear-workflow.md)
+- [ ] Parent specified (if work under epic)
+- [ ] Title contains CAS-XX / I{N}
+- [ ] Description in Russian, with `- [ ]` checklist
+- [ ] Status: Backlog → In Progress on start
+- [ ] Comment-report on completion (§5.3 linear-workflow.md)
+
 ### 7. STATUS + HANDOFF
 
 Maintain `…/STATUS.md`:
@@ -201,7 +282,17 @@ Maintain `…/STATUS.md`:
 | T01 | claude | done | research/... | |
 ```
 
-End of session: append `SESSION_HANDOFF.md` block (project protocol). Facts → MEMORY.md.
+**Per-iteration handoff:** each iteration creates `iterations/I{N}-<slug>.handoff.md` (unique file).
+Template: `assets/templates/iteration-handoff.md.tmpl`
+
+**Root SESSION_HANDOFF.md:** only a pointer, not full content:
+```markdown
+Current iteration: **I{N}** → iterations/I{N}-<slug>.handoff.md
+```
+
+**Prohibition:** overwriting a previous iteration's handoff file. Each iteration = new file.
+
+End of session: append pointer to `SESSION_HANDOFF.md`. Facts → MEMORY.md.
 
 > **Lifecycle gates:** before closing wave as Done, verify all gates passed — see [Lifecycle Gates](#lifecycle-gates-production-lessons).
 
@@ -265,18 +356,24 @@ Executors **do not** rewrite SPEC/PLAN. They may append STATUS notes.
 
 ## References
 
-- `assets/templates/` — INTENT, SPEC.xml, PLAN.xml, STATUS, worker-brief, review-synthesis, fix-round-brief, ASSUMPTIONS  
-- `references/program-maps.md` — domain-specific program maps (4 menus: skill-port, translation, fidelity port, SEO)  
-- `references/vv-portability.md` — mapping to vv-opencode tags  
+- `assets/templates/` — INTENT, SPEC.xml, PLAN.xml, STATUS, worker-brief, review-synthesis, fix-round-brief, ASSUMPTIONS, **LAUNCH.md**, **iteration-handoff.md**, **NEXT_SESSION.md**, **linear-workflow.md**
+- `references/program-maps.md` — domain-specific program maps (4 menus: skill-port, translation, fidelity port, SEO)
+- `references/vv-portability.md` — mapping to vv-opencode tags
 
 ## Anti-patterns
 
-- Implementing during interview.  
-- One PLAN with 40 tasks and no phases.  
-- Freeform-only plan with no SPEC.  
-- XML for INTENT (wrong layer).  
-- Requiring vv-opencode CLI to use this skill.  
+- Implementing during interview.
+- One PLAN with 40 tasks and no phases.
+- Freeform-only plan with no SPEC.
+- XML for INTENT (wrong layer).
+- Requiring vv-opencode CLI to use this skill.
 - Assuming domain-specific workstreams without INTENT + evidence.
+- Referencing vv-controller as an agent (default OpenCode agent, not for product work).
+- Generating `terminal send` commands for orchestration (only `dispatch --inject`).
+- Overwriting SESSION_HANDOFF.md or NEXT_SESSION files (only append pointer / create unique files).
+- Creating LAUNCH.md without cross-family check and "Prohibited" section.
+- Assigning writer and reviewer from the same model family (blind-spot risk).
+- Launching a model without checking availability in model-card.md.
 
 ---
 
@@ -312,6 +409,7 @@ Gate before lifecycle-**Done** — tie the contract to concrete folder artifacts
 - `reviews/` and `notes/` archived inside the wave folder (`waves/<date>-<slug>/`).
 - Residual risks named explicitly — `RESIDUAL-RISK-OWNER-SMOKE` when there is no live smoke.
 - Deploy-probe evidence cited: the exact command + output that proves the artifact reached production.
+- **Post-mortem → skill update:** if the wave revealed new operational errors (launch, routing, orchestration), create INTENT.md in `opencode-skills/waves/<date>-skill-improvements/` describing the problems.
 
 No probe and no named residual = not Done.
 
@@ -372,3 +470,4 @@ For multi-model orchestration (parallel review, dispatch, fidelity port routing)
 - **v1.1 ([TICKET])** — lifecycle gates (Implement→In Review→Commit→PR→Merge→Deploy Probe→On Prod→Done), fidelity dual review, deploy probe curl pattern, RESIDUAL-RISK-OWNER-SMOKE, NEXT product ban, Installation/SoT section, discoverability pointers, positioning, README bilingual + residual
 - **v1.2 ([TICKET] reframe)** — de-SEO: universal plan-gate across domains. `program-maps.md` (4 menus); SEO optional §4 only. Templates neutral; INTENT Targets + neutral Stack; Scaling examples = [TICKET] + [client-project]; not WooCommerce-default.
 - **v1.3 ([TICKET] post-mortem fix-round)** — templates reconciled with reality: SPEC optional review-provenance (`version`/`review_round`/`accepted_by`/`accepted_at`/`review_sources`) + `<assumptions>` block; PLAN attribute-style tasks as primary idiom (child-elements documented fallback), neutral gate wording, `model_hint` clarified; STATUS state enum = lifecycle states (`implement_done|in_review|commit|pr|merge|deploy_gate|on_prod|done`). Fidelity dual review generalized from model names to roles (static-parity ∥ behavioral-semantics; example pair GLM ∥ Codex; writer≠reviewer, Flash excluded, single-reviewer NOT accepted). New `review-synthesis.md.tmpl`, `fix-round-brief.md.tmpl`, `ASSUMPTIONS.md.tmpl`. Worker-brief aligned to the Orca contract (ROLE/MODE + 3-sentence `worker_done` + SUMMARY/EVIDENCE/CHANGES/RISKS/BLOCKERS). Added wave-closeout checklist, top Positioning block, program-maps quality-bar cross-link + book/fidelity worked walks.
+- **v1.4 ([TICKET])** — LAUNCH.md auto-generation (step 6b) with cross-family check + per-model brief templates + prohibitions; NEXT_SESSION pattern (step 6c): unique files NEXT_SESSION_I{N}.md + copy-paste block with full path + root pointer + 10 sections (no SKILL.md duplication); iteration handoff (step 7): unique per-iteration files + root pointer; linear-workflow generation (step 6d) + Linear validation checklist; PLAN.xml `<roles>` with family + `<family_rule>`; anti-patterns: vv-controller, terminal send, same-family, handoff overwrite, model-card check; closeout: post-mortem → skill update. New templates: LAUNCH.md.tmpl, iteration-handoff.md.tmpl, NEXT_SESSION.md.tmpl, linear-workflow.md.tmpl.

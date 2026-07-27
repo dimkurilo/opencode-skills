@@ -1,0 +1,140 @@
+# LAUNCH.md — worker launch commands ({{wave_slug}})
+
+> Rule 1: always specify tool and mode explicitly.
+> Rule 2: `sleep 3` between variant/effort and dispatch --inject.
+> Rule 3: dispatch --inject, NOT terminal send.
+> Rule 4: writer.family ≠ reviewer.family (cross-family).
+
+## Tools and agents
+
+| Role | Tool | Command | Mode | Family |
+|------|------|---------|------|--------|
+{{#each roles}}
+| {{role}} | {{tool}} | {{command}} | {{mode}} | {{family}} |
+{{/each}}
+
+## Cross-family check
+
+Writer: {{writer_name}} ({{writer_family}})
+Reviewer: {{reviewer_name}} ({{reviewer_family}})
+→ Verify: families differ. If same — REPLACE reviewer before dispatch.
+
+## Full cycle ({{tool_name}})
+
+```bash
+# ONE atomic block: create → variant/effort → sleep 3 → task-create → dispatch → wait
+HANDLE=$(orca terminal create --worktree active --title worker-<name> \
+  --command "{{launch_command}}" --json | \
+  python3 -c "import json,sys; print(json.load(sys.stdin)['result']['terminal']['handle'])")
+
+# {{mode_command}} (MANDATORY — persists across sessions)
+orca terminal send --terminal $HANDLE --text "{{mode_value}}" --enter --json
+sleep 3  # MANDATORY: race condition
+
+# Dispatch (NOT terminal send!)
+TASK_ID=$(orca orchestration task-create --spec "<brief>" --json | \
+  python3 -c "import json,sys; print(json.load(sys.stdin)['result']['task']['id'])")
+orca orchestration dispatch --task $TASK_ID --to $HANDLE --inject --json
+
+# Wait
+orca orchestration check --wait --types worker_done,escalation,decision_gate \
+  --timeout-ms {{timeout_ms}} --json
+```
+
+## Review brief templates per model
+
+Copy-paste the matching template. Do NOT compose your own prompt.
+
+### DeepSeek V4 Pro
+
+```
+Задача: [one sentence — what to review]
+
+Где: [files, paths, functions]
+Сейчас: [current state / what was implemented]
+Должно быть: [expected result / acceptance criteria]
+
+Контекст: [2-3 sentences — why this matters]
+
+Не трогать: [boundaries]
+Mode: review-only
+Output: SUMMARY / EVIDENCE / CHANGES / RISKS / BLOCKERS
+
+【思维模式要求】在你的思考过程（think标签内）中，请遵守以下规则：
+1. 禁止使用圆括号包裹内心独白，所有分析内容直接陈述即可
+2. 禁止以第一人称描写内心活动，请用分析性语言替代
+3. 思考内容只包含：约束条件、陷阱识别、工具选择、执行步骤
+4. 复杂任务使用结构化分析：UNDERSTAND→ANALYZE→APPROACH→PLAN→CRITIQUE
+5. 路径明确时跳过思考，立即执行工具调用
+```
+
+### GLM 5.2
+
+```
+### Goal
+[1-2 sentences: what to review]
+
+### Context
+- Files: [paths]
+- Current state: [what was implemented]
+- Why: [purpose]
+
+### Constraints
+- Do not touch: [boundaries]
+- Mode: review-only
+
+### Done
+- Check: [criterion]
+- Output format: SUMMARY / EVIDENCE / CHANGES / RISKS / BLOCKERS
+```
+
+### Codex 5.5 / GPT
+
+```
+### Goal
+[1-2 sentences: what to review]
+
+### Success
+- Acceptance: [what must be true]
+- Validation: [test / command]
+
+### Context
+- Files: [paths]
+- Evidence: [what's known]
+
+### Constraints
+- Invariants: [hard rules]
+- Do not touch: [boundaries]
+
+### Autonomy
+- Mode: Research only
+```
+
+### Qwen Code
+
+```
+ROLE: worker (review-only, not coordinator).
+SCOPE: <file paths>.
+MODE: review-only.
+TASK: <what to review — 1-3 sentences>.
+DONE: <acceptance criterion>.
+OUTPUT: SUMMARY / EVIDENCE / CHANGES / RISKS / BLOCKERS.
+```
+
+## Roles for this wave
+
+| Iteration | Role | Tool | Mode |
+{{#each iterations}}
+| {{id}} | {{role}} | {{tool}} | {{mode}} |
+{{/each}}
+
+## Prohibited
+
+- `opencode` without `--agent` → vv-controller (default agent, explores project)
+- `terminal send` for task → no lifecycle preamble, worker_done won't arrive
+- Skipping `sleep 3` → race condition (dispatch before variant applied)
+- `result.id` → correct: `result.task.id`
+- Qwen Code without `--approval-mode yolo` → blocks orca commands
+- Launching without checking model-card.md → model may be unavailable
+- Writer + reviewer from same family → blind-spot risk
+- Coordinator writing code → role lock violation (dispatch → wait → synthesize → gate)

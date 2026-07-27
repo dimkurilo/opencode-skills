@@ -1,0 +1,61 @@
+{{copy_paste_block}}
+
+---
+
+# NEXT_SESSION — {{iteration_id}} ({{wave_slug}})
+
+## §0 Role Lock
+
+Orchestrator: dispatch → wait → synthesize → gate. Does NOT write code.
+Writer ≠ reviewer (cross-family). Coordinator does not edit worker files.
+
+## §1 Current State
+
+Iteration: {{iteration_id}}. Status: {{status}}.
+Previous: {{prev_iteration}} → {{prev_handoff_path}}
+
+## §2 Routing (check current I{N})
+
+| Role | Tool | Command | Mode | Family |
+|------|------|---------|------|--------|
+{{roles_table}}
+
+Cross-family: writer.family ≠ reviewer.family.
+Availability: check model-card.md before launch.
+
+**Briefs per model (from routing.md):**
+- Grok: Task → Scope → Context → Constraints → Done → Autonomy
+- Qwen Code: ROLE/MODE/TASK/DONE/OUTPUT (standard worker-contract)
+- DeepSeek: Задача → Где → Сейчас → Должно быть → Контекст → Не трогать + 【思维模式要求】
+- GLM: Goal → Context → Constraints → Done
+- GPT-5.6: Goal → Success → Context → Constraints → Autonomy
+
+## §2b Deploy Gate
+
+curl -sI https://<url>/<route> | head -1 → 307/302 = OK, 404 = FAIL.
+No probe = RESIDUAL-RISK-OWNER-SMOKE.
+
+## §3 Keys / Access
+
+.env, Vercel, Supabase — do not commit. See ACCESS_CHECKLIST.md.
+
+## §4 Iteration Plan
+
+See PLAN.xml task {{iteration_id}}.
+LAUNCH.md: {{launch_path}}
+
+## §10 Audit Log
+
+After wave: block in SESSION_HANDOFF.md.
+Format: Models, Task, Verdict, Duration, Key findings, Decisions, Artifacts.
+
+## §12 Linear Protocol
+
+See .agents/rules/linear-workflow.md. Russian language, checklists, project.
+Parent: {{linear_parent}}. Task: {{linear_task}}.
+
+## §13 Handoff Pointers
+
+SESSION_HANDOFF.md → pointer to iteration.
+MEMORY.md → durable facts.
+LAUNCH.md → launch commands.
