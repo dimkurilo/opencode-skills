@@ -49,3 +49,7 @@ ${ARTIFACT_PATHS}
 
 3-sentence `worker_done` body (what you did, what you found, what's left) +
 **SUMMARY / EVIDENCE / CHANGES / RISKS / BLOCKERS**.
+
+### written≠persisted gate (MANDATORY before worker_done)
+
+Before sending `worker_done`, run `git status --short` and/or `ls -la` / `wc -l` and confirm **every** path in CHANGES / `--files-modified` exists on disk. A claimed file missing on disk = **FAIL** — do NOT send success `worker_done`. Report FAIL in `--subject` and list missing paths in `--body`.

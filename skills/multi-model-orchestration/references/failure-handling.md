@@ -76,11 +76,17 @@ After 3 consecutive failures on one task (any combination of models):
 # 1. Check what happened
 orca terminal read --terminal <handle> --json
 
-# 2. If terminal gone — create new one
-orca terminal create --worktree active --title worker-<name>-retry --command "opencode" --json
+# 2. If terminal gone — create new one (use launch command from model-card.md, NOT bare "opencode")
+orca terminal create --worktree active --title worker-<name>-retry \
+  --command "<launch_command from model-card.md>" --json
 orca terminal wait --terminal <new_handle> --for tui-idle --timeout-ms 60000 --json
 
-# 3. Re-dispatch with context about previous failure
-orca orchestration task-create --spec "<brief + 'Previous attempt failed: <evidence>. Try different approach.'>" --json
-orca orchestration dispatch --task <new_id> --to <new_handle> --inject --json
+# 3. Set variant/effort explicitly + sleep 3 (MANDATORY)
+orca terminal send --terminal <new_handle> --text "<variant_or_effort>" --enter --json
+sleep 3
+
+# 4. Re-dispatch with context about previous failure
+TASK_ID=$(orca orchestration task-create --spec "<brief + 'Previous attempt failed: <evidence>. Try different approach.'>" --json | \
+  python3 -c "import json,sys; print(json.load(sys.stdin)['result']['task']['id'])")
+orca orchestration dispatch --task $TASK_ID --to <new_handle> --inject --json
 ```

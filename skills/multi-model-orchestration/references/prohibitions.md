@@ -1,6 +1,6 @@
 # Hard Prohibitions
 
-10 rules. Each has a reason and a correct alternative. Violation = operational failure.
+11 rules. Each has a reason and a correct alternative. Violation = operational failure.
 
 | # | Prohibition | Reason | Correct alternative |
 |---|------------|--------|---------------------|
@@ -14,3 +14,4 @@
 | 8 | Coordinator writes code | Role lock: dispatch → wait → synthesize → gate. Coordinator editing files = violation | New task → one writer (not coordinator). If coordinator edited → undo → re-dispatch |
 | 9 | Restart worker on silence | Heartbeat = alive. Timeout ≠ failure | Liveness check (`terminal read`) → repeat wait |
 | 10 | Flash on multi-file (3+ files) | I3: edge-case bugs, almost-right-then-hotfix | GLM 5.2 or Qwen Code for multi-file |
+| 11 | Tool-calling loop > 3 identical actions without text output | Blocks user, wastes time (P15/P18: Grok 10x "Post Linear comment") | STOP after 3 identical calls → text response to user with status |

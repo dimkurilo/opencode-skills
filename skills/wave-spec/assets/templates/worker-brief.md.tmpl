@@ -46,3 +46,7 @@ Then the structured artifact:
 - EVIDENCE = `path:line`, command + exit code, or URL + finding (no unverified claims).
 - CHANGES = files touched, or "None."
 - RISKS / BLOCKERS = or "None observed." / "None."
+
+### written≠persisted gate (implement/fix mode — MANDATORY before worker_done)
+
+Before sending `worker_done`, run `git status --short` and/or `ls -la` / `wc -l` and confirm **every** path in CHANGES / `--files-modified` exists on disk with expected content. A claimed file missing on disk = **FAIL** — do NOT send success `worker_done`. Report FAIL in `--subject` and list missing paths in `--body`.

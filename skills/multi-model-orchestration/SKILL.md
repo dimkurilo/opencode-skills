@@ -238,20 +238,13 @@ After all workers complete:
 
 ## 9. Anti-Patterns
 
-**Hard Prohibitions (10 rules with alternatives): `references/prohibitions.md`**
+**Hard Prohibitions (11 rules with alternatives): `references/prohibitions.md`** — single source of truth.
 
-1. Coordinator writes code "while worker thinks" — HARD GATE: undo + re-dispatch (§3)
-2. 3 models on a linear task
-3. Restart worker because of silence
-4. Flash-only on complex core without file access
-5. OpenCode subagents confused with Orca multi-model
-6. Cross-QA "always" without expensive error → cost without gain
-7. Slash-commands through `orca terminal send` (they don't work — use plain text briefs)
-8. Treating brief template labels as fixed-language (structure is language-agnostic; labels match coordinator's working language per §8)
-9. Claiming files in CHANGES/`worker_done` without disk proof (written≠persisted — [TICKET]). Verify with `git status`/`ls` first
-10. Tool-calling loop > 3 identical actions without text output → violation. STOP + text summary to user
-11. `terminal send` for task delivery (no lifecycle preamble → worker_done won't arrive). Only `dispatch --inject`
-12. Writer + reviewer from same model family (blind-spot risk). Cross-family mandatory
+Key gates (details in prohibitions.md):
+- Coordinator writes code → HARD GATE: undo + re-dispatch (§3)
+- `terminal send` for task delivery → only `dispatch --inject`
+- Writer + reviewer same family → cross-family mandatory
+- Tool-calling loop > 3 identical actions → STOP + text response to user
 
 ---
 
