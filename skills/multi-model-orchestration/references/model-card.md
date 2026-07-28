@@ -69,7 +69,7 @@ Both persist across sessions. Always set explicitly.
 | **Codex 5.5** | Merge gate · Behavioral regression gate | "Just another reviewer" | I4: caught UNIQUE(user_id,nonce) cross-user MAJOR. [TICKET]: caught abort/cost MAJOR that GLM's static review missed. Best hosted-semantics gate in the stack — unique role, not redundant. |
 | **DeepSeek V4 Pro** | Depth analyst · Race/ordering | Security gate · Sole merge gate | I4: best depth on 10-constraint matrix, resurrection races. But under-severity on RLS — rated disabled-user SELECT + global nonce as PASS/soft O* while Codex/Qwen independently rated MAJOR. |
 | **DeepSeek V4 Flash** | Bulk · Hotfix · Simple edits | Multi-file writer · Fidelity writer | I3 post-mortem: edge-case SQL bugs after RLS changes, lock leaks after reorder, in-memory guards on serverless. "Almost right, then hotfix" — not primary on multi-file tasks. |
-| **Grok 4.5** | Orchestrator only | Implementer | [TICKET]: correct role lock, correct routing (Qwen write · GLM∥Codex review), correct synthesis (stricter wins), clean handoff. Never implements code — dispatch → wait → gate. |
+| **Grok 4.5** | Orchestrator | Implementer | [TICKET]: correct role lock, correct routing, correct synthesis. Never implements code — dispatch → wait → gate. **Orchestrator role is owner-pinnable (§Owner Pin below).** |
 
 ---
 
@@ -79,13 +79,29 @@ Both persist across sessions. Always set explicitly.
 
 - **«сейчас writer=Qwen»** → Qwen 3.8 Max is the writer for this session/wave. GLM becomes reviewer.
 - **«сейчас writer=GLM»** → GLM 5.2 is the writer for this session/wave. Qwen becomes reviewer.
+- **«сейчас writer=Pro»** → DeepSeek V4 Pro is the writer. Reviewer must be different family (GLM/Codex/Qwen).
 
 Both confirmed fidelity-capable:
 - [TICKET]: Qwen wrote 5832-case byte-identical prompt matrix · GLM reviewed static parity (0 false positives).
 - I4/I5: GLM wrote multi-file architecture · Codex∥Pro reviewed (build green, fix-round ~10 min).
+- [TICKET]: DeepSeek V4 Pro as orchestrator completed full cycle (dispatch→wait→verify→fix→re-dispatch) on 2 test waves.
 
-The orchestrator reads the owner pin and routes accordingly. The model card documents current writer capability — it does not encode a permanent assignment.
+The orchestrator reads the owner pin and routes accordingly. The model card documents current capability — it does not encode a permanent assignment.
 
+## Owner Pin — Orchestrator (NEW)
+
+**«сейчас orchestrator=X» instantly pins the session orchestrator. Default: Grok 4.5.**
+
+- **«сейчас orchestrator=Grok»** → Grok 4.5 (default, xAI family, fastest dispatch)
+- **«сейчас orchestrator=Pro»** / **«orchestrator=DeepSeek»** → DeepSeek V4 Pro (1M context, structured thinking, [TICKET] evidence)
+- **«сейчас orchestrator=Qwen»** → Qwen 3.8 Max (2.4T weights, CoT, vision)
+- **«сейчас orchestrator=GLM»** → GLM 5.2 (1M state continuity, Self-Harness. ⚠️ Watch: tool passivity, session drift, overthinking — agent anti-patterns §4.5). Best for architecture-heavy waves.
+
+**Flash is EXCLUDED from orchestrator role:** no `plan-before-act` anchor (P1 = act-immediately), no `task: true` in frontmatter, model-card role = bulk/hotfix only (I3 post-mortem).
+
+The orchestrator pin affects:
+- NEXT_SESSION copy-paste block format (Grok: Task/Autonomy, Pro: Задача/Где/Должно быть/Не трогать, Qwen: Context/Objective/Constraints, GLM: Goal/Context/Constraints/Done)
+- LAUNCH.md default orchestrator in tools table
 ---
 
 ## Stack Composition
@@ -98,7 +114,7 @@ The orchestrator reads the owner pin and routes accordingly. The model card docu
 | **Multi-file implement** (3+ files) | GLM 5.2 (default, owner can swap to Qwen) | Pro + Codex or Qwen Code | Writer ≠ reviewer mandatory. Owner pin overrides default. |
 | **Deep race / ordering** | DeepSeek V4 Pro | Codex 5.5 (behavioral semantics) | Pro for depth on lock ordering, constraint matrices. Codex for hosted semantics — complementary. |
 | **Bulk / hotfix** (1-2 files) | Flash | — | Solo OK for trivial. Not multi-file. |
-| **Orchestration** | Grok 4.5 | — | Never implements (§3 role lock). |
+| **Orchestration** | **Grok 4.5** (default) · **DeepSeek V4 Pro** · **Qwen 3.8 Max** · **GLM 5.2** ⚠️ | — | Owner pin (§below). Never implements (§3 role lock). GLM = architecture-heavy waves; ⚠️ tool passivity + drift. Evidence: [TICKET] — DeepSeek V4 Pro completed full orchestration cycle on 2 test waves. |
 
 ### Cross-family pairs (writer.family ≠ reviewer.family)
 

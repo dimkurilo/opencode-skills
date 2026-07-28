@@ -356,13 +356,14 @@ Tasks must appear in INTENT + evidence — never force irrelevant workstreams.
 
 ## Orchestrator vs executor
 
-| Role | Default | Allowed |
-|------|---------|---------|
-| Orchestrator (runs this skill) | Grok or Claude | SPEC/PLAN, interview, STATUS, dispatch briefs |
+| Role | Default | Allowed (owner pin) |
+|------|---------|---------------------|
+| Orchestrator (runs this skill) | **Grok 4.5** | Grok 4.5 · DeepSeek V4 Pro · Qwen 3.8 Max · GLM 5.2 ⚠️ |
 | Executor | Claude+GLM / OpenCode / Grok | only approved task brief + artifacts |
 
-Executors **do not** rewrite SPEC/PLAN. They may append STATUS notes.
+**Orchestrator owner pin:** «сейчас orchestrator=Pro/GLM/Qwen» — мгновенно меняет модель. Flash исключён. GLM = ⚠️ tool passivity (agent anti-patterns §4.5). См. `model-card.md`.
 
+Executors **do not** rewrite SPEC/PLAN. They may append STATUS notes.
 ---
 
 ## Quality bar

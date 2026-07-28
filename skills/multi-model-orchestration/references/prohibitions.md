@@ -1,6 +1,6 @@
 # Hard Prohibitions
 
-11 rules. Each has a reason and a correct alternative. Violation = operational failure.
+12 rules. Each has a reason and a correct alternative. Violation = operational failure.
 
 | # | Prohibition | Reason | Correct alternative |
 |---|------------|--------|---------------------|
@@ -15,3 +15,4 @@
 | 9 | Restart worker on silence | Heartbeat = alive. Timeout ≠ failure | Liveness check (`terminal read`) → repeat wait |
 | 10 | Flash on multi-file (3+ files) | I3: edge-case bugs, almost-right-then-hotfix | GLM 5.2 or Qwen Code for multi-file |
 | 11 | Tool-calling loop > 3 identical actions without text output | Blocks user, wastes time (P15/P18: Grok 10x "Post Linear comment") | STOP after 3 identical calls → text response to user with status |
+| 12 | Flash as orchestrator | No `plan-before-act` anchor (P1 = act-immediately), no `task: true` in frontmatter, bulk/hotfix only (I3 post-mortem). Will skip planning and jump to execution — dangerous for multi-step orchestration | Use Grok 4.5 (default), DeepSeek V4 Pro, or Qwen 3.8 Max. Owner pin: «сейчас orchestrator=X» |

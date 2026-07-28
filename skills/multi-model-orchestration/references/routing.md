@@ -32,7 +32,7 @@
 | **Architecture multi-file** (3+ files) | **GLM 5.2** (default) | Pro + Codex or Qwen | OR **Qwen 3.8 Max** if owner says "fidelity override" or "Qwen writer" — owner phrase pins without skill rewrite. GLM multi-file = confirmed I4/I5 (~15 min implement, fix-round ~10 min, build green). |
 | **Deep race / ordering / ops unblock** | **DeepSeek V4 Pro** | **Codex 5.5** (semantics) | Pro = best depth on race conditions, lock ordering, constraint matrices. NOT sole merge gate — pair with Codex for behavioral semantics. |
 | **Bulk / mechanical / hotfix** | **DeepSeek V4 Flash** | — | Flash only on bulk, 1-2 file hotfixes, inventory, mechanical tasks. Not primary multi-file (I3 post-mortem: edge-case bugs, lock leaks, almost-right-then-hotfix pattern). |
-| **Orchestration / dispatch / handoff** | **Grok 4.5** | — | Orchestrator NEVER implements code. Role lock: dispatch → wait → synthesize → gate → Linear/handoff. |
+| **Orchestration / dispatch / handoff** | **Grok 4.5** (default) · **DeepSeek V4 Pro** · **Qwen 3.8 Max** · **GLM 5.2** ⚠️ (owner pin, see model-card.md) | — | Orchestrator NEVER implements code. Flash EXCLUDED. GLM = architecture-heavy waves; watch tool passivity + drift (agent anti-patterns §4.5). |
 | **Implement (post-I6 default)** | **GLM 5.2** or owner re-pick | Writer family ≠ reviewer family | Writer ≠ reviewer is mandatory for product code. If owner says "сейчас writer=Qwen", pin Qwen for the session. |
 
 **Synthesis rules ([platform], evidence-based):**
