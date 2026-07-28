@@ -1,5 +1,6 @@
 ---
 name: wave-spec
+version: 1.4.0
 description: >
   Use when starting a sprint/wave that must not skip planning — user says "wave-spec",
   "spec first", "составь спеку/план", "interview then plan", or begins multi-session

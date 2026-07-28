@@ -40,10 +40,12 @@
   - **P1:** bilingual README layout includes `model-card.md`; SKILL §13 cost table + Codex row; deploy curl canonical only in `routing.md` (SKILL §2b = principle + pointer); heartbeat row in SKILL §5.
 - **[ITER] fix (2026-07-28)**: 
   - multi-model-orchestration/README.md + README.ru.md: sync "7 explicit gates" → "8 states (see wave-spec §Lifecycle Gates)"
-  - multi-model-orchestration/SKILL.md: §2c Rule 1 add "from different model families" guard (MAJOR, ensemble FM2); §2b Deploy add "probe checks existence, not correctness" qualifier (MINOR, ensemble FM3)
-  - .agents/scripts/lint-skill.sh: add cross-reference drift detector (ensemble dominant risk mitigation)
-  - lint PASS on all skills
-- **Codex + GLM parallel review ([ITER])**: 0 MAJOR, 0 escalation
+  - multi-model-orchestration/SKILL.md: §2c Rule 1 add "two complementary lenses from different model families" guard (MAJOR, ensemble FM2); §2b Deploy add "probe checks existence, not correctness" qualifier (MINOR, ensemble FM3)
+  - wave-spec/SKILL.md: §6b version-anchor — frontmatter `version: 1.4.0` (metadata cross-reference); canonical Lifecycle/Fidelity/Deploy sections unchanged
+  - wave-spec/assets/templates/NEXT_SESSION.md.tmpl: [TICKET] Orca bypass guard added (aligns with §3 Role Lock)
+  - .agents/scripts/lint-skill.sh: cross-reference drift detector — diff SUMMARY blocks against cited wave-spec sections (ensemble dominant risk mitigation)
+  - lint PASS on all 3 skills (wave-spec, multi-model-orchestration, project-bootstrap)
+- **Codex + GLM cross-family review ([ITER])**: Codex 5.5 writer (took over from DeepSeek Pro after API timeout) ∥ GLM 5.2 reviewer = valid cross-family (OpenAI ≠ Zhipu). 0 MAJOR, 0 escalation. **Deviation:** single-reviewer fallback (originally planned double review; Codex promoted to writer after Pro stuck on retry #10).
 
 ### Fixed
 - README drift source resolved ([TICKET] reproduction path).

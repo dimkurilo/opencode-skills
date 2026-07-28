@@ -43,7 +43,7 @@
 - **Таблица маршрутизации:** 7+ типов задач → модели с evidence из волн I3–[TICKET]
 - **Dual review обязателен:** fidelity-порты требуют GLM 5.2 (static parity) ∥ Codex 5.5 (hosted semantics) — комплементарны, не избыточны
 - **Deploy / smoke gate:** доказать, что поставленная поверхность существует перед handoff (принцип + curl-примеры в `references/routing.md`)
-- **Жизненный цикл:** 8 состояний (see wave-spec §Lifecycle Gates): implement → review → commit → PR → merge → deploy → done. Не схлопывать в «writer Done»
+- **Жизненный цикл:** 8 состояний (см. wave-spec §Lifecycle Gates). Не схлопывать в «writer Done»
 - **Writer replaceable:** фраза владельца «сейчас writer=X» мгновенно назначает писателя — без переписывания скилла
 
 ## Установка

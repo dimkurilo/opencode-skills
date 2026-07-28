@@ -104,6 +104,7 @@ Brief: ревью {{scope_paths}}. Фокус: {{review_focus}}.
 
 - 3 consecutive failures → escalate human
 - Пользователь пишет → СТОП → ответь текстом
+- Оркестратор написал код вместо dispatch → violation. UNDO changes, перечитай LAUNCH.md §Prohibited #8, затем dispatch воркеру.
 - Worker напечатал текстом → terminal send: "worker_done = bash-команда. Не текст."
 - Heartbeat/активность = worker жив. НЕ перезапускать.
 - check count:0 = checkpoint, НЕ failure → repeat wait
