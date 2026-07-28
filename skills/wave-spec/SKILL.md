@@ -383,6 +383,8 @@ Executors **do not** rewrite SPEC/PLAN. They may append STATUS notes.
 
 - Implementing during interview.
 - One PLAN with 40 tasks and no phases.
+- Implementing during interview.
+- One PLAN with 40 tasks and no phases.
 - Freeform-only plan with no SPEC.
 - XML for INTENT (wrong layer).
 - Requiring vv-opencode CLI to use this skill.
@@ -393,7 +395,9 @@ Executors **do not** rewrite SPEC/PLAN. They may append STATUS notes.
 - Creating LAUNCH.md without cross-family check and "Prohibited" section.
 - Assigning writer and reviewer from the same model family (blind-spot risk).
 - Launching a model without checking availability in model-card.md.
-
+- **Generating LAUNCH.md with copy-paste bash blocks** (`$(...)`, `&&` chains, heredocs). Only sequence descriptions allowed (§6b, LAUNCH.md.tmpl).
+- **Skipping or reordering steps in NEXT_SESSION.** Linear In Progress MUST be step 1, not later.
+- **Writing wave artifacts outside the specified project directory.** Scope is relative to the REPO ROOT of the opencode-skills project.
 ---
 
 ## Lifecycle Gates ([TICKET] → [TICKET] lessons)

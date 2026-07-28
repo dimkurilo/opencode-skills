@@ -1,5 +1,7 @@
 # LAUNCH.md — worker launch reference ({{wave_slug}})
 
+<!-- HARD GATE: NO BASH CODE BLOCKS — only sequence descriptions. NO $(...), NO && chains, NO heredocs. -->
+
 > Rule 1: always specify tool and mode explicitly.
 > Rule 2: build dispatch commands from `orca skills get orchestration`, NOT from this file.
 > Rule 3: dispatch --inject, NOT terminal send.
@@ -21,9 +23,10 @@ Reviewer: {{reviewer_name}} ({{reviewer_family}})
 
 ## Dispatch sequence (build from `orca skills get orchestration`)
 
-Do NOT copy-paste bash from here. Load the orchestration guide and build commands yourself.
+**🔥 DO NOT INCLUDE BASH CODE BLOCKS.** This file is a sequence REFERENCE, not a copy-paste script.
+Orchestrators read it and build their OWN commands from the orchestration guide (step 0).
 
-Required sequence per worker:
+Required sequence per worker (list — NOT bash):
 1. `terminal create` — worktree active, command from table above
 2. `terminal wait --for tui-idle` — timeout 60s
 3. `terminal send` — mode command (variant/effort) + `sleep 3`
@@ -31,11 +34,12 @@ Required sequence per worker:
 5. `dispatch --task --to --inject`
 6. `check --wait --types worker_done,escalation,decision_gate`
 
+**REJECTED FORMATS:** bash blocks with `$(...)`, `&&` chains, heredocs, or multi-line copy-paste scripts.
+
 Verification gates:
 - After step 2: terminal is idle (ready for input)
 - After step 5: dispatch confirmed
 - After step 6: worker_done received (timeout ≠ failure → terminal read → repeat)
-
 ## Review brief templates per model
 
 Copy-paste the matching template into the brief file. Do NOT compose your own prompt.
