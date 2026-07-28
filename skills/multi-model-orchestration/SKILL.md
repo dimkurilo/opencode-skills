@@ -92,7 +92,7 @@ Full routing details + brief templates: `references/routing.md`.
 **Canonical definition:** `skills/wave-spec/SKILL.md` §"Deploy Probe (Universal Pattern)".
 **Canonical examples:** `skills/wave-spec/SKILL.md` §Deploy Probe — curl dual-pattern + skills-repo check.
 
-**SUMMARY:** After merge/deploy (or skill install), prove the shipped surface exists before handoff. Adapt the probe to the target stack (web curl, CLI binary, package install, skill load path). Principle: one observable command that proves the artifact reached production. No probe = RESIDUAL-RISK-OWNER-SMOKE.
+**SUMMARY:** After merge/deploy (or skill install), prove the shipped surface exists before handoff. The probe checks existence, not correctness — correctness is verified at In Review. Adapt the probe to the target stack (web curl, CLI binary, package install, skill load path). Principle: one observable command that proves the artifact reached production. No probe = RESIDUAL-RISK-OWNER-SMOKE.
 
 Evidence: [TICKET] had untracked route files — if deployed without tracking, 404.
 
@@ -103,7 +103,7 @@ Evidence: [TICKET] had untracked route files — if deployed without tracking, 4
 **Canonical definition:** `skills/wave-spec/SKILL.md` §"Fidelity Dual Review".
 
 **SUMMARY (5 rules):**
-1. **Dual review mandatory:** static-parity reviewer ∥ behavioral-semantics reviewer. Single-reviewer fidelity ports are NOT accepted.
+1. **Dual review mandatory:** static-parity reviewer ∥ behavioral-semantics reviewer from **different model families**. Single-reviewer fidelity ports are NOT accepted.
 2. **Writer ≠ reviewer.** Flash excluded from fidelity reviews.
 3. **MAJOR from any reviewer → fix round before In Review.** Stricter severity wins.
 4. **No live smoke = RESIDUAL-RISK-OWNER-SMOKE** in handoff. Document explicitly.

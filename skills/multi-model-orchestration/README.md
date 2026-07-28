@@ -43,7 +43,7 @@ Routing depends on task type, not model preference. **Cross-family rule:** write
 - **Routing table:** 7+ task types mapped to model families with evidence from I3–[TICKET] waves
 - **Dual review mandatory:** fidelity ports require GLM 5.2 (static parity) ∥ Codex 5.5 (hosted semantics) — complementary, not redundant
 - **Deploy / smoke gate:** prove shipped surface exists before handoff (principle + curl examples in `references/routing.md`)
-- **Lifecycle:** 7 explicit gates: implement → review → commit → PR → merge → deploy → done. No collapsing into "writer Done"
+- **Lifecycle:** 8 states (see wave-spec §Lifecycle Gates): implement → review → commit → PR → merge → deploy → done. No collapsing into "writer Done"
 - **Writer replaceable:** owner phrase «сейчас writer=X» pins writer instantly — no skill rewrite
 
 ## Installation

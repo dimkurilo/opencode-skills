@@ -38,6 +38,15 @@
 - **multi-model-orchestration v1.5** (Qwen skill postmortem P0–P2):
   - **P0:** `worker-contract.md` — live Orca `worker_done` flags (`--task-id`, `--dispatch-id`, `--files-modified`, `--report-path`); body = 3-sentence summary; full contract in report file. **written≠persisted** gate for all implement workers (`git status`/`ls` before success `worker_done`). **model-card.md** — launch pins for Codex 5.5 + GPT-5.6 (native Codex CLI) and all OpenCode agents.
   - **P1:** bilingual README layout includes `model-card.md`; SKILL §13 cost table + Codex row; deploy curl canonical only in `routing.md` (SKILL §2b = principle + pointer); heartbeat row in SKILL §5.
+- **[ITER] fix (2026-07-28)**: 
+  - multi-model-orchestration/README.md + README.ru.md: sync "7 explicit gates" → "8 states (see wave-spec §Lifecycle Gates)"
+  - multi-model-orchestration/SKILL.md: §2c Rule 1 add "from different model families" guard (MAJOR, ensemble FM2); §2b Deploy add "probe checks existence, not correctness" qualifier (MINOR, ensemble FM3)
+  - .agents/scripts/lint-skill.sh: add cross-reference drift detector (ensemble dominant risk mitigation)
+  - lint PASS on all skills
+- **Codex + GLM parallel review ([ITER])**: 0 MAJOR, 0 escalation
+
+### Fixed
+- README drift source resolved ([TICKET] reproduction path).
   - **P2:** deploy gate generalized (principle-first); Qwen §2 row marks fidelity writer; Solo Defaults table filled in `routing.md`; SKILL changelog comment → v1.5.
 - **multi-model-orchestration:** Qwen agent pin is now **versionless** — default OpenCode agent is `A/agent1st_qwen-3.8` (`~/.config/opencode/agents/A/agent1st_qwen-3.8.md`). Versioned `v5.1` / `v5.2` agent files may remain on disk as history/rollback only; skills always pin the versionless name — protocol content lives inside the agent file, not the skill. Documented in `references/model-card.md` + `routing.md`.
 - **wave-spec v1.3** — post-mortem fix-round ([TICKET] Qwen v5.2 review): templates reconciled with reality (SPEC optional review-provenance; PLAN attribute-style tasks as primary idiom, neutral gate wording, `model_hint` clarified; STATUS state enum = lifecycle states). Fidelity dual review generalized from model names to roles (static-parity ∥ behavioral-semantics; example pair GLM∥Codex; writer≠reviewer, Flash excluded, single-reviewer NOT accepted). New `review-synthesis.md.tmpl` + `fix-round-brief.md.tmpl` + `ASSUMPTIONS.md.tmpl`. Worker-brief template aligned to the Orca contract (ROLE/MODE + 3-sentence `worker_done` + SUMMARY/EVIDENCE/CHANGES/RISKS/BLOCKERS). Added wave-closeout checklist, top Positioning block, program-maps quality-bar cross-link + book/fidelity worked walks.
