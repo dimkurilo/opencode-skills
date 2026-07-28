@@ -32,7 +32,7 @@ For multi-skill portfolio development (e.g. opencode-skills), cross-platform fid
 
 **Dispatch / orchestration:**
 - Worker brief templates, PARALLEL/DEPENDS annotation
-- Orca dispatch commands (terminal create, send)
+- Orca dispatch (terminal create → variant + sleep 3 → task-create → dispatch --inject)
 - STATUS.md tracking
 
 ### Wave sizing

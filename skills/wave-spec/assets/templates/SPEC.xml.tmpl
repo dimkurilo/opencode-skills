@@ -73,12 +73,20 @@
   </acceptance>
 
   <roles>
-    <orchestrator>grok</orchestrator>
+    <orchestrator family="xAI">grok-4.5</orchestrator>
     <executors>
-      <executor id="claude-glm">Claude Code + GLM 5.2</executor>
-      <executor id="opencode-flash">OpenCode + cheap model</executor>
-      <executor id="human">Human gates</executor>
+      <executor id="writer" tool="qwen" flags="--approval-mode yolo" effort="/effort medium" family="Alibaba">
+        Primary coder
+      </executor>
+      <executor id="reviewer" tool="opencode" agent="A/agent1st_v36-pro" family="DeepSeek">
+        Reviewer (cross-family with writer)
+      </executor>
+      <executor id="glm" tool="opencode" agent="A/agent1st_v13-glm" family="Zhipu" optional="true">
+        Optional reviewer / multi-file writer (availability per model-card.md)
+      </executor>
     </executors>
+    <launch_file>LAUNCH.md</launch_file>
+    <family_rule>writer.family ≠ reviewer.family</family_rule>
   </roles>
 
   <todos>

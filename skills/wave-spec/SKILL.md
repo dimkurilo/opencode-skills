@@ -5,9 +5,9 @@ description: >
   + PLAN.xml → human approve → worker briefs → STATUS/handoff. Use when the user starts a
   sprint/wave, says "wave-spec", "spec first", "составь спеку/план", "interview then plan",
   or begins multi-session development, content, skill-port, translation, or orchestration work
-  that must not skip planning. Works in Grok, Claude Code, OpenCode, ZCode — writes files
-  in the project, does not require vv-opencode runtime. Do NOT use for trivial one-line edits
-  already approved by the user.
+  that must not skip planning. Works in Grok, Claude Code, OpenCode, ZCode,
+  Qwen Code — writes files in the project, does not require vv-opencode
+  runtime. Do NOT use for trivial one-line edits already approved by the user.
 ---
 
 # wave-spec
@@ -141,10 +141,10 @@ Required:
 <roles>
   <orchestrator family="xAI">grok-4.5</orchestrator>
   <executors>
-    <executor id="qwen-code" tool="qwen" flags="--approval-mode yolo" effort="/effort medium" family="Alibaba">
+    <executor id="writer" tool="qwen" flags="--approval-mode yolo" effort="/effort medium" family="Alibaba">
       Primary coder
     </executor>
-    <executor id="deepseek-pro" tool="opencode" agent="A/agent1st_v36-pro" family="DeepSeek">
+    <executor id="reviewer" tool="opencode" agent="A/agent1st_v36-pro" family="DeepSeek">
       Reviewer (cross-family with writer)
     </executor>
     <executor id="glm" tool="opencode" agent="A/agent1st_v13-glm" family="Zhipu" optional="true">
@@ -247,7 +247,7 @@ Pattern:
 
 Template: `assets/templates/NEXT_SESSION.md.tmpl` — step-based format with gates.
 
-**Step structure (8 steps):**
+**Step structure (9 steps, 0–8):**
 - Step 0: Load sources (orchestration guide + SPEC + linear-workflow)
 - Step 1: Linear In Progress
 - Step 2: Create brief file
@@ -268,6 +268,8 @@ Copy-paste format by orchestrator:
 | **Qwen 3.8 Max** | ### Context / ### Objective / ### Constraints |
 | **Flash** | Simplified DeepSeek |
 
+Note: Codex 5.5 is typically a reviewer, not an orchestrator. If used as orchestrator, use the Codex brief format from LAUNCH.md.tmpl.
+
 Default (if orchestrator not specified): Grok format.
 
 ### 6d. Linear workflow generation (if project uses Linear)
@@ -286,7 +288,7 @@ Template: `assets/templates/linear-workflow.md.tmpl`
 - [ ] Title contains CAS-XX / I{N}
 - [ ] Description in Russian, with `- [ ]` checklist
 - [ ] Status: Backlog → In Progress on start
-- [ ] Comment-report on completion (§5.3 linear-workflow.md)
+- [ ] Comment-report on completion (§3 linear-workflow.md)
 
 ### 7. STATUS + HANDOFF
 

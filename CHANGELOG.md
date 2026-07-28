@@ -32,6 +32,7 @@
   - worker-contract.md: worker_done delivery rule (CLI only, not text)
   - Cost guidance: Qwen Code (high), Grok (unlimited)
   - GPT-5.6 removed (not used)
+  - **Note:** SPEC P13/P17 prescribed "atomic bash heredoc" — superseded by steps+gates format (forces validation against live guide instead of blind bash execution). Better solution to same root cause.
 
 ### Changed
 - **multi-model-orchestration v1.5** (Qwen skill postmortem P0–P2):

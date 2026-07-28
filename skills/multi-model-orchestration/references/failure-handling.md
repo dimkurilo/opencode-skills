@@ -73,6 +73,7 @@ After 3 consecutive failures on one task (any combination of models):
 ## Recovery After Worker Crash
 
 ```bash
+# Structure only — build exact flags from `orca skills get orchestration`.
 # 1. Check what happened
 orca terminal read --terminal <handle> --json
 

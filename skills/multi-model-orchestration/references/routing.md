@@ -137,7 +137,7 @@ Output: SUMMARY / EVIDENCE / CHANGES / RISKS / BLOCKERS
 |--|--|
 | **Launch** | `opencode --agent A/agent1st_qwen-3.8` |
 | **Agent file** | `~/.config/opencode/agents/A/agent1st_qwen-3.8.md` |
-| **Absolute** | `/Users/dimk/.config/opencode/agents/A/agent1st_qwen-3.8.md` |
+| **Absolute** | `~/.config/opencode/agents/A/agent1st_qwen-3.8.md` |
 | **Pin** | **Versionless** — skills always pin `A/agent1st_qwen-3.8`. Versioned `v5.1` / `v5.2` files may remain on disk as history/rollback only, never the launch target for new work. |
 | **Protocol** | [TICKET] JUDGMENT patches (runtime-boundary fidelity, self-skepticism, evidence hygiene, brief-as-plan, written≠persisted, …) live **inside the agent file** — bumping the protocol does not require a skill edit. |
 
