@@ -1,0 +1,110 @@
+{{copy_paste_block}}
+
+<!--- DO NOT REORDER STEPS. DO NOT SKIP STEPS. Each step = mandatory gate. --->
+
+---
+
+# {{iteration_id}} — {{iteration_title}}
+
+{{linear_task}}. SPEC: {{spec_path}} ({{spec_section}}).
+Previous: {{prev_iteration}} done ({{prev_commit}}).
+
+---
+
+## Шаг 0. Загрузи источники
+
+Выполни и прочитай вывод:
+```
+orca skills get orchestration
+```
+Это единственный источник по dispatch/wait/worker_done. Не NEXT_SESSION, не память, не кэш.
+
+Затем прочитай:
+- `{{spec_path}}` — секция {{spec_section}}
+- `.agents/rules/linear-workflow.md` — §2 (task creation), §3 (comments), §4 (status transitions)
+
+**Gate:** в твоём следующем действии используются 3 команды из гайда: `task-create`, `dispatch --inject`, `check --wait`. Если не можешь их назвать — перечитай гайд.
+
+## Шаг 1. Linear: In Progress
+
+Поставь статус {{linear_task}} в In Progress (команду строй из linear-workflow.md §2).
+
+**Gate:** вывод содержит `"ok": true`.
+
+## Шаг 2. Brief
+
+Создай `{{brief_path}}`.
+
+Содержимое brief — из SPEC {{spec_section}}. Структура:
+- ROLE: Worker. Writer: {{writer_tool}}.
+- MODE: {{mode}}. worker_done = bash-команда `orca orchestration send --type worker_done`. Текстовый отчёт в чат = FAILURE.
+- SCOPE: {{scope_paths}}
+- Steps: из SPEC
+- DONE: {{done_criteria}}. `git status --short` перед worker_done.
+- Constraints: {{constraints}}
+
+**Gate:** файл существует (`ls {{brief_path}}`).
+
+## Шаг 3. Dispatch
+
+Построй команды САМ из гайда (шаг 0). Последовательность:
+1. terminal create (worktree active, command "{{writer_launch}}")
+2. terminal wait --for tui-idle (timeout 60s)
+3. terminal send "{{writer_mode_command}}" + sleep 3
+4. task-create (spec = brief файл)
+5. dispatch --task --to --inject
+6. check --wait --types worker_done,escalation,decision_gate --timeout-ms 900000
+
+ЗАПРЕЩЕНО: terminal send с текстом задачи после dispatch --inject.
+ЗАПРЕЩЕНО: copy-paste bash из этого файла — строй из гайда.
+
+**Gate:** check --wait вернул сообщение с type=worker_done.
+Если timeout: terminal read → если working → repeat wait. Если idle без worker_done → terminal send "Отправь worker_done через orca orchestration send CLI."
+
+## Шаг 4. Verify
+
+Проверь что файлы из {{scope_paths}} существуют на диске (git status или ls).
+Сверь с CHANGES из worker_done.
+
+**Gate:** каждый файл из {{scope_paths}} присутствует в выводе git status.
+
+## Шаг 5. Review ({{reviewer_name}})
+
+Тот же dispatch-flow из гайда. Worker: `{{reviewer_launch}}`.
+Brief: ревью {{scope_paths}}. Фокус: {{review_focus}}.
+**Gate:** worker_done от ревьювера получен. Синтез: MAJOR → fix-round, 0 MAJOR → дальше.
+
+## Шаг 6. Commit + push
+
+Закоммить только публичные пути (skills/, README, CHANGELOG). НЕ stage dev-файлы (AGENTS.md, SESSION_HANDOFF.md, .agents/).
+Запушь в main.
+
+**Gate:** `git status --short` не показывает dev-файлы в staged. Commit hash существует. Push без ошибок.
+
+## Шаг 7. Linear: отчёт + In Review
+
+По linear-workflow.md §3 (comments) + §4 (status):
+1. Обновить описание {{linear_task}}: чеклисты [x], файлы, верификация
+2. Комментарий-отчёт (§3 формат)
+3. Статус: In Review (§4)
+
+**Gate:** комментарий существует. Статус = In Review. Done НЕ ставить.
+
+## Шаг 8. Handoff
+
+Создай `NEXT_SESSION_{{next_iteration_id}}.md` (этот же формат: шаги + gates, без bash-рецептов).
+Обнови указатель в `NEXT_SESSION.md`.
+Закоммить + запушь handoff.
+
+**Gate:** `NEXT_SESSION_{{next_iteration_id}}.md` существует. `NEXT_SESSION.md` указывает на него. Commit + push успешны.
+
+---
+
+## Failure
+
+- 3 consecutive failures → escalate human
+- Пользователь пишет → СТОП → ответь текстом
+- Оркестратор написал код вместо dispatch → violation. UNDO changes, перечитай LAUNCH.md §Prohibited #8, затем dispatch воркеру.
+- Worker напечатал текстом → terminal send: "worker_done = bash-команда. Не текст."
+- Heartbeat/активность = worker жив. НЕ перезапускать.
+- check count:0 = checkpoint, НЕ failure → repeat wait

@@ -1,6 +1,6 @@
 ---
 name: wave-spec
-version: 1.4.0
+version: 1.4.1
 description: >
   Use when starting a sprint/wave that must not skip planning — user says "wave-spec",
   "spec first", "составь спеку/план", "interview then plan", or begins multi-session
@@ -250,7 +250,11 @@ Pattern:
 7. **Root pointer:** `NEXT_SESSION.md` (no suffix) — only a pointer + table of iteration files.
 8. **Create on completion:** after finishing iteration, create `NEXT_SESSION_I{N+1}.md` and update the pointer.
 
-Template: `assets/templates/NEXT_SESSION.md.tmpl` — step-based format with gates.
+Templates (two files mandatory):
+- `assets/templates/NEXT_SESSION.md.tmpl` — pointer (table of iterations, current pointer)
+- `assets/templates/NEXT_SESSION_ITER.md.tmpl` — iteration (steps 0-8 with gates)
+
+MANDATORY: every iteration produces BOTH files. NEXT_SESSION.md without NEXT_SESSION_<iter>.md = incomplete. NEXT_SESSION_<iter>.md without NEXT_SESSION.md pointer = orphan.
 
 **Step structure (9 steps, 0–8):**
 - Step 0: Load sources (orchestration guide + SPEC + linear-workflow)
@@ -381,7 +385,7 @@ Executors **do not** rewrite SPEC/PLAN. They may append STATUS notes.
 
 ## References
 
-- `assets/templates/` — INTENT, SPEC.xml, PLAN.xml, STATUS, worker-brief, review-synthesis, fix-round-brief, ASSUMPTIONS, **LAUNCH.md**, **iteration-handoff.md**, **NEXT_SESSION.md**, **linear-workflow.md**
+- `assets/templates/` — INTENT, SPEC.xml, PLAN.xml, STATUS, worker-brief, review-synthesis, fix-round-brief, ASSUMPTIONS, **LAUNCH.md**, **iteration-handoff.md**, **NEXT_SESSION.md** (pointer), **NEXT_SESSION_ITER.md** (iteration), **linear-workflow.md**
 - `references/program-maps.md` — domain-specific program maps (4 menus: skill-port, translation, fidelity port, SEO)
 - `references/vv-portability.md` — mapping to vv-opencode tags
 
@@ -517,3 +521,4 @@ wave-spec is the **canonical source of truth** for lifecycle gates, fidelity dua
 - **v1.2 ([TICKET] reframe)** — de-SEO: universal plan-gate across domains. `program-maps.md` (4 menus); SEO optional §4 only. Templates neutral; INTENT Targets + neutral Stack; Scaling examples = [TICKET] + [client-project]; not WooCommerce-default.
 - **v1.3 ([TICKET] post-mortem fix-round)** — templates reconciled with reality: SPEC optional review-provenance (`version`/`review_round`/`accepted_by`/`accepted_at`/`review_sources`) + `<assumptions>` block; PLAN attribute-style tasks as primary idiom (child-elements documented fallback), neutral gate wording, `model_hint` clarified; STATUS state enum = lifecycle states (`implement_done|in_review|commit|pr|merge|deploy_gate|on_prod|done`). Fidelity dual review generalized from model names to roles (static-parity ∥ behavioral-semantics; example pair GLM ∥ Codex; writer≠reviewer, Flash excluded, single-reviewer NOT accepted). New `review-synthesis.md.tmpl`, `fix-round-brief.md.tmpl`, `ASSUMPTIONS.md.tmpl`. Worker-brief aligned to the Orca contract (ROLE/MODE + 3-sentence `worker_done` + SUMMARY/EVIDENCE/CHANGES/RISKS/BLOCKERS). Added wave-closeout checklist, top Positioning block, program-maps quality-bar cross-link + book/fidelity worked walks.
 - **v1.4 ([TICKET])** — LAUNCH.md auto-generation (step 6b) with cross-family check + per-model brief templates + prohibitions; NEXT_SESSION pattern (step 6c): unique files NEXT_SESSION_I{N}.md + copy-paste block with full path + root pointer + 10 sections (no SKILL.md duplication); iteration handoff (step 7): unique per-iteration files + root pointer; linear-workflow generation (step 6d) + Linear validation checklist; PLAN.xml `<roles>` with family + `<family_rule>`; anti-patterns: vv-controller, terminal send, same-family, handoff overwrite, model-card check; closeout: post-mortem → skill update. New templates: LAUNCH.md.tmpl, iteration-handoff.md.tmpl, NEXT_SESSION.md.tmpl, linear-workflow.md.tmpl.
+- **v1.4.1 (2026-07-28)** — NEXT_SESSION template split (bug-fix): the single ambiguous `NEXT_SESSION.md.tmpl` (iteration steps 0–8) renamed to `NEXT_SESSION_ITER.md.tmpl`; new `NEXT_SESSION.md.tmpl` = root pointer (table of iterations + current pointer). §6c now references BOTH templates with MANDATORY both-files wording. Fixes agents writing iteration content into the pointer file ([migration] T01). Backward compatible: `NEXT_SESSION.md.tmpl` path still exists (now the pointer).

@@ -37,4 +37,4 @@ Implement done → In Review (dual review) → Commit → PR → Merge → Deplo
 
 - `references/program-maps.md` — domain-specific program maps (4 menus: skill-port, translation, fidelity port, SEO)
 - `references/vv-portability.md` — mapping to vv-opencode tags
-- `assets/templates/` — INTENT, SPEC, PLAN, STATUS, worker brief, review synthesis, fix-round, ASSUMPTIONS, **LAUNCH.md**, **iteration-handoff.md**, **NEXT_SESSION.md**, **linear-workflow.md**
+- `assets/templates/` — INTENT, SPEC, PLAN, STATUS, worker brief, review synthesis, fix-round, ASSUMPTIONS, **LAUNCH.md**, **iteration-handoff.md**, **NEXT_SESSION.md** (pointer), **NEXT_SESSION_ITER.md** (iteration), **linear-workflow.md**
