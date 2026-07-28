@@ -121,7 +121,11 @@ disable-model-invocation: true
 
 #### 3a. Корневые файлы
 
-**`plan.md`** — шаблон `assets/templates/plan.md.tmpl`. Стратегический план: фазы, решения, блокеры. **БЕЗ статусов** (статусы → SESSION_HANDOFF.md).
+**`plan.md` (ОПЦИОНАЛЬНЫЙ)** — шаблон `assets/templates/plan.md.tmpl`. Стратегический план: фазы, решения, блокеры. **БЕЗ статусов** (статусы → SESSION_HANDOFF.md).
+
+**Когда создавать:** только если проект НЕ использует wave-spec для планирования. Если пользователь упоминает wave-spec или проект уже содержит `waves/` → пропустить plan.md, добавить примечание: «Для операционного планирования используй wave-spec (SPEC.xml + PLAN.xml)».
+
+**Проверка перед созданием:** `ls waves/ 2>/dev/null` — если существует → plan.md НЕ создавать.
 
 **`AGENTS.md`** — шаблон `assets/templates/AGENTS.md.tmpl`. Структура Variant E:
 ```
@@ -366,6 +370,20 @@ task(auditor) + task(auditor-glm)
 
 ---
 
+## Cross-skill compatibility
+
+project-bootstrap creates the agent infrastructure that other skills build upon.
+
+### After bootstrap (recommended)
+1. **wave-spec** — creates SPEC.xml + PLAN.xml for wave-based planning with lifecycle gates
+2. **multi-model-orchestration** — executes dispatch/review via Orca for multi-model workflows
+
+### plan.md policy
+- **По умолчанию НЕ создаётся.** Wave-spec PLAN.xml покрывает операционное планирование.
+- Создаётся только если: (a) проект НЕ использует wave-spec, (b) пользователь явно запросил.
+- Проверка: `ls waves/ 2>/dev/null` — если существует → plan.md пропускается.
+
+---
 ## Ссылки
 
 - `references/variant-e-structure.md` — структура Variant E

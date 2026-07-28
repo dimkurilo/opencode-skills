@@ -87,45 +87,73 @@ Full routing details + brief templates: `references/routing.md`.
 
 ---
 
-## 2b. Deploy / smoke gate (prove surface exists before signoff)
+## 2b. Deploy / smoke gate
 
-**Principle:** after merge/deploy (or skill install), prove the shipped surface exists before handoff. Do not claim Done on a missing route, missing skill file, or dead install path.
+**Canonical definition:** wave-spec §[Deploy Probe](#deploy-probe).
+**Canonical examples:** wave-spec §[Deploy Probe](#deploy-probe) — curl dual-pattern + skills-repo check.
 
-Adapt the probe to the target stack. **Canonical examples** (web curl dual-pattern + skills-repo check): `references/routing.md` → **Deploy / smoke gate**.
+**SUMMARY:** After merge/deploy (or skill install), prove the shipped surface exists before handoff. Adapt the probe to the target stack (web curl, CLI binary, package install, skill load path). Principle: one observable command that proves the artifact reached production. No probe = RESIDUAL-RISK-OWNER-SMOKE.
 
-Evidence: [TICKET] had untracked route files (balance, refine) — if deployed without tracking, 404. The same class of bug is "claimed done, surface missing."
-
----
-
-## 2c. Fidelity Port Rules ([platform] mandatory)
-
-Any task labeled "fidelity port" / "reference→platform" / "behavioral parity":
-1. **Dual review mandatory:** GLM 5.2 (static parity, file:line matrix) ∥ Codex 5.5 (hosted semantics, cost/state regressions). Single-reviewer fidelity ports are NOT accepted. [TICKET] evidence: GLM-only would have missed abort MAJOR; Codex-only would have missed normTemperature + refine edge.
-2. **Writer = Qwen 3.8 Max** (default) or GLM 5.2 (owner override). Both confirmed fidelity-capable. Flash = explicitly excluded (simplifies, per I3 post-mortem).
-3. **MAJOR any → fix round before In Review.** Codex MAJOR rated on behavioral semantics carries equal weight to GLM's static findings.
-4. **No live smoke = RESIDUAL-RISK-OWNER-SMOKE** in handoff. If paid-generation budget prevents live smoke ([TICKET] pattern), document explicitly. Do not claim Done — claim Done-with-residual.
-5. **Deploy gate:** prove shipped surface before handoff (§2b / routing.md).
+Evidence: [TICKET] had untracked route files — if deployed without tracking, 404.
 
 ---
 
-## 2d. Lifecycle — Done vs In Review vs On Prod
+## 2c. Fidelity Port Rules
+
+**Canonical definition:** wave-spec §[Fidelity Dual Review](#fidelity-dual-review).
+
+**SUMMARY (5 rules):**
+1. **Dual review mandatory:** static-parity reviewer ∥ behavioral-semantics reviewer. Single-reviewer fidelity ports are NOT accepted.
+2. **Writer ≠ reviewer.** Flash excluded from fidelity reviews.
+3. **MAJOR from any reviewer → fix round before In Review.** Stricter severity wins.
+4. **No live smoke = RESIDUAL-RISK-OWNER-SMOKE** in handoff. Document explicitly.
+5. **Deploy gate:** prove shipped surface before handoff (§2b).
+
+Evidence: [TICKET] — GLM-only would have missed abort MAJOR; Codex-only would have missed normTemperature + refine edge.
+
+For non-fidelity waves: dual review is recommended but not mandatory. At minimum, writer ≠ reviewer.
+
+---
+
+## 2d. Lifecycle Gates
+
+**Canonical definition:** wave-spec §[Lifecycle Gates](#lifecycle-gates-production-lessons).
+
+**SUMMARY — 8 states (linear order):**
 
 | State | Definition | Gate |
 |-------|-----------|------|
-| **Implement done** | Writer finished, build/tsc/lint green, own notes written; **every claimed path exists on disk** | Before `worker_done`: `git status --short` and/or `ls`/`wc -l` prove each CHANGES path. Claimed-but-missing = FAIL (written≠persisted). Then `worker_done` + implement notes |
-| **In Review** | Dual review passed (0 MAJOR or all MAJOR fixed), fix-round complete if any MAJOR | Synthesis: stricter wins, all MAJOR closed |
-| **Commit + PR** | Public paths committed to branch, PR opened, reviewable | `git add skills/<name>/` only; `git status` clean of dev files. No merge yet |
-| **Merge** | PR approved, merged to main | Merge gate: CI green, no unresolved review threads |
-| **Deploy gate passed** | `curl` new routes ≠ 404, Vercel build green (or target platform deploy confirmed) | §2b deploy gate |
-| **On prod (owner residual)** | Deployed, smoke-tested by orchestrator OR owner | No live smoke = RESIDUAL-RISK-OWNER-SMOKE ([TICKET] pattern). Owner or next session handles production smoke |
-| **Done (complete)** | All gates above passed, handoff written, Linear updated | Orchestrator signs off |
+| **Implement done** | Writer finished, verification green, every claimed path exists on disk (written≠persisted) | `worker_done` + `git status` / `ls` proof |
+| **In Review** | Dual review passed (0 MAJOR or all MAJOR fixed), writer ≠ reviewer | Synthesis: stricter wins |
+| **Commit** | Public paths committed to branch. No dev files (AGENTS.md, SESSION_HANDOFF, .agents/) staged | `git status` clean of dev files. No merge yet |
+| **PR** | Pull request opened, reviewable | PR description complete, reviewers assigned |
+| **Merge** | PR approved, merged to main | CI green, no unresolved review threads |
+| **Deploy gate passed** | Deploy probe passed: new routes/paths return ≠ 404 | `curl` probes confirm route/path existence |
+| **On prod (owner residual)** | Deployed. Smoke-tested by orchestrator OR owner | No live smoke = RESIDUAL-RISK-OWNER-SMOKE |
+| **Done (complete)** | All gates above passed, handoff written, project tracker updated | Orchestrator signs off |
 
-Do not equate "writer claims Done" with "In Review passed" or "prod-ready". Do not collapse commit/PR/merge into "writer Done" — each gate is independent and verified. Fidelity dual review (§2c) is mandatory between implement and In Review.
-
-**Explicit ordering:** Implement done → In Review → commit public paths → PR → merge → Deploy gate → On prod (owner smoke OR RESIDUAL-RISK-OWNER-SMOKE) → Done. Commit, PR, merge, and deploy are separate verify-then-advance gates — do not batch them into a single step.
+Do not equate "writer claims Done" with "In Review passed" or "prod-ready". Commit, PR, Merge, and Deploy are separate verify-then-advance gates — do not batch them into a single step.
 
 ---
 
+## Cross-skill compatibility
+
+multi-model-orchestration is a **dispatch/review skill** — it does NOT own the plan-gate pipeline. Lifecycle gates, fidelity dual review rules, and deploy probe are defined in wave-spec (§Lifecycle Gates, §Fidelity Dual Review, §Deploy Probe). This skill keeps inline SUMMARIES for standalone use.
+
+### Recommended ordering
+1. **project-bootstrap** — creates agent infrastructure (AGENTS.md, SESSION_HANDOFF.md, .agents/memory/)
+2. **wave-spec** — creates SPEC.xml + PLAN.xml with lifecycle gates, fidelity rules, deploy probe
+3. **multi-model-orchestration** (this skill) — executes dispatch/review via Orca
+
+### Canonical sources (wave-spec)
+- **Lifecycle:** wave-spec §Lifecycle Gates — 8 states, linear ordering
+- **Fidelity Dual Review:** wave-spec §Fidelity Dual Review — 5 rules, dual review mandatory
+- **Deploy Probe:** wave-spec §Deploy Probe — existence check pattern
+
+### Standalone use
+This skill can be used without wave-spec. Inline SUMMARIES in §2b/§2c/§2d cover base definitions. For full lifecycle contract, load wave-spec.
+
+---
 ## 3. Coordinator Loop
 
 ```

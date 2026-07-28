@@ -215,6 +215,11 @@ Orchestrator tracks progress in STATUS.md.
 ### 6b. LAUNCH.md generation (after approve, before dispatch)
 
 Generate `waves/<date>-<slug>/LAUNCH.md` from:
+
+**Reference versions** (check before generation — if references are newer, regenerate LAUNCH.md):
+- `multi-model-orchestration/references/model-card.md` — last verified: 2026-07-26
+- `multi-model-orchestration/references/routing.md` — last verified: 2026-07-26
+- ⚠️ If either file modified after these dates → STALE REFERENCE. Regenerate LAUNCH.md.
 1. `multi-model-orchestration/references/model-card.md` — agent pins, commands, **model family**
 2. `PLAN.xml` — roles from `<roles>` section
 3. `multi-model-orchestration/references/routing.md` — brief templates per model
@@ -484,6 +489,23 @@ Evidence: [TICKET] had untracked route files — if deployed without tracking, 4
 
 wave-spec is a **universal plan-gate + lifecycle skill for 1–3 week product waves across any domain** (development, content, skill-port, translation, orchestration, site rebuild). It is NOT gsd-core, gsd-coordinator, or vv-opencode runtime — no agentic dispatch, no worktree groups, no structured handoff beyond project-local SESSION_HANDOFF. The lifecycle gates above are the contract; everything else is project protocol.
 For multi-model orchestration (parallel review, dispatch, fidelity port routing): see `skills/multi-model-orchestration/` — a separate skill for [platform]-level coordination. wave-spec delegates to it when multi-model review is needed; multi-model does NOT own the plan-gate pipeline.
+
+## Cross-skill compatibility
+
+wave-spec is the **canonical source of truth** for lifecycle gates, fidelity dual review rules, and deploy probe pattern. Other skills reference these definitions.
+
+### Recommended ordering
+1. **project-bootstrap** — creates agent infrastructure (AGENTS.md, SESSION_HANDOFF.md, .agents/memory/)
+2. **wave-spec** (this skill) — creates SPEC.xml + PLAN.xml with lifecycle gates
+3. **multi-model-orchestration** — executes dispatch/review via Orca, references wave-spec lifecycle
+
+### Canonical definitions (referenced by other skills)
+- **Lifecycle Gates** (§Lifecycle Gates): 8 states — Implement→In Review→Commit→PR→Merge→Deploy→On Prod→Done
+- **Fidelity Dual Review** (§Fidelity Dual Review): 5 rules, dual review mandatory, writer≠reviewer
+- **Deploy Probe** (§Deploy Probe): curl existence check pattern
+
+### Skills that depend on wave-spec
+- **multi-model-orchestration** — §2b/§2c/§2d reference wave-spec as source of truth. Keeps inline SUMMARY for standalone use.
 
 ---
 

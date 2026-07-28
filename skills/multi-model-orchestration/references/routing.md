@@ -42,21 +42,19 @@
 - **Fidelity dual review mandatory:** any behavioral port task (generator, vectorizer, any reference→platform) MUST have dual review (GLM∥Codex) — static parity + hosted semantics are complementary, not redundant ([TICKET] evidence). No single-reviewer fidelity port.
 - **No live smoke = owner residual gate:** if paid-generation budget prevents live smoke ([TICKET] pattern), document explicitly in handoff as RESIDUAL-RISK-OWNER-SMOKE. Do not claim Done without live smoke — claim Done-with-residual.
 
-**Deploy / smoke gate (canonical — post-merge or post-deploy handoff):**  
-**Principle:** prove the shipped surface exists before signoff. Adapt the probe to the target (HTTP route, CLI binary, package install, skill load path).  
-Web / Next.js auth-gated example ([client-project] [platform]): `307 → /login` OK (route exists); `404` = missing → fix before handoff.
-```bash
-# Auth-protected routes — prove route exists behind auth (no -L so redirect is the proof):
-curl -sI https://<deploy-url>/api/<new-route> | head -1
-# Expected: HTTP/... 307 (redirect to login = route exists) or 302.
-# 404 = route missing → fix before handoff.
+**Deploy / smoke gate (post-merge or post-deploy handoff):**
 
-# OR probe final status (follow redirects, get final HTTP code + effective URL):
-curl -sIL -o /dev/null -w '%{http_code} %{url_effective}\n' https://<deploy-url>/api/<new-route>
-# Interpret: final 200/307/401/403 ≠ 404 = route exists.
-# final 404 = route missing.
-```
-Skills-repo / non-web example: after install, `test -f ~/.config/opencode/skills/<name>/SKILL.md` and `bash .agents/scripts/lint-skill.sh skills/<name>/SKILL.md` (or host equivalent).
+**Canonical definition:** wave-spec §Deploy Probe. See also multi-model SKILL.md §2b.
+
+**Principle:** prove the shipped surface exists before signoff. One observable command that proves the artifact reached production. No probe = RESIDUAL-RISK-OWNER-SMOKE.
+
+Adapt the probe to your deploy surface:
+- **Web app:** curl route/path endpoints
+- **Static site:** curl page URLs after deploy
+- **Package/skill:** verify file existence + size at install path
+- **API:** curl API endpoints
+
+Evidence: [TICKET] — untracked route files, deployed without tracking → 404.
 
 **Writer GLM ↔ Qwen replaceable:**
 Owner phrase «сейчас writer=X» (X = GLM or Qwen) instantly pins the writer model for the current wave. No skill rewrite needed. The orchestrator reads this phrase from NEXT_SESSION §2 or owner chat and routes accordingly. Both GLM and Qwen have confirmed fidelity-writer capability ([TICKET]: Qwen write/GLM review; I4/I5: GLM write/Codex∥Pro review). See `references/model-card.md` for current roles + launch pins.
