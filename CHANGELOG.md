@@ -8,6 +8,16 @@
 ## [Unreleased]
 
 ### Added
+- **multi-model-orchestration v1.7.0** ([TICKET]):
+  - 3 [RULE]/2/3 operational rules в SKILL: §4 brief structure (explicit `--to` example + [RULE] self-protection clause), §5 failure handling ([RULE] verify queue arrival + [RULE] writer swap protocol rows), §10 Orca commands cross-ref to operational-rules.md
+  - `references/worker-contract.md`: anti-pattern "Reconstructing send from memory" ([RULE]) с [TICKET][ITER] incident evidence
+  - `references/failure-handling.md`: 2 new failure modes — "Message Routing Void" ([RULE]) + "API Retry Storm — Writer Swap" ([RULE]) с detection/recovery protocols
+- **project-bootstrap v2.1.0** ([TICKET]):
+  - NEW `references/operational-rules.md`: canonical 3 [RULE]/2/3 reference для embedding в generated AGENTS.md
+  - `assets/templates/AGENTS.md.tmpl`: 2 new conditional placeholders `${OPERATIONAL_RULES_MULTI_MODEL}` (преамбула) + `${OPERATIONAL_RULES_RECENCY}` (closing anchors) — включаются для multi-model project type
+  - SKILL.md: variant-e-model expanded с multi-model detection logic; placeholders table expanded с 2 new entries; banner → v2.1.0
+- **AGENTS.md (repo dev)**: преамбула расширена с 4 до 7 железных правил ([RULE]/2/3 + 4 существующих) + closing anchors extended с 3 до 6 compressed правил
+
 - **wave-spec v1.4.0** ([TICKET]):
   - LAUNCH.md auto-generation (step 6b): cross-family check, per-model brief templates (6 models), prohibitions, versioning. No copy-paste bash — sequence description only
   - NEXT_SESSION pattern (step 6c): **steps + verification gates format** (model-agnostic). Step 0 = load `orca skills get orchestration`. 8 steps with concrete gates. No copy-paste bash blocks. Linear woven into flow (step 1 = In Progress, step 7 = comment + In Review)

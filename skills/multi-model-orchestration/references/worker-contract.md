@@ -112,6 +112,19 @@ orca orchestration send --to <coordinator_handle> --type worker_done \
   --json
 ```
 
+## Anti-Pattern: Reconstructing send from memory ([RULE])
+
+**Hard prohibition:** never reconstruct `orca orchestration send` command from memory. Always copy from this document or `orca skills get orchestration`.
+
+**Reason:** GLM-family workers have documented tendency to reconstruct CLI commands from parametric memory, dropping the `--to <coordinator-handle>` flag. Without `--to`, orca returns a msg ID (e.g., `Sent [MSG]`) but message routes to void — coordinator never receives it.
+
+**[TICKET][ITER] incident (2026-07-28):** GLM reviewer reconstructed send, dropped `--to`, [MSG] lost. Coordinator trusted "Sent msg_..." terminal output, waited 15+ min, then became messenger (pasted verdict manually).
+
+**Mitigation:**
+1. Brief MUST contain explicit example: `orca orchestration send --to <COORDINATOR-HANDLE> --type worker_done ...`
+2. Worker copy-pastes from brief, does not retype
+3. Coordinator runs `check --peek --json` after every expected worker_done ([RULE])
+
 ---
 
 ## Qwen Code Note

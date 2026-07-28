@@ -91,3 +91,40 @@ TASK_ID=$(orca orchestration task-create --spec "<brief + 'Previous attempt fail
   python3 -c "import json,sys; print(json.load(sys.stdin)['result']['task']['id'])")
 orca orchestration dispatch --task $TASK_ID --to <new_handle> --inject --json
 ```
+
+## Message Routing Void ([RULE])
+
+**Symptom:** `orca orchestration send` returns `Sent msg_<id>` in terminal, but coordinator's `check --wait` never receives the message. Queue shows heartbeats but no worker_done.
+
+**Root cause:** `--to <coordinator-handle>` flag missing. Orca returns msg ID even on route void — terminal output is NOT proof of delivery.
+
+**Detection protocol:**
+1. After every `check --wait` that should receive worker_done, ALWAYS run `check --peek --json`
+2. Grep queue for type=worker_done: `check --peek --json | grep -A 2 worker_done`
+3. If queue empty but worker printed "Sent msg_..." → routing bug confirmed
+
+**Recovery:**
+1. `terminal read --terminal <worker_handle>` — see what worker actually did
+2. If worker finished work but send command lacked `--to` → re-instruct: `terminal send "Re-send worker_done with --to <COORDINATOR-HANDLE>"`
+3. If worker gone → recover report from terminal output, manually update coordinator state
+
+**Source:** [TICKET][ITER] [incident-date] — [MSG] lost in void route.
+
+---
+
+## API Retry Storm — Writer Swap ([RULE])
+
+**Symptom:** worker terminal shows `Request Timeout: request timeout [retrying in 8s attempt #10]` or similar API retry loop.
+
+**Wrong response:** wait indefinitely OR redo from scratch. Both waste resources.
+
+**Swap protocol:**
+1. **Terminal read first** — confirm retry storm: `orca terminal read --terminal <worker_handle> --json`
+2. **File inspection** — check what work was actually done: `git diff --stat` or `git status --short`
+3. **Decision branch:**
+   - **Files modified match expected scope** → writer did the work, just cannot signal. Ctrl-C worker terminal. Dispatch NEW writer terminal with brief "verify + finalize" (lint, git diff review, send worker_done). NOT redo from scratch.
+   - **Files not modified or partial** → writer did not do the work. Ctrl-C, re-dispatch from scratch (optionally cross-family swap).
+4. **Document** in handoff: branch chosen, reserve dispatch consumed.
+
+**Source:** [TICKET][ITER] — DeepSeek Pro applied 6 items but stuck on retry #10. Codex 5.5 verify+finalize succeeded in 5 min. If coordinator had redo-from-scratch → all Pro work lost.
+

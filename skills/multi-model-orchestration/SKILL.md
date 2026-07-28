@@ -211,6 +211,8 @@ review-only → findings only, NO file edits.
 Blocked → ask/escalation, do not thrash.
 After worker_done → idle (end turn).
 ```
+- **NEW [RULE]**: Brief ALWAYS contains explicit `--to <coordinator-handle>` example. Without `--to`, orca returns msg ID but message goes to void route ([TICKET][ITER] incident [MSG]).
+- **NEW [RULE] self-protection for implement workers**: Brief contains clause: "On API retry attempt #5+ → terminal read first → git diff --stat → if files modified match expected → idle and signal via heartbeat; if blocked → Ctrl-C and wait for coordinator swap. Do NOT continue retrying."
 
 Model-specific wrapping:
 - **GLM 5.2**: Goal → Context → Constraints → Done. No 【】. No "think step by step".
@@ -231,6 +233,9 @@ Model-specific wrapping:
 | timeout / count:0 | Liveness check (`terminal read`). NOT restart. Wait again |
 | 3 consecutive failures | Circuit-break. Route to different model or escalate to human |
 | Worker reports FAIL | Coordinator decides: re-dispatch with fix context OR route to different model |
+
+| **NEW [RULE]** | After `check --wait` returns worker_done, ALWAYS run `check --peek --json` to verify message actually arrived in queue. "Sent msg_..." terminal output is NOT proof of delivery — orca returns msg ID even on route void. If queue shows heartbeats but no worker_done → routing bug, recover from terminal output |
+| **NEW [RULE]** | On API retry attempt #5+ in worker terminal: `terminal read` first → `git diff --stat` → if files modified match expected scope → dispatch verify+finalize brief to fresh writer terminal (NOT redo from scratch). If files not modified → re-dispatch from scratch or cross-family swap |
 
 Details: `references/failure-handling.md`.
 
@@ -297,6 +302,16 @@ Build the exact commands from the orchestration guide. The sequence is:
 - After step 5: dispatch confirmed in output.
 - After step 6: worker_done received. **Timeout ≠ failure** → terminal read → if working → repeat wait.
 - If worker printed report as text but no worker_done → terminal send: "worker_done = orca orchestration send CLI command. Not text."
+
+### NEW [RULE]/2/3 ([TICKET] operational rules)
+
+Canonical source: `skills/project-bootstrap/references/operational-rules.md`.
+
+**[RULE]**: `worker_done` MANDATORY `--to <coordinator-handle>`. Without it → void route.
+**[RULE]**: After `check --wait` → `check --peek --json` to verify arrival. Terminal "Sent msg_..." ≠ delivery proof.
+**[RULE]**: On API retry #5+ → `terminal read` → file inspect → verify+finalize brief (NOT redo).
+
+Source: [TICKET][ITER] [incident-date] — GLM reviewer missed `--to`, [MSG] lost.
 
 ### Shell timeout rule
 
