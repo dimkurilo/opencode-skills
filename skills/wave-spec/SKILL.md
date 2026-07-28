@@ -1,13 +1,12 @@
 ---
 name: wave-spec
 description: >
-  Portable plan-gate skill (vv-method, multi-CLI): INTENT → interview → structured SPEC.xml
-  + PLAN.xml → human approve → worker briefs → STATUS/handoff. Use when the user starts a
-  sprint/wave, says "wave-spec", "spec first", "составь спеку/план", "interview then plan",
-  or begins multi-session development, content, skill-port, translation, or orchestration work
-  that must not skip planning. Works in Grok, Claude Code, OpenCode, ZCode,
-  Qwen Code — writes files in the project, does not require vv-opencode
-  runtime. Do NOT use for trivial one-line edits already approved by the user.
+  Use when starting a sprint/wave that must not skip planning — user says "wave-spec",
+  "spec first", "составь спеку/план", "interview then plan", or begins multi-session
+  work (development, content, skill-port, translation, orchestration). Produces SPEC.xml
+  + PLAN.xml + worker briefs + STATUS/handoff. Portable across Grok, OpenCode, Claude Code,
+  Qwen Code, ZCode — writes files in the project, no vv-opencode runtime. Do NOT use for
+  trivial one-line edits already approved by the user.
 ---
 
 # wave-spec
