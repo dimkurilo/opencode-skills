@@ -99,9 +99,9 @@ orca orchestration dispatch --task $TASK_ID --to <new_handle> --inject --json
 **Root cause:** `--to <coordinator-handle>` flag missing. Orca returns msg ID even on route void — terminal output is NOT proof of delivery.
 
 **Detection protocol:**
-1. After every `check --wait` that should receive worker_done, ALWAYS run `check --peek --json`
-2. Grep queue for type=worker_done: `check --peek --json | grep -A 2 worker_done`
-3. If queue empty but worker printed "Sent msg_..." → routing bug confirmed
+1. Verify via GLOBAL inbox FIRST (handle-scoped `check` can miss it — see "Handle Drift / Stale Recipient" below): `orca orchestration inbox --limit 20 --json`, filter `type=="worker_done"` by payload taskId
+2. Cross-check handle-scoped queue: `check --peek --json | grep -A 2 worker_done`
+3. If inbox EMPTY but worker printed "Sent msg_..." → true routing void (missing `--to`). If inbox HAS it but `check` empty → handle drift / self-send (next section)
 
 **Recovery:**
 1. `terminal read --terminal <worker_handle>` — see what worker actually did
@@ -109,6 +109,28 @@ orca orchestration dispatch --task $TASK_ID --to <new_handle> --inject --json
 3. If worker gone → recover report from terminal output, manually update coordinator state
 
 **Source:** [TICKET][ITER] [incident-date] — [MSG] lost in void route.
+
+---
+
+## Handle Drift / Stale Recipient ([RULE])
+
+**Symptom:** coordinator's `check --wait` / `check --peek` / `check --all` return 0 messages, but `orca orchestration inbox` shows the expected worker_done (and others). The worker correctly sent `worker_done` with `--to` ([RULE] satisfied).
+
+**Root cause:** `check` is **handle-scoped** ("every message for the handle"); `inbox` (no `--terminal`) is **runtime-global** ("across recipients"). Terminal handles are ephemeral routing metadata — a pane gets a NEW handle after restart/reconnect. A worker_done addressed to the coordinator's OLD handle (the one in the worker's preamble at dispatch time) stays in the global log (`inbox`) but is invisible to `check` on the coordinator's CURRENT handle. Identical symptom, second trigger: a **self-send** (stored `from == to`, e.g. a worker running in the coordinator's terminal sends `worker_done --to <coordinator>` without `--from`) is skipped by `check` but present in `inbox`.
+
+**Detection protocol:**
+1. Verify delivery via GLOBAL inbox, not handle-scoped check: `orca orchestration inbox --limit 20 --json`, filter `type=="worker_done"` by payload taskId.
+2. If inbox HAS the worker_done but `check --wait` didn't return it → compare its `to_handle` to the coordinator's current handle: `orca terminal list --worktree active --json`. Mismatch = handle drift.
+3. Confirm the target is orphaned: `orca terminal list --json | grep <to_handle>` → no live pane = stale.
+4. If `to_handle` equals the current handle yet `check` missed it → check for self-send (stored `from == to`).
+
+**Recovery:**
+1. Read the worker_done from `inbox` (global) — report/payload intact; recover `reportPath` and `filesModified` from it.
+2. Re-resolve the coordinator handle: `orca terminal list --worktree active --json`.
+3. Re-dispatch active tasks (or have workers re-resolve) so subsequent lifecycle mail targets the NEW handle.
+4. Self-send prevention: workers set an explicit `--from <own-handle>`; never rely on auto-resolution from a shared/coordinator terminal.
+
+**Source:** [TICKET][ITER] + routing investigation [TASK-ID] (2026-07-28). [MSG] addressed to orphaned `[TERM-ID]…` while coordinator was on `[TERM-ID]…`; `check=0`, `inbox` showed it. Proven: self-send skip (EXP1/EXP3) + stale-handle invisibility (EXP5).
 
 ---
 

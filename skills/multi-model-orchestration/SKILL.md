@@ -234,7 +234,7 @@ Model-specific wrapping:
 | 3 consecutive failures | Circuit-break. Route to different model or escalate to human |
 | Worker reports FAIL | Coordinator decides: re-dispatch with fix context OR route to different model |
 
-| **NEW [RULE]** | After `check --wait` returns worker_done, ALWAYS run `check --peek --json` to verify message actually arrived in queue. "Sent msg_..." terminal output is NOT proof of delivery — orca returns msg ID even on route void. If queue shows heartbeats but no worker_done → routing bug, recover from terminal output |
+| **NEW [RULE]** | After `check --wait`, verify delivery via **GLOBAL inbox** (`orca orchestration inbox --limit 20 --json`, filter by payload taskId), NOT handle-scoped `check`. `check` is handle-scoped → it misses worker_done on **handle drift** (stale recipient handle after terminal restart) or **self-send** (stored from==to); both give `check=0` while `inbox=N`. If inbox has the worker_done but `check --wait` didn't return it → your handle changed (restart): re-resolve via `terminal list` / re-dispatch. If inbox lacks it → real routing miss, recover from terminal output ([RULE]) |
 | **NEW [RULE]** | On API retry attempt #5+ in worker terminal: `terminal read` first → `git diff --stat` → if files modified match expected scope → dispatch verify+finalize brief to fresh writer terminal (NOT redo from scratch). If files not modified → re-dispatch from scratch or cross-family swap |
 
 Details: `references/failure-handling.md`.
@@ -308,7 +308,7 @@ Build the exact commands from the orchestration guide. The sequence is:
 Canonical source: `skills/project-bootstrap/references/operational-rules.md`.
 
 **[RULE]**: `worker_done` MANDATORY `--to <coordinator-handle>`. Without it → void route.
-**[RULE]**: After `check --wait` → `check --peek --json` to verify arrival. Terminal "Sent msg_..." ≠ delivery proof.
+**[RULE]**: After `check --wait` → verify delivery via **GLOBAL inbox** filtered by taskId (`inbox --limit 20 --json`), NOT handle-scoped `check`. `check` misses worker_done on handle drift (stale recipient handle) or self-send (from==to): `check=0` while `inbox=N`. Terminal "Sent msg_..." ≠ delivery proof.
 **[RULE]**: On API retry #5+ → `terminal read` → file inspect → verify+finalize brief (NOT redo).
 
 Source: [TICKET][ITER] [incident-date] — GLM reviewer missed `--to`, [MSG] lost.

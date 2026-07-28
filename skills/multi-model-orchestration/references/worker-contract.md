@@ -123,7 +123,21 @@ orca orchestration send --to <coordinator_handle> --type worker_done \
 **Mitigation:**
 1. Brief MUST contain explicit example: `orca orchestration send --to <COORDINATOR-HANDLE> --type worker_done ...`
 2. Worker copy-pastes from brief, does not retype
-3. Coordinator runs `check --peek --json` after every expected worker_done ([RULE])
+3. Coordinator verifies every expected worker_done via GLOBAL `inbox` filtered by payload taskId — not handle-scoped `check --peek` ([RULE]; see warning below)
+
+---
+
+## Handle Drift Warning: `check` is handle-scoped, `inbox` is global ([RULE])
+
+> **check is handle-scoped; inbox is global. Handle drift after terminal restart makes `check=0` while `inbox=N`. Verify via inbox filtered by taskId.**
+
+`check` (`--peek/--unread/--all`) returns only messages addressed to the checking terminal's CURRENT handle. `inbox` (no `--terminal`) is runtime-global and shows every message regardless of recipient. A worker_done that exists in `inbox` but not in `check` is addressed to a handle that is no longer the coordinator's current handle — typically a **stale handle after a terminal restart (handle drift)** — or is a **self-send** (stored `from == to`) which `check` skips. Handles are ephemeral routing metadata; a pane gets a new handle on restart, but messages to the old handle remain in the global log.
+
+**Worker rule:** set an explicit `--from <own-handle>` on lifecycle mail; never rely on `--from` auto-resolution when sending from a shared/coordinator terminal (auto-resolve to the coordinator handle == `--to` creates a self-send that `check` skips).
+
+**Coordinator rule:** verify arrival via `orca orchestration inbox --limit 20 --json` filtered by `type=="worker_done"` and payload `taskId` — not handle-scoped `check`. If inbox has it but `check --wait` missed it, re-resolve via `orca terminal list --worktree active --json` and re-dispatch active tasks onto the new handle.
+
+**Source:** [TICKET][ITER] + routing investigation [TASK-ID] (2026-07-28).
 
 ---
 

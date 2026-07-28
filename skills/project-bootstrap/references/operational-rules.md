@@ -48,12 +48,14 @@ orca orchestration send --subject "PASS" --body "..." --task-id <TID> --json
 
 ---
 
-### [RULE]: Verify queue arrival, не trust terminal output
+### [RULE]: Verify delivery via global inbox, не trust terminal output
 
-**IF** после `check --wait` получил `Sent msg_...` в terminal output
-**THEN** НЕ доверяй. ОБЯЗАТЕЛЬНО запусти `check --peek --json` — verify message actually arrived in queue.
+**IF** после `check --wait` получил `Sent msg_...` в terminal output (или ждёшь worker_done)
+**THEN** НЕ доверяй handle-scoped `check`. Верифицируй delivery через **GLOBAL inbox**, фильтруя по payload taskId.
 
-**Reason:** `orca orchestration send` возвращает msg ID **даже когда delivery fails** (route void). Terminal output "Sent msg_..." ≠ proof of delivery.
+**Reason:** две независимые причины, по которым handle-scoped `check` (`--peek/--unread/--all`) НЕ показывает worker_done, хотя сообщение существует:
+1. **Route void** — `orca orchestration send` возвращает msg ID **даже когда delivery fails** (пропущен `--to`). Terminal "Sent msg_..." ≠ proof of delivery.
+2. **Handle drift / self-send** — `check` = handle-scoped ("every message for the handle"), `inbox` (без `--terminal`) = runtime-global ("across recipients"). `check` пропускает сообщение, если (a) оно адресовано на **STALE handle** координатора (handle drift после рестарта терминала — pane получает новый handle), или (b) это **self-send** (stored `from == to`, напр. worker в терминале координатора без `--from`). Оба случая дают `check=0` при `inbox=N`.
 
 **Protocol:**
 ```bash
@@ -61,16 +63,25 @@ orca orchestration send --subject "PASS" --body "..." --task-id <TID> --json
 # ... (dispatch sequence) ...
 orca orchestration check --wait --types worker_done,escalation,decision_gate --json
 
-# Step 2: даже если wait вернул — verify
+# Step 2: verify delivery через GLOBAL inbox (не handle-scoped check!)
+orca orchestration inbox --limit 20 --json | jq '.result.messages[] | select(.type=="worker_done") | select(.payload|contains("<TASK_ID>"))'
+
+# Step 3 (optional cross-check): handle-scoped queue
 orca orchestration check --peek --json | grep -A 2 "worker_done"
 ```
 
-**Если queue показывает heartbeats но не worker_done** → routing bug. Recovery:
-1. `terminal read --terminal <worker_handle>` — что worker реально сделал
-2. Если worker напечатал report как текст, но не sendил через CLI → `terminal send`: "Отправь worker_done через `orca orchestration send --to <COORDINATOR-HANDLE> --type worker_done ...`. Текстовый отчёт в чат = FAILURE."
-3. Если worker sendил но без `--to` → re-dispatch с explicit example в brief ([RULE] fix)
+**Decision branch:**
+- **inbox показывает worker_done с нужным taskId, но `check --wait` его не вернул** → handle вашего терминала изменился (restart) ИЛИ self-send. Recovery:
+  1. Re-resolve handle: `orca terminal list --worktree active --json`
+  2. Сравни `to_handle` сообщения (из inbox) с текущим handle координатора; mismatch = handle drift. Проверь orphan: `orca terminal list --json | grep <to_handle>` → нет live pane = stale.
+  3. При необходимости re-dispatch активных задач, чтобы workers получили НОВЫЙ handle; или читай mail через `inbox` + payload taskId/dispatchId фильтр.
+  4. Self-send prevention: workers ставят explicit `--from <own-handle>`, не полагаются на auto-resolve из shared/coordinator терминала.
+- **inbox НЕ показывает worker_done с нужным taskId** → реальный routing miss. Recovery:
+  1. `terminal read --terminal <worker_handle>` — что worker реально сделал
+  2. Если worker напечатал report как текст, но не sendил через CLI → `terminal send`: "Отправь worker_done через `orca orchestration send --to <COORDINATOR-HANDLE> --from <YOUR-HANDLE> --type worker_done ...`. Текстовый отчёт в чат = FAILURE."
+  3. Если worker sendил но без `--to` → re-dispatch с explicit example в brief ([RULE] fix)
 
-**Source:** [TICKET][ITER] — coordinator доверял "Sent [MSG]", ждал 15+ мин, потом обнаружил что queue пустой.
+**Source:** [TICKET][ITER] + routing investigation [TASK-ID] (2026-07-28): `check`=handle-scoped vs `inbox`=global; доказано self-send skip (EXP1/EXP3) + stale-handle invisibility (EXP5, [MSG] → orphaned [TERM-ID]).
 
 ---
 
@@ -116,8 +127,9 @@ git status --short
    → Source: [TICKET][ITER] — [MSG] потерян.
 
 ➡ После `check --wait` получил "Sent msg_..."?
-   → НЕ trust terminal output. ОБЯЗАТЕЛЬНО: `check --peek --json` для verify arrival.
-   → Source: [TICKET][ITER].
+   → НЕ trust handle-scoped check. Верифицируй через GLOBAL inbox (`orca orchestration inbox --limit 20 --json`, фильтр по taskId).
+   → `check` пропускает worker_done при handle drift (stale recipient) и self-send (from==to): check=0, inbox=N.
+   → Source: [TICKET][ITER] + routing investigation 2026-07-28.
 
 ➡ Worker на API retry #5+?
    → НЕ redo. СНАЧАЛА: terminal read → git diff → verify+finalize brief, не redo.
@@ -127,7 +139,7 @@ git status --short
 **CLOSING ANCHORS** (recency-зона): 3 однострочных compressed версии:
 ```markdown
 ➡ worker_done: `--to <coordinator-handle>` обязательно ([RULE], [TICKET]).
-➡ После `check --wait` → `check --peek --json` verify arrival ([RULE], [TICKET]).
+➡ После `check --wait` → verify delivery через GLOBAL inbox (фильтр taskId), не handle-scoped check; check=0/inbox=N ⇒ handle drift или self-send ([RULE], [TICKET]).
 ➡ API retry #5+ → terminal read → file inspect → verify+finalize ([RULE], [TICKET]).
 ```
 
