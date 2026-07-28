@@ -3,7 +3,7 @@ name: project-bootstrap
 description: >
   Use when пользователь начинает новый проект, хочет расширить существующий, говорит "создай структуру",
   "разверни агента", "настрой проект", описывает новую задачу и хочет получить готовую агентскую среду.
-  Создаёт агентскую инфраструктуру (plan.md, AGENTS.md, SESSION_HANDOFF.md, .gitignore, .agents/memory, rules, skills, scripts)
+  Создаёт агентскую инфраструктуру (AGENTS.md, SESSION_HANDOFF.md, .gitignore, .agents/memory, rules, skills, scripts; plan.md — опционально)
   с адаптацией под тип проекта (ops/код/агентский/контент) и модель (DeepSeek/GLM/универсал).
   Do NOT use для мелких правок, аудита, или задач внутри уже настроенного проекта.
 disable-model-invocation: true

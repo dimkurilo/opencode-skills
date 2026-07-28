@@ -89,8 +89,8 @@ Full routing details + brief templates: `references/routing.md`.
 
 ## 2b. Deploy / smoke gate
 
-**Canonical definition:** wave-spec §[Deploy Probe](#deploy-probe).
-**Canonical examples:** wave-spec §[Deploy Probe](#deploy-probe) — curl dual-pattern + skills-repo check.
+**Canonical definition:** `skills/wave-spec/SKILL.md` §"Deploy Probe (Universal Pattern)".
+**Canonical examples:** `skills/wave-spec/SKILL.md` §Deploy Probe — curl dual-pattern + skills-repo check.
 
 **SUMMARY:** After merge/deploy (or skill install), prove the shipped surface exists before handoff. Adapt the probe to the target stack (web curl, CLI binary, package install, skill load path). Principle: one observable command that proves the artifact reached production. No probe = RESIDUAL-RISK-OWNER-SMOKE.
 
@@ -100,7 +100,7 @@ Evidence: [TICKET] had untracked route files — if deployed without tracking, 4
 
 ## 2c. Fidelity Port Rules
 
-**Canonical definition:** wave-spec §[Fidelity Dual Review](#fidelity-dual-review).
+**Canonical definition:** `skills/wave-spec/SKILL.md` §"Fidelity Dual Review".
 
 **SUMMARY (5 rules):**
 1. **Dual review mandatory:** static-parity reviewer ∥ behavioral-semantics reviewer. Single-reviewer fidelity ports are NOT accepted.
@@ -117,7 +117,7 @@ For non-fidelity waves: dual review is recommended but not mandatory. At minimum
 
 ## 2d. Lifecycle Gates
 
-**Canonical definition:** wave-spec §[Lifecycle Gates](#lifecycle-gates-production-lessons).
+**Canonical definition:** `skills/wave-spec/SKILL.md` §"Lifecycle Gates ([TICKET] → [TICKET] lessons)".
 
 **SUMMARY — 8 states (linear order):**
 

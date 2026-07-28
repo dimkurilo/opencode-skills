@@ -217,8 +217,8 @@ Orchestrator tracks progress in STATUS.md.
 Generate `waves/<date>-<slug>/LAUNCH.md` from:
 
 **Reference versions** (check before generation — if references are newer, regenerate LAUNCH.md):
-- `multi-model-orchestration/references/model-card.md` — last verified: 2026-07-26
-- `multi-model-orchestration/references/routing.md` — last verified: 2026-07-26
+- `multi-model-orchestration/references/model-card.md` — last verified: 2026-07-28
+- `multi-model-orchestration/references/routing.md` — last verified: 2026-07-28
 - ⚠️ If either file modified after these dates → STALE REFERENCE. Regenerate LAUNCH.md.
 1. `multi-model-orchestration/references/model-card.md` — agent pins, commands, **model family**
 2. `PLAN.xml` — roles from `<roles>` section
@@ -413,7 +413,7 @@ Executors **do not** rewrite SPEC/PLAN. They may append STATUS notes.
 
 | State | Definition | Gate |
 |-------|-----------|------|
-| **Implement done** | Writer finished, own verification green (build/lint/tests per project), implement notes written | `worker_done` or executor signals completion |
+| **Implement done** | Writer finished, own verification green (build/lint/tests per project), implement notes written. **Every claimed path exists on disk** — before `worker_done`: `git status --short` and/or `ls`/`wc -l` prove each CHANGES path. Claimed-but-missing = FAIL (written≠persisted). | `worker_done` or executor signals completion + disk proof |
 | **In Review** | Dual review passed: static-parity reviewer ∥ behavioral-semantics reviewer (example pair GLM ∥ Codex). 0 MAJOR or all MAJOR fixed. Writer ≠ reviewer | Synthesis: stricter wins, all MAJOR closed (template: `review-synthesis.md.tmpl`; action via `fix-round-brief.md.tmpl`) |
 | **Commit** | Public paths committed to branch. Only project-tracked files staged — no dev files (AGENTS.md, SESSION_HANDOFF, .agents/) | `git status` clean of dev files. No merge yet |
 | **PR** | Pull request opened, reviewable by orchestrator/team. All gates below merge verified independently | PR gate: description complete, reviewers assigned |
