@@ -1,0 +1,55 @@
+# Quick spec — ${SLUG} (mode=quick)
+
+> mode=quick: ≤1 файл, ≤30 мин, no deploy. Весь цикл за 1 сессию: INTENT → SPEC → approve → apply → archive.
+> Если правка больше (несколько файлов / deploy / риски) — используй полный `wave`, не quick.
+
+## INTENT (5 строк)
+
+Хочу: ${WHAT_I_WANT}
+Успех (моими словами): ${SUCCESS}
+Out of scope: ${OUT_OF_SCOPE}
+
+## SPEC (10 строк)
+
+```xml
+<spec>
+  <status>draft</status>
+  <kind>quick</kind>
+  <created>${DATE}</created>
+  <slug>${SLUG}</slug>
+  <goal>
+    <summary>${ONE_PARAGRAPH_GOAL}</summary>
+    <success_criteria>
+      <criterion id="S1" measurable="true">${CHECKABLE_FACT_1}</criterion>
+      <criterion id="S2" measurable="true">${CHECKABLE_FACT_2}</criterion>
+    </success_criteria>
+  </goal>
+  <scope>
+    <in><item>${IN_SCOPE}</item></in>
+    <out><item>${OUT_OF_SCOPE}</item></out>
+  </scope>
+  <constraints>
+    <constraint id="C1">${CONSTRAINT}</constraint>
+  </constraints>
+  <acceptance>
+    <check id="A1">${ACCEPTANCE_CHECK}</check>
+  </acceptance>
+</spec>
+```
+
+## Gate
+
+Ответь **approve**, если можно делать; или правки к спеке.
+
+## Apply (после approve)
+
+1. Выполнить правку (один исполнитель, без диспетчеризации).
+2. **written≠persisted:** `git status --short` / `ls` — заявленный путь реально на диске.
+3. **Secret redaction:** `grep -rnEi 'token|password|api[_-]?key|Bearer' .` — нет секретов в diff.
+4. Проверить success criteria (S1, S2) — факт, не «должно работать».
+
+## Archive (по завершении)
+
+```bash
+mv waves/${DATE}-${SLUG} waves/archive/${DATE}-${SLUG}
+```

@@ -5,6 +5,7 @@ description: >
   "разверни агента", "настрой проект", описывает новую задачу и хочет получить готовую агентскую среду.
   Создаёт агентскую инфраструктуру (AGENTS.md, SESSION_HANDOFF.md, .gitignore, .agents/memory, rules, skills, scripts; plan.md — опционально)
   с адаптацией под тип проекта (ops/код/агентский/контент) и модель (DeepSeek/GLM/универсал).
+  ROUTER: новый проект → project-bootstrap · план спринта → wave-spec · 2+ модели → multi-model-orchestration.
   Do NOT use для мелких правок, аудита, или задач внутри уже настроенного проекта.
 disable-model-invocation: true
 ---
@@ -15,6 +16,22 @@ disable-model-invocation: true
 **Variant E + GRACE-якоря** — правила неизбежны: в преамбуле (primacy) и closing anchors (recency).
 
 **Быстрый старт:** `bash scripts/classify_project.sh` → классификация → выбор шаблона → генерация → contradiction check → двойной аудит.
+
+## TL;DR (minimum path)
+
+**project-bootstrap = ДОМ для агента.** Создаёт AGENTS.md (Variant E: правила в преамбуле + closing anchors), SESSION_HANDOFF.md, .gitignore, `.agents/memory/MEMORY.md`, rules. Адаптация под тип (ops/code/agent/content) и модель (DeepSeek/GLM/universal).
+
+**Это точка входа.** После bootstrap: план спринта → `wave-spec`; нужно ≥2 моделей → `multi-model-orchestration`.
+
+**Не использовать** для мелких правок/аудита/уже настроенного проекта (там режим расширения).
+
+**Next step (вставить в сгенерированный AGENTS.md в Фазе 6)** — роутер-таблица, чтобы владелец видел навигацию в файле проекта:
+
+| Хочу… | Скилл |
+|---|---|
+| Новый проект / настроить среду | project-bootstrap |
+| Спланировать и сделать спринт (волну) | wave-spec |
+| Обсудить / отревьюить 2+ моделями | multi-model-orchestration |
 
 ---
 

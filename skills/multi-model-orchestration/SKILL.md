@@ -1,6 +1,6 @@
 ---
 name: multi-model-orchestration
-description: "Coordinate 2+ AI models (GLM 5.2, DeepSeek V4 Pro/Flash, Qwen 3.8 Max, Grok 4.5, Codex 5.5) for parallel review, cross-validation, or bulk work via Orca orchestration. Use when the coordinator says \"обсудите этот вопрос с 2 моделями\", \"multi-model review\", \"cross-validate with N models\", \"parallel architecture specs\", or any task requiring independent perspectives from different model families. Do NOT use for single-model tasks, trivial edits, or when §1 decision tree says solo."
+description: "Coordinate 2+ AI models (GLM 5.2, DeepSeek V4 Pro/Flash, Qwen 3.8 Max, Grok 4.5, Codex 5.5) for parallel review, cross-validation, or bulk work via Orca orchestration. Use when the coordinator says \"обсудите этот вопрос с 2 моделями\", \"multi-model review\", \"cross-validate with N models\", \"parallel architecture specs\", or any task requiring independent perspectives from different model families. ROUTER: новый проект → project-bootstrap · план спринта → wave-spec · 2+ модели → multi-model-orchestration. Do NOT use for single-model tasks, trivial edits, or when §1 decision tree says solo."
 ---
 
 # Multi-Model Orchestration
@@ -8,6 +8,16 @@ description: "Coordinate 2+ AI models (GLM 5.2, DeepSeek V4 Pro/Flash, Qwen 3.8 
 Coordinator dispatches tasks to 2+ model workers via Orca, waits for results, synthesizes.
 Coordinator NEVER implements — only routes, waits, gates, synthesizes.
 Coordinator = any model with this skill loaded. This skill does not prescribe coordinator family.
+
+## TL;DR (minimum path)
+
+**multi-model-orchestration = dispatch/review движок для ≥2 моделей.** Координатор маршрутизирует задачи воркерам (Orca), ждёт, синтезирует. Координатор НЕ пишет код.
+
+**Когда:** «обсудите с 2 моделями», cross-validate, parallel review, fidelity port, security/RLS (никогда одной моделью). **Когда нет:** §1 говорит solo, тривиал, одна модель.
+
+**Ядро:** solo-vs-multi дерево (§1) → роутинг моделей (§2) → **cross-family rule: writer.family ≠ reviewer.family** → brief (§4) → dispatch через Orca (`dispatch --inject`, НЕ `terminal send`, sleep 3) → wait (`check --wait`) → синтез (§7, stricter wins). Worker contract: SUMMARY/EVIDENCE/CHANGES/RISKS/BLOCKERS + written≠persisted.
+
+**Роутер:** новый проект → `project-bootstrap` · план спринта → `wave-spec` · 2+ модели → `multi-model-orchestration`. Lifecycle gates (Commit/PR/Merge/Deploy/On prod) — канон в `wave-spec`.
 
 ---
 

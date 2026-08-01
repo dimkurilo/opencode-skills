@@ -6,8 +6,9 @@ description: >
   "spec first", "составь спеку/план", "interview then plan", or begins multi-session
   work (development, content, skill-port, translation, orchestration). Produces SPEC.xml
   + PLAN.xml + worker briefs + STATUS/handoff. Portable across Grok, OpenCode, Claude Code,
-  Qwen Code, ZCode — writes files in the project, no vv-opencode runtime. Do NOT use for
-  trivial one-line edits already approved by the user.
+  Qwen Code, ZCode — writes files in the project, no vv-opencode runtime.
+  ROUTER: новый проект → project-bootstrap · план спринта → wave-spec · 2+ модели → multi-model-orchestration.
+  For trivial edits (≤1 файл, ≤30 мин, no deploy) use mode=quick below, not the full pipeline.
 ---
 
 # wave-spec
@@ -21,15 +22,38 @@ structured XML artifacts in the repo, any orchestrator CLI.
 > It is NOT an SEO costume and NOT gsd-core / gsd-coordinator / vv-opencode runtime — no agentic dispatch, no worktree groups, no structured handoff beyond project-local SESSION_HANDOFF.
 > The lifecycle gates below are the contract; full identity and boundaries in [Positioning](#positioning).
 
+## TL;DR (minimum path — 5 минут)
+
+**wave-spec = план-гейт.** Пишет в `waves/<date>-<slug>/`: INTENT → SPEC.xml → PLAN.xml → **approve** → exec → STATUS/handoff. Не для однострочных правок (для них `mode=quick`).
+
+**Прочитай только:** Modes → Hard gate → Pipeline шаги 0–5 → approve. Остальное (LAUNCH/NEXT_SESSION/Linear) — по мере возникновения.
+
+**Лестница обучения:** Волна 1 = `mode=quick` (весь цикл за 1 сессию) → Волна 2 = полный `wave` + 1 review → Волна 3+ = `multi-model-orchestration`. Учись деланьем, не чтением.
+
+**Роутер:** новый проект → `project-bootstrap` · план спринта → `wave-spec` · 2+ модели → `multi-model-orchestration`.
+
 ## Modes
 
 | Mode | Trigger | Output |
 |------|---------|--------|
-| `program` | Multi-skill portfolio, fidelity port, book translation, site rebuild — multi-wave project | `roadmap/PROGRAM_SPEC.xml` + `roadmap/PROGRAM_PLAN.xml` |
+| `quick` | Trivial / пет-проект: **≤1 файл, ≤30 мин, no deploy** | INTENT 5 строк → SPEC 10 строк → approve → apply → archive (1 файл, без LAUNCH/NEXT_SESSION/Linear) |
 | `wave` (default) | One sprint 2–7 days / one theme | `waves/<date>-<slug>/…` |
 | `task` | Single atomic task inside approved wave | `waves/.../tasks/TNN-*.xml` + worker brief |
+| `program` | Multi-wave portfolio (fidelity port, book translation, site rebuild) — редко; см. `references/program-maps.md` | `roadmap/PROGRAM_SPEC.xml` + `roadmap/PROGRAM_PLAN.xml` |
 
-Default: if unclear, start **wave**. If user describes a program with no roadmap yet → **program** first, then first **wave**.
+Default: if unclear, start **wave** (or **quick** for trivial). `program` — только для много-волновых портфелей; карты доменов в `references/program-maps.md`.
+
+### Quick mode (mode=quick)
+
+Для мелких правок и пет-проектов, которые не тянут полный lifecycle. Шаблон: `assets/templates/quick-spec.md.tmpl`.
+
+1. **INTENT** — 5 строк (что хочу / успех / out of scope).
+2. **SPEC** — 10 строк (goal + 2–3 success criteria + constraints).
+3. **approve** — «Ответь approve» (hard gate, как в полном wave).
+4. **apply** — выполнить (один исполнитель, без диспетчеризации).
+5. **archive** — `mv waves/<date>-<slug> waves/archive/` по завершении.
+
+**Порог:** quick только если ≤1 файл, ≤30 мин, no deploy. Иначе — полный `wave` (с lifecycle gates + review). Quick НЕ отменяет written≠persisted и secret-redaction.
 
 ## Installation / SoT
 
@@ -249,12 +273,15 @@ Pattern:
 6. **Linear woven into flow:** In Progress at step 1, comment + In Review at step 7. NOT "at the end if you remember".
 7. **Root pointer:** `NEXT_SESSION.md` (no suffix) — only a pointer + table of iteration files.
 8. **Create on completion:** after finishing iteration, create `NEXT_SESSION_I{N+1}.md` and update the pointer.
+9. **Spec-delta line:** each iteration file carries `Changes vs I{N-1}: [файлы/решения]` (пустая для I1). Ревьюер/длинная сессия смотрит дельту, а не весь SPEC заново — экономит контекст (особенно в 400k-сессиях).
 
 Templates (two files mandatory):
 - `assets/templates/NEXT_SESSION.md.tmpl` — pointer (table of iterations, current pointer)
 - `assets/templates/NEXT_SESSION_ITER.md.tmpl` — iteration (steps 0-8 with gates)
 
 MANDATORY: every iteration produces BOTH files. NEXT_SESSION.md without NEXT_SESSION_<iter>.md = incomplete. NEXT_SESSION_<iter>.md without NEXT_SESSION.md pointer = orphan.
+
+**Порог компактности (гибрид):** волна **≤2 итераций** → компактный NEXT_SESSION (шаги 0/3/8 + gates); **3+ итераций** → ОБЯЗАТЕЛЬНО полный 9-шаг из `NEXT_SESSION_ITER.md.tmpl` (инциденты [RULE] случались на итерируемых волнах, [ITER] = 4-я итерация). Шаблон-формула (9 шагов) остаётся учебником lifecycle; output-bloat для коротких волн снимает `mode=quick` (1 файл вместо 9).
 
 **Step structure (9 steps, 0–8):**
 - Step 0: Load sources (orchestration guide + SPEC + linear-workflow)
@@ -267,19 +294,14 @@ MANDATORY: every iteration produces BOTH files. NEXT_SESSION.md without NEXT_SES
 - Step 7: Linear comment + In Review
 - Step 8: Handoff (create next NEXT_SESSION)
 
-Copy-paste format by orchestrator:
+Copy-paste format by orchestrator (рабочие оркестраторы владельца):
 
 | Orchestrator | Copy-paste format |
 |-------------|-------------------|
-| **Grok 4.5** | ### Task / ### Autonomy |
-| **GLM 5.2** | ### Goal / ### Constraints / ### Done |
-| **DeepSeek Pro** | Задача / Где / Должно быть / Не трогать + 【】 |
 | **Qwen 3.8 Max** | ### Context / ### Objective / ### Constraints |
-| **Flash** | Simplified DeepSeek |
+| **GLM 5.2** | ### Goal / ### Constraints / ### Done |
 
-Note: Codex 5.5 is typically a reviewer, not an orchestrator. If used as orchestrator, use the Codex brief format from LAUNCH.md.tmpl.
-
-Default (if orchestrator not specified): Grok format.
+Default (if orchestrator not specified): Qwen 3.8 Max format. Flash как оркестратор запрещён (prohibitions #12) — формата для него нет. Полная таблица форматов (Grok/DeepSeek Pro/Codex) — в `assets/templates/LAUNCH.md.tmpl`, если эти модели используются как оркестраторы.
 
 ### 6d. Linear workflow generation (if project uses Linear)
 
@@ -385,14 +407,15 @@ Executors **do not** rewrite SPEC/PLAN. They may append STATUS notes.
 
 ## References
 
-- `assets/templates/` — INTENT, SPEC.xml, PLAN.xml, STATUS, worker-brief, review-synthesis, fix-round-brief, ASSUMPTIONS, **LAUNCH.md**, **iteration-handoff.md**, **NEXT_SESSION.md** (pointer), **NEXT_SESSION_ITER.md** (iteration), **linear-workflow.md**
+- `assets/templates/` — INTENT, SPEC.xml, PLAN.xml, STATUS, worker-brief, review-synthesis, fix-round-brief, ASSUMPTIONS, **quick-spec.md** (mode=quick), **LAUNCH.md**, **iteration-handoff.md**, **NEXT_SESSION.md** (pointer), **NEXT_SESSION_ITER.md** (iteration), **linear-workflow.md**
 - `references/program-maps.md` — domain-specific program maps (4 menus: skill-port, translation, fidelity port, SEO)
 - `references/vv-portability.md` — mapping to vv-opencode tags
+- `references/glossary.md` — 15 терминов (SPEC/PLAN/lifecycle/residual-risk/deploy probe/worker_done/cross-family/…)
+- `references/worked-examples.md` — 3 энд-ту-энд примера из реальных волн (quick / 1-итерация wave / pet-project)
+- **Operational rules ([RULE]/2/3):** `project-bootstrap/references/operational-rules.md` — `--to` на worker_done, проверка через global inbox (не handle-scoped check), writer-swap при API retry storm. Читать при диспетчеризации.
 
 ## Anti-patterns
 
-- Implementing during interview.
-- One PLAN with 40 tasks and no phases.
 - Implementing during interview.
 - One PLAN with 40 tasks and no phases.
 - Freeform-only plan with no SPEC.
@@ -440,9 +463,11 @@ Gate before lifecycle-**Done** — tie the contract to concrete folder artifacts
 - STATUS.md final state = `done` (lifecycle enum); every task row reconciled, no orphan `in_review` / `commit`.
 - SESSION_HANDOFF block appended (project protocol); durable facts → MEMORY.md.
 - `reviews/` and `notes/` archived inside the wave folder (`waves/<date>-<slug>/`).
+- **Secret redaction:** перед коммитом/handoff прогнать `grep -rnEi 'token|password|api[_-]?key|Bearer|secret' waves/<date>-<slug>/` — найденные секреты заменить на `[REDACTED]` (владелец работает с ключами [crm]/[accounting]/пикселей; секрет не должен уехать в handoff/review/Linear).
+- **Archive wave:** после Done — `mv waves/<date>-<slug> waves/archive/<date>-<slug>` (или `git tag wave/<date>-<slug>`). Волны не должны копиться в корне `waves/`.
 - Residual risks named explicitly — `RESIDUAL-RISK-OWNER-SMOKE` when there is no live smoke.
 - Deploy-probe evidence cited: the exact command + output that proves the artifact reached production.
-- **Post-mortem → skill update:** if the wave revealed new operational errors (launch, routing, orchestration), create INTENT.md in `opencode-skills/waves/<date>-skill-improvements/` describing the problems.
+- **Post-mortem → skill update:** if the wave revealed new operational errors (launch, routing, orchestration), create INTENT.md in `opencode-skills/waves/<date>-skill-improvements/` describing the problems. **Reflect-вопрос:** «какой один урок из этой волны обобщается в правило/ранбук?» → запись в MEMORY.md или `operational-rules.md`.
 
 No probe and no named residual = not Done.
 
