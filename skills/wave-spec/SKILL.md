@@ -1,6 +1,6 @@
 ---
 name: wave-spec
-version: 1.4.1
+version: 1.5.0
 description: >
   Use when starting a sprint/wave that must not skip planning — user says "wave-spec",
   "spec first", "составь спеку/план", "interview then plan", or begins multi-session
@@ -28,7 +28,7 @@ structured XML artifacts in the repo, any orchestrator CLI.
 
 **Прочитай только:** Modes → Hard gate → Pipeline шаги 0–5 → approve. Остальное (LAUNCH/NEXT_SESSION/Linear) — по мере возникновения.
 
-**Лестница обучения:** Волна 1 = `mode=quick` (весь цикл за 1 сессию) → Волна 2 = полный `wave` + 1 review → Волна 3+ = `multi-model-orchestration`. Учись деланьем, не чтением.
+**Лестница обучения:** Волна 1 = `mode=quick` (весь цикл за 1 сессию) → Волна 2 = полный `wave` + 1 review → Волна 3+ = `multi-model-orchestration`. Учись деланием, не чтением.
 
 **Роутер:** новый проект → `project-bootstrap` · план спринта → `wave-spec` · 2+ модели → `multi-model-orchestration`.
 
@@ -281,7 +281,7 @@ Templates (two files mandatory):
 
 MANDATORY: every iteration produces BOTH files. NEXT_SESSION.md without NEXT_SESSION_<iter>.md = incomplete. NEXT_SESSION_<iter>.md without NEXT_SESSION.md pointer = orphan.
 
-**Порог компактности (гибрид):** волна **≤2 итераций** → компактный NEXT_SESSION (шаги 0/3/8 + gates); **3+ итераций** → ОБЯЗАТЕЛЬНО полный 9-шаг из `NEXT_SESSION_ITER.md.tmpl` (инциденты [RULE] случались на итерируемых волнах, [ITER] = 4-я итерация). Шаблон-формула (9 шагов) остаётся учебником lifecycle; output-bloat для коротких волн снимает `mode=quick` (1 файл вместо 9).
+**Порог компактности (гибрид):** волна **≤2 итераций** → компактный NEXT_SESSION = шаги **0 (load), 3 (dispatch), 8 (handoff)** + gates на каждый (без полных описаний шагов 1–2, 4–7); **3+ итераций** → ОБЯЗАТЕЛЬНО полный 9-шаг из `NEXT_SESSION_ITER.md.tmpl` (инциденты [RULE] случались на итерируемых волнах, [ITER] = 4-я итерация). Шаблон-формула (9 шагов) остаётся учебником lifecycle. **Не путать с `mode=quick`:** quick — для trivial-правок (≤1 файл, вообще без NEXT_SESSION); компактный NEXT_SESSION — для коротких ВОЛН (1–2 итерации, с dispatch/review).
 
 **Step structure (9 steps, 0–8):**
 - Step 0: Load sources (orchestration guide + SPEC + linear-workflow)
@@ -547,3 +547,4 @@ wave-spec is the **canonical source of truth** for lifecycle gates, fidelity dua
 - **v1.3 ([TICKET] post-mortem fix-round)** — templates reconciled with reality: SPEC optional review-provenance (`version`/`review_round`/`accepted_by`/`accepted_at`/`review_sources`) + `<assumptions>` block; PLAN attribute-style tasks as primary idiom (child-elements documented fallback), neutral gate wording, `model_hint` clarified; STATUS state enum = lifecycle states (`implement_done|in_review|commit|pr|merge|deploy_gate|on_prod|done`). Fidelity dual review generalized from model names to roles (static-parity ∥ behavioral-semantics; example pair GLM ∥ Codex; writer≠reviewer, Flash excluded, single-reviewer NOT accepted). New `review-synthesis.md.tmpl`, `fix-round-brief.md.tmpl`, `ASSUMPTIONS.md.tmpl`. Worker-brief aligned to the Orca contract (ROLE/MODE + 3-sentence `worker_done` + SUMMARY/EVIDENCE/CHANGES/RISKS/BLOCKERS). Added wave-closeout checklist, top Positioning block, program-maps quality-bar cross-link + book/fidelity worked walks.
 - **v1.4 ([TICKET])** — LAUNCH.md auto-generation (step 6b) with cross-family check + per-model brief templates + prohibitions; NEXT_SESSION pattern (step 6c): unique files NEXT_SESSION_I{N}.md + copy-paste block with full path + root pointer + 10 sections (no SKILL.md duplication); iteration handoff (step 7): unique per-iteration files + root pointer; linear-workflow generation (step 6d) + Linear validation checklist; PLAN.xml `<roles>` with family + `<family_rule>`; anti-patterns: vv-controller, terminal send, same-family, handoff overwrite, model-card check; closeout: post-mortem → skill update. New templates: LAUNCH.md.tmpl, iteration-handoff.md.tmpl, NEXT_SESSION.md.tmpl, linear-workflow.md.tmpl.
 - **v1.4.1 (2026-07-28)** — NEXT_SESSION template split (bug-fix): the single ambiguous `NEXT_SESSION.md.tmpl` (iteration steps 0–8) renamed to `NEXT_SESSION_ITER.md.tmpl`; new `NEXT_SESSION.md.tmpl` = root pointer (table of iterations + current pointer). §6c now references BOTH templates with MANDATORY both-files wording. Fixes agents writing iteration content into the pointer file ([migration] T01). Backward compatible: `NEXT_SESSION.md.tmpl` path still exists (now the pointer).
+- **v1.5.0 (2026-08-02, [TICKET] — triumvirate refactor: Qwen 3.8 Max ∥ DeepSeek V4 Flash ∥ GLM 5.2)** — tailoring for a non-developer owner (2 working orchestrators). TL;DR + minimum-path + learning ladder (quick→wave→multi) + router line in description. `mode=quick` (≤1 файл/≤30 мин/no deploy) + `quick-spec.md.tmpl`. NEXT_SESSION hybrid threshold (≤2 итераций = компакт шаги 0/3/8; 3+ = полный 9-шаг) + spec-delta line `Changes vs I{N-1}` (в SKILL и в NEXT_SESSION_ITER.md.tmpl — drift-fix). 5 orchestrator copy-paste formats → 2 (Qwen Max, GLM) + default; Flash-формат удалён (запрещён #12). Wave closeout: + secret-redaction grep, + archive wave (mv в waves/archive/), + reflect-вопрос. Fixed duplicate anti-patterns. program mode де-акцентирован (см. references/program-maps.md). New: references/glossary.md (15 терминов), references/worked-examples.md (3 примера), cross-link на operational-rules.md ([RULE]). LAUNCH.md.tmpl: review-brief шаблоны → ссылка на routing.md (−120 строк, drift-fix). Core untouched: 8 lifecycle states, cross-family rule, deploy probe, written≠persisted.

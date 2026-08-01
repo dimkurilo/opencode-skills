@@ -10,7 +10,7 @@ description: >
 disable-model-invocation: true
 ---
 
-# project-bootstrap v2.1.0
+# project-bootstrap v2.2.0
 
 Создаёт агентскую инфраструктуру с адаптацией под тип проекта, модель и сложность.
 **Variant E + GRACE-якоря** — правила неизбежны: в преамбуле (primacy) и closing anchors (recency).
