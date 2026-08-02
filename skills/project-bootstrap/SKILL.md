@@ -4,7 +4,7 @@ description: >
   Use when пользователь начинает новый проект, хочет расширить существующий, говорит "создай структуру",
   "разверни агента", "настрой проект", описывает новую задачу и хочет получить готовую агентскую среду.
   Создаёт агентскую инфраструктуру (AGENTS.md, SESSION_HANDOFF.md, .gitignore, .agents/memory, rules, skills, scripts; plan.md — опционально)
-  с адаптацией под тип проекта (ops/код/агентский/контент) и модель (DeepSeek/GLM/универсал).
+  с адаптацией под тип проекта (ops/код/агентский/контент) и модель (DeepSeek/GLM/Qwen/универсал).
   ROUTER: новый проект → project-bootstrap · план спринта → wave-spec · 2+ модели → multi-model-orchestration.
   Do NOT use для мелких правок, аудита, или задач внутри уже настроенного проекта.
 disable-model-invocation: true
@@ -19,7 +19,7 @@ disable-model-invocation: true
 
 ## TL;DR (minimum path)
 
-**project-bootstrap = ДОМ для агента.** Создаёт AGENTS.md (Variant E: правила в преамбуле + closing anchors), SESSION_HANDOFF.md, .gitignore, `.agents/memory/MEMORY.md`, rules. Адаптация под тип (ops/code/agent/content) и модель (DeepSeek/GLM/universal).
+**project-bootstrap = ДОМ для агента.** Создаёт AGENTS.md (Variant E: правила в преамбуле + closing anchors), SESSION_HANDOFF.md, .gitignore, `.agents/memory/MEMORY.md`, rules. Адаптация под тип (ops/code/agent/content) и модель (DeepSeek/GLM/Qwen/universal).
 
 **Это точка входа.** После bootstrap: план спринта → `wave-spec`; нужно ≥2 моделей → `multi-model-orchestration`.
 
@@ -298,7 +298,7 @@ task(auditor) + task(auditor-glm)
 |------|-------------|
 | `references/variant-e-structure.md` | При генерации AGENTS.md — выбор структуры Variant E |
 | `references/grace-anchors.md` | При вставке @rule/@anchor — схема и grep-команды |
-| `references/model-profiles.md` | При выборе модельного профиля — DeepSeek vs GLM vs универсал |
+| `references/model-profiles.md` | При выборе модельного профиля — DeepSeek vs GLM vs Qwen vs универсал |
 | `references/playbook.md` | При создании модулей — condensed Agent Playbook |
 | `references/workflow-patterns.md` | При выборе архитектуры skills — каталог паттернов |
 
@@ -311,7 +311,7 @@ task(auditor) + task(auditor-glm)
 | `${PROJECT_NAME}` | AGENTS.md, MEMORY.md, SESSION_HANDOFF, plan.md | Название проекта (1-3 слова) | Извлеки из задачи |
 | `${PROJECT_DESCRIPTION}` | AGENTS.md | Краткое описание (1 строка) | Извлеки из задачи |
 | `${DATE}` | AGENTS.md, MEMORY.md, plan.md | Текущая дата ISO | Системная дата |
-| `${MODEL_PROFILE}` | AGENTS.md | Модельный профиль (deepseek/glm/universal) | Из classify_project.sh |
+| `${MODEL_PROFILE}` | AGENTS.md | Модельный профиль (deepseek/glm/qwen/universal) | Из classify_project.sh |
 | `${PROJECT_FULL_DESCRIPTION}` | AGENTS.md | Полное описание (1 абзац) | Извлеки из задачи |
 | `${PROJECT_DIR}` | AGENTS.md | Имя директории проекта | Текущая директория |
 | `${ARCHITECTURE_TREE}` | AGENTS.md | Древовидная схема | Сгенерируй из структуры + `ls` |
@@ -408,7 +408,7 @@ project-bootstrap creates the agent infrastructure that other skills build upon.
 
 - `references/variant-e-structure.md` — структура Variant E
 - `references/grace-anchors.md` — спецификация GRACE-якорей
-- `references/model-profiles.md` — DeepSeek vs GLM vs универсал
+- `references/model-profiles.md` — DeepSeek vs GLM vs Qwen vs универсал
 - `references/playbook.md` — Agent Playbook condensed
 - `references/workflow-patterns.md` — каталог паттернов
 - `scripts/classify_project.sh` — авто-классификация проекта

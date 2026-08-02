@@ -8,41 +8,41 @@
 
 | Task type | Primary | Family | Alternative | Avoid |
 |-----------|---------|--------|-------------|-------|
-| Architecture spec (independent) | GLM 5.2 + DeepSeek Pro (parallel) | Zhipu + DeepSeek | Qwen Max | Flash |
-| Cross-audit of 2 specs | DeepSeek Pro | DeepSeek | Qwen Max | Flash |
-| Architecture synthesis | GLM 5.2 | Zhipu | Qwen Max | Flash |
-| Deep code analysis (PHP/CMS/legacy) | DeepSeek Pro | DeepSeek | GLM 5.2 | Flash (without files) |
-| Multi-file implement (3+ files) | GLM 5.2 | Zhipu | Qwen Code | Flash |
-| **Implement (Qwen Code)** | **Qwen Code** (`qwen --approval-mode yolo`, `/effort medium`) | **Alibaba** | GLM 5.2 | vv-controller, OpenCode Qwen as reviewer |
-| Complex debugging (unknown root cause) | Qwen 3.8 Max | Alibaba | DeepSeek Pro | Flash |
-| Research / SEO / browse | Grok 4.5 | xAI | Qwen Max | — |
-| Bulk inventory / meta lists | Flash | DeepSeek | Grok 4.5 | Pro (waste) |
+| Architecture spec (independent) | **Qwen 3.8 Max** + GLM 5.2 (parallel) | Alibaba + Zhipu | — | Same-family pairing |
+| Cross-audit of 2 specs | **Qwen 3.8 Max** (default reviewer) | Alibaba | GLM 5.2 | Writer self-review |
+| Architecture synthesis / business analysis | **Qwen 3.8 Max** | Alibaba | GLM 5.2 | — |
+| Deep code analysis (PHP/CMS/legacy) | **Qwen 3.8 Max** (analyst) | Alibaba | GLM 5.2 | — |
+| Single-file implement / bulk code / tests | **DeepSeek V4 Flash** (default writer) | DeepSeek | GLM 5.2 | — |
+| Multi-file implement (3+ files) | **GLM 5.2** (default multi-file writer) | Zhipu | DeepSeek V4 Flash (pieces) | — |
+| Complex debugging (unknown root cause) | **Qwen 3.8 Max** (analysis) + DeepSeek V4 Flash (implement) | Alibaba + DeepSeek | GLM 5.2 | — |
+| Research / SEO / browse | **DeepSeek V4 Flash** (fast) | DeepSeek | Qwen 3.8 Max | — |
+| Bulk inventory / meta lists | DeepSeek V4 Flash (orchestrator-scope triage) | DeepSeek | Qwen 3.8 Max | — |
 | Cross-QA / review | Different family than writer | — | — | Same family |
-| **Security / RLS / auth / Storage review** | **Codex 5.5 + Qwen Max** (parallel) | OpenAI + Alibaba | + DeepSeek Pro for race/depth | **Pro-only** as sole security gate; writer self-review |
-| **Behavioral regression gate** | **Codex 5.5** | OpenAI | — | "Just another reviewer" framing |
-| Multimodal (screenshots, images) | Qwen 3.8 Max | Alibaba | — | GLM (text-only) |
-| Protocol/skill review (3-model) | GLM + DeepSeek Pro + Qwen Max | Zhipu + DeepSeek + Alibaba | — | — |
+| **Security / RLS / auth / Storage review** | **GPT-5.5 + DeepSeek V4 Flash** (parallel) | OpenAI + DeepSeek | Qwen 3.8 Max | **Writer self-review**; single-model gate |
+| **Behavioral regression gate** | **GPT-5.5** | OpenAI | — | "Just another reviewer" framing |
+| Multimodal (screenshots, images) | Qwen 3.8 Max | Alibaba | — | GLM (text-only), Flash (text-only) |
+| Protocol/skill review (3-model) | Qwen 3.8 Max + GLM 5.2 + GPT-5.5 | Alibaba + Zhipu + OpenAI | — | — |
 
-**Evidence (production wave):** same review task ×3 → Codex best merge gate (user-scoped idempotency MAJOR); Qwen best RLS (`is_active_user`); Pro best race depth but under-severity on RLS. Synthesis: any MAJOR from any N → fix before merge; prefer stricter severity.
+**Evidence (production wave):** same review task ×3 → GPT-5.5 best merge gate (user-scoped idempotency MAJOR); Qwen best RLS (`is_active_user`); Pro best race depth but under-severity on RLS. Synthesis: any MAJOR from any N → fix before merge; prefer stricter severity.
 
-## [platform] Routing (production-wave experience)
+## Production Routing (production-wave experience)
 
 | Task type | Primary | Review/Gate | Notes |
 |-----------|---------|-------------|-------|
-| **Fidelity port** (generator, vectorizer) | **Qwen 3.8 Max** | **GLM 5.2** (static parity) ∥ **Codex 5.5** (hosted semantics/merge gate) | Qwen confirmed strong fidelity writer (production waves: 5832-case byte-identical prompt matrix, build/tsc green). GLM = best static parity auditor; Codex = best behavioral regression gate (caught abort/cost MAJOR GLM missed). Flash = explicitly excluded on fidelity ports (simplifies, per production-wave post-mortem). |
-| **Security / RLS / auth** | **Codex + Qwen Max** (parallel) | + Pro for depth/race analysis | **Never Pro-only as sole security gate** (production-wave lesson: Pro under-severity'd disabled-user SELECT + global nonce as PASS/soft, while Codex/Qwen rated MAJOR). Pro = correctness/depth supplement, not gate authority. |
-| **Architecture multi-file** (3+ files) | **GLM 5.2** (default) | Pro + Codex or Qwen | OR **Qwen 3.8 Max** if owner says "fidelity override" or "Qwen writer" — owner phrase pins without skill rewrite. GLM multi-file = confirmed in production waves (~15 min implement, fix-round ~10 min, build green). |
-| **Deep race / ordering / ops unblock** | **DeepSeek V4 Pro** | **Codex 5.5** (semantics) | Pro = best depth on race conditions, lock ordering, constraint matrices. NOT sole merge gate — pair with Codex for behavioral semantics. |
-| **Bulk / mechanical / hotfix** | **DeepSeek V4 Flash** | — | Flash only on bulk, 1-2 file hotfixes, inventory, mechanical tasks. Not primary multi-file (production-wave post-mortem: edge-case bugs, lock leaks, almost-right-then-hotfix pattern). |
-| **Orchestration / dispatch / handoff** | **Grok 4.5** (default) · **DeepSeek V4 Pro** · **Qwen 3.8 Max** · **GLM 5.2** ⚠️ (owner pin, see model-card.md) | — | Orchestrator NEVER implements code. Flash EXCLUDED. GLM = architecture-heavy waves; watch tool passivity + drift (agent anti-patterns §4.5). |
-| **Implement (default)** | **GLM 5.2** or owner re-pick | Writer family ≠ reviewer family | Writer ≠ reviewer is mandatory for product code. If owner says "сейчас writer=Qwen", pin Qwen for the session. |
+| **Single-file implement / bulk code / tests** (default) | **DeepSeek V4 Flash** (default writer; fast, cheap, strong 0731) | **Qwen 3.8 Max** (architect/reviewer) ∥ **GPT-5.5** (security) | Writer ≠ reviewer mandatory (cross-family). Flash = primary writer/coder; Qwen = architect/reviewer; GPT-5.5 = security gate. |
+| **Multi-file implement** (3+ files) | **GLM 5.2** (default multi-file writer; 1M state continuity) · DeepSeek V4 Flash (single-file pieces) | **Qwen 3.8 Max** + **GPT-5.5** | Owner phrase «сейчас writer=Flash» pins Flash as writer (Qwen/GPT-5.5 review). GLM multi-file = confirmed in production waves (~15 min implement, ~10 min fix-round, build green). |
+| **Fidelity port** (generator, vectorizer) | **DeepSeek V4 Flash** (default) · **GLM 5.2** (multi-file swap) | **Qwen 3.8 Max** (architect/analyst) ∥ **GPT-5.5** (hosted semantics/merge gate) | Dual review mandatory (cross-family). Qwen = best architect/reviewer (owner empirical); GPT-5.5 = best behavioral regression gate (caught abort/cost MAJOR GLM missed). |
+| **Security / RLS / auth** | **GPT-5.5 + DeepSeek V4 Flash** (parallel) | Qwen 3.8 Max (depth/architecture supplement) | Never single-model security gate. GPT-5.5 = behavioral semantics authority; Flash = fast implementer; Qwen = architecture/depth supplement. |
+| **Architecture / synthesis / business analysis** | **Qwen 3.8 Max** (default reviewer/architect) · GLM 5.2 (second line) | — | Qwen = strongest architecture/depth (owner empirical: level ~ Kimi K3, сильнее GLM). |
+| **Deep race / ordering / ops unblock** | **DeepSeek V4 Flash** (implement) | **Qwen 3.8 Max** (constraint analysis) + **GPT-5.5** (behavioral semantics) | Qwen for deep constraint analysis; GPT-5.5 for hosted semantics — complementary. |
+| **Orchestration / dispatch / handoff** | **DeepSeek V4 Flash** (default) · **GLM 5.2** ⚠️ (owner pin, see model-card.md) | — | Role lock: оркестратор не совмещает оркестрацию с написанием кода в одной задаче. Flash = full orchestrator role (dispatch → wait → gate → synthesize). GLM = ⚠️ tool passivity + drift (agent anti-patterns §4.5). |
+| **Implement (default)** | **DeepSeek V4 Flash** | Writer family ≠ reviewer family | Writer ≠ reviewer is mandatory for product code. If owner says "сейчас writer=GLM", pin GLM for multi-file work; "сейчас writer=Flash" — pin Flash for single-file/bulk. |
 
-**Synthesis rules ([platform], evidence-based):**
+**Synthesis rules (production evidence-based):**
 - **MAJOR or BLOCK from any reviewer → fix-round before In Review.** Do not average away.
 - **Contradiction severity** (one PASS/soft, another MAJOR) → prefer the **stricter** finding; re-read evidence paths.
-- **Pro under-severity note:** Pro trends toward depth on correctness but under-severity on security/behavioral regressions (production-wave evidence). If Pro rates something O*/soft while Codex/Qwen rate MAJOR → take stricter. Never Pro-only on security/auth/RLS gate.
-- **Fidelity dual review mandatory:** any behavioral port task (generator, vectorizer, any reference→platform) MUST have dual review (GLM∥Codex) — static parity + hosted semantics are complementary, not redundant (production-wave evidence). No single-reviewer fidelity port.
-- **No live smoke = owner residual gate:** if paid-generation budget prevents live smoke (production-wave pattern), document explicitly in handoff as RESIDUAL-RISK-OWNER-SMOKE. Do not claim Done without live smoke — claim Done-with-residual.
+- **Fidelity dual review mandatory:** any behavioral port task (generator, vectorizer, any reference→platform) MUST have dual review (GLM∥Codex) — static parity + hosted semantics are complementary, not redundant. No single-reviewer fidelity port.
+- **No live smoke = owner residual gate:** if paid-generation budget prevents live smoke, document explicitly in handoff as RESIDUAL-RISK-OWNER-SMOKE. Do not claim Done without live smoke — claim Done-with-residual.
 
 **Deploy / smoke gate (post-merge or post-deploy handoff):**
 
@@ -58,8 +58,8 @@ Adapt the probe to your deploy surface:
 
 Evidence: production waves — untracked route files, deployed without tracking → 404.
 
-**Writer GLM ↔ Qwen replaceable:**
-Owner phrase «сейчас writer=X» (X = GLM or Qwen) instantly pins the writer model for the current wave. No skill rewrite needed. The orchestrator reads this phrase from NEXT_SESSION §2 or owner chat and routes accordingly. Both GLM and Qwen have confirmed fidelity-writer capability (production waves: Qwen write/GLM review; other waves: GLM write/Codex∥Pro review). See `references/model-card.md` for current roles + launch pins.
+**Writer Flash ↔ GLM replaceable:**
+Owner phrase «сейчас writer=X» (X = Flash or GLM) instantly pins the writer model for the current wave. No skill rewrite needed. Default writer: DeepSeek V4 Flash (fast, cheap, strong 0731). GLM = swap для multi-file implement (1M state continuity, ~15 min implement + ~10 min fix-round, build green). Qwen 3.8 Max = default reviewer/architect (NE writer — slow). See `references/model-card.md` for current roles + launch pins.
 
 ## Solo Defaults (when NOT multi)
 
@@ -68,12 +68,14 @@ Use **one** model only. Skip Orca multi-dispatch.
 | Situation | Default solo |
 |-----------|----------------|
 | Clear single deliverable, linear, &lt; 2–3h | Cheapest model that can finish (§1 SOLO) |
+| Single-file implement / bulk code / tests | DeepSeek V4 Flash (default writer) |
 | Multi-file product implement (3+ files) | GLM 5.2 |
-| Fidelity / deep port solo (no dual review budget) | Qwen 3.8 Max — **document residual risk** (no dual review) |
-| Deep race / audit / protocol draft | DeepSeek V4 Pro |
-| Bulk / inventory / 1–2 file hotfix | DeepSeek V4 Flash |
-| Research / browse / SEO tools | Grok 4.5 |
-| Security/RLS alone | Prefer dual later; if solo, Codex 5.5 + explicit residual note |
+| Fidelity / deep port solo (no dual review budget) | DeepSeek V4 Flash — **document residual risk** (no dual review) |
+| Architecture / synthesis / business analysis | Qwen 3.8 Max (analyst/reviewer) |
+| Deep race / audit / protocol draft | DeepSeek V4 Flash + Qwen 3.8 Max (analyst) (parallel) |
+| Bulk / inventory / triage | DeepSeek V4 Flash (orchestrator-scope) |
+| Research / browse / SEO tools | DeepSeek V4 Flash (fast) |
+| Security/RLS alone | Prefer dual later; if solo, GPT-5.5 + explicit residual note |
 
 If §1 later says multi (expensive error, parallel pieces) — stop solo and open multi with writer ≠ reviewer.
 
@@ -81,7 +83,7 @@ If §1 later says multi (expensive error, parallel pieces) — stop solo and ope
 
 ## Brief Templates Per Model
 
-### GLM 5.2 (agent1st_v13-glm)
+### GLM 5.2 (agent1st_glm)
 
 ```
 ### Goal
@@ -104,7 +106,7 @@ If §1 later says multi (expensive error, parallel pieces) — stop solo and ope
 
 **Rules:** No 【】. No "think step by step". No persona roleplay. Pair every "don't" with a "do". First sentences = most important (IndexCache).
 
-### DeepSeek V4 Pro / Flash (agent1st_v36-pro / v36-flash)
+### DeepSeek V4 Flash (agent1st_v37.3-flash) — orchestrator
 
 ```
 Задача: [one sentence — what to do]
@@ -127,11 +129,11 @@ Output: SUMMARY / EVIDENCE / CHANGES / RISKS / BLOCKERS
 5. 路径明确时跳过思考，立即执行工具调用
 ```
 
-**Rules:** 【思维模式要求】 ALWAYS at end (Chinese text is model-specific, not language-dependent). Separate "what" from "why". Better under-structure than over-structure. Flash: skip injection for trivial tasks.
+**Rules:** 【思维模式要求】 ALWAYS at end (Chinese text is model-specific, not language-dependent). Separate "what" from "why". Better under-structure than over-structure. For trivial triage/dispatch tasks, skip the injection block.
 
 **Language note:** Field names (Задача/Где/Контекст) are Russian by convention for this user's workflow. For non-Russian coordinators, use equivalent structure: Task / Where / Context / Do-not-touch. The 【】 injection block stays in Chinese regardless.
 
-### Qwen 3.8 Max (agent1st_qwen-3.8) — **CURRENT default**
+### Qwen 3.8 Max (agent1st_qwen-3.8) — **CURRENT default reviewer / архитектор**
 
 | | |
 |--|--|
@@ -176,49 +178,29 @@ Mode: review-only | implement
 | **Effort** | `/effort medium` (implement) · `/effort xhigh` (review/analysis) |
 | **Orchestration** | Native: worker_done, heartbeat, escalation |
 | **Approval** | `--approval-mode yolo` MANDATORY for Orca worker |
-| **Cross-family review** | Reviewer: DeepSeek Pro or GLM 5.2 (NOT OpenCode Qwen — same family) |
+| **Cross-family review** | Reviewer: GLM 5.2 or GPT-5.5 (NOT OpenCode Qwen — same family) |
 
 Brief format: standard worker-contract (ROLE/MODE/TASK/DONE/OUTPUT).
 Qwen Code does not require model-specific wrapping — native CoT, understands structured briefs.
 
-### Grok 4.5
-
-```
-### Task
-[1-2 sentences, verb-first: what to get]
-
-### Context
-- Files: [paths]
-- Now: [state]
-
-### Done
-- Acceptance: [criterion]
-- Deliverable: SUMMARY / EVIDENCE / CHANGES / RISKS / BLOCKERS
-
-### Autonomy
-- Mode: Execute | Plan first | Research only
-```
-
-**Rules:** Lean. Task + Done carry the load. No think-directives. No persona in user-prompt.
-
 ---
 
-## Codex 5.5 — Behavioral Regression Gate (unique role)
+## GPT-5.5 — Behavioral Regression Gate (unique role)
 
-Codex 5.5 is NOT "just another reviewer". Unique role: behavioral regression gate.
+GPT-5.5 is NOT "just another reviewer". Unique role: behavioral regression gate.
 - Production waves: caught abort/cost MAJOR that GLM's static review missed
 - Production waves: caught UNIQUE(user_id,nonce) cross-user MAJOR
 - Hosted-semantics gate: checks what static parity misses
 
 **Mandatory in:**
 - Security / RLS / auth review (parallel with Qwen Max)
-- Fidelity port merge gate (GLM static ∥ Codex behavioral)
+- Fidelity port merge gate (GLM static ∥ GPT-5.5 behavioral)
 - Any task with behavioral semantics (abort, cost, state transitions)
 
 **Launch:** `codex` (native CLI, not OpenCode agent)
 **Family:** OpenAI
 
-### Codex 5.5 brief template
+### GPT-5.5 brief template
 
 ```
 ### Goal
@@ -253,7 +235,7 @@ Codex 5.5 is NOT "just another reviewer". Unique role: behavioral regression gat
 | Mode | `/effort medium\|high\|xhigh\|max` | `/variants default\|low\|medium\|xhigh` |
 | Approval | `--approval-mode yolo` mandatory | `--auto` or allow-rules |
 | Orchestration | Native worker_done | Via inject preamble |
-| Cross-family review | Reviewer: DeepSeek / GLM | Reviewer: DeepSeek / GLM |
+| Cross-family review | Reviewer: GLM / Codex | Reviewer: GLM / Codex |
 | **Do NOT assign** | As reviewer for OpenCode Qwen (same family) | As reviewer for Qwen Code (same family) |
 
 ---
@@ -262,11 +244,10 @@ Codex 5.5 is NOT "just another reviewer". Unique role: behavioral regression gat
 
 | Writer | Family | Valid reviewers | Invalid reviewers |
 |--------|--------|----------------|-------------------|
-| Qwen Code | Alibaba | DeepSeek Pro, GLM 5.2, Codex 5.5 | OpenCode Qwen (Alibaba) |
-| Qwen 3.8 Max | Alibaba | DeepSeek Pro, GLM 5.2, Codex 5.5 | OpenCode Qwen (Alibaba) |
-| GLM 5.2 | Zhipu | Qwen Code, DeepSeek Pro, Codex 5.5 | — |
-| DeepSeek Pro | DeepSeek | Qwen Code, GLM 5.2, Codex 5.5 | DeepSeek Flash (DeepSeek) |
-| Codex 5.5 | OpenAI | Qwen Code, GLM 5.2, DeepSeek Pro | — |
+| Qwen Code | Alibaba | GLM 5.2, GPT-5.5 | OpenCode Qwen (Alibaba) |
+| Qwen 3.8 Max | Alibaba | GLM 5.2, GPT-5.5 | OpenCode Qwen (Alibaba) |
+| GLM 5.2 | Zhipu | Qwen Code, Qwen 3.8 Max, GPT-5.5 | — |
+| GPT-5.5 | OpenAI | Qwen Code, Qwen 3.8 Max, GLM 5.2 | — |
 
 **Rule:** writer.family ≠ reviewer.family. Violation = blind-spot risk (production-wave evidence).
 
@@ -276,7 +257,7 @@ Codex 5.5 is NOT "just another reviewer". Unique role: behavioral regression gat
 
 For protocol/skill/architecture review:
 
-1. Dispatch SAME task to 3 models in parallel (GLM + DeepSeek Pro + Qwen Max).
+1. Dispatch SAME task to 3 models in parallel (GLM + Qwen 3.8 Max + GPT-5.5).
 2. Each produces independent review (no anchoring on others' output).
 3. Coordinator synthesizes: consensus items (high confidence), contradictions (human decides), gaps (one found, others missed).
 4. Consensus blocker → fix immediately. Non-consensus → backlog.
@@ -287,5 +268,5 @@ Independent parallel generation prevents anchoring — each model produces its r
 
 - **MAJOR or BLOCK from any reviewer** → fix-round before merge / In Review. Do not average away.
 - On **contradiction** (one PASS/soft, another MAJOR): prefer the **stricter** finding; re-read evidence paths.
-- **Security/RLS/auth:** do not close on a single Pro-only approve if Codex/Qwen unavailable without an explicit residual note.
+- **Security/RLS/auth:** do not close on a single-model approve without an explicit residual note.
 - Append short post-mortem to project handoff when a wave teaches a routing lesson (experience → next wave).

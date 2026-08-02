@@ -73,16 +73,22 @@
   </acceptance>
 
   <roles>
-    <orchestrator family="xAI">grok-4.5</orchestrator>
+    <!-- Default stack: Flash orchestrator + primary writer · Qwen reviewer/architect · GLM multi-file writer + 2nd-line reviewer · GPT-5.5 security gate -->
+    <orchestrator tool="opencode" agent="A/agent1st_v37.3-flash" family="DeepSeek">
+      deepseek-v4-flash
+    </orchestrator>
     <executors>
-      <executor id="writer" tool="qwen" flags="--approval-mode yolo" effort="/effort medium" family="Alibaba">
-        Primary coder
+      <executor id="writer" tool="opencode" agent="A/agent1st_v37.3-flash" family="DeepSeek">
+        DeepSeek V4 Flash — primary writer/coder (single-file, bulk code, tests); fast + cheap, strong on 0731 benchmarks
       </executor>
-      <executor id="reviewer" tool="opencode" agent="A/agent1st_v36-pro" family="DeepSeek">
-        Reviewer (cross-family with writer)
+      <executor id="writer-multifile" tool="opencode" agent="A/agent1st_glm" family="Zhipu" optional="true">
+        GLM 5.2 — multi-file writer (3+ файлов; 1M state continuity); second-line reviewer
       </executor>
-      <executor id="glm" tool="opencode" agent="A/agent1st_v13-glm" family="Zhipu" optional="true">
-        Optional reviewer / multi-file writer (availability per model-card.md)
+      <executor id="reviewer" tool="opencode" agent="A/agent1st_qwen-3.8" family="Alibaba">
+        Qwen 3.8 Max — reviewer / архитектор / бизнес-аналитик (default reviewer; owner empirical: сильнее GLM в architecture)
+      </executor>
+      <executor id="security" tool="codex" family="OpenAI" optional="true">
+        GPT-5.5 — behavioral regression gate (security/RLS/fidelity ports)
       </executor>
     </executors>
     <launch_file>LAUNCH.md</launch_file>

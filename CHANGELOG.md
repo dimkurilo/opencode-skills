@@ -7,6 +7,15 @@
 
 ## [Unreleased]
 
+### Changed
+- **wave-spec v1.6.0**:
+  - Стек: DeepSeek V4 Flash = оркестратор по умолчанию (полная роль) + writer по умолчанию (single-file/bulk/tests); Qwen 3.8 Max = reviewer/архитектор/бизнес-аналитик (default reviewer); GLM 5.2 = multi-file writer (3+) + second-line reviewer; GPT-5.5 = security/fidelity gate (`codex` CLI). Roles XML в шаблонах обновлён.
+  - Именование: «Codex 5.5» → «GPT-5.5» (модель) / «codex» (CLI) — 10 файлов (исторические записи не переписывались).
+  - Lean-дельта из vv-opencode 1.2.1 (re-diff): interview дисциплина (§2), `done_when` = исполняемая команда, no_placeholders (prose-only), лимит fix-rounds 2 → эскалация; `vv-portability.md` обновлён до v1.2.1.
+  - Карточки моделей = текущее состояние + evidence, без истории переходов; убраны упоминания Claude Code.
+  - NEW Benchmarks-секции (2026-08-03) в `model-card.md`/`model-profiles.md`: данные по 5 моделям с evidence-статусами (vendor/indep/anecdotal), включая глубокий ресёрч Qwen 3.8 Max (спеки 983,616 токенов, публичных бенчей нет, ⚠️ не путать с 3.7 Max).
+- **multi-model-orchestration / project-bootstrap**: стек и именование синхронизированы (Flash/Qwen/GLM/GPT-5.5); model-profiles дополнены Qwen 3.8 Max и GPT-5.5.
+
 ### Added
 - **multi-model-orchestration v1.7.0**:
   - 3 operational rules в SKILL: §4 brief structure (explicit `--to` example + writer-swap rule self-protection clause), §5 failure handling (verify-arrival rule queue arrival + writer-swap rule protocol rows), §10 Orca commands cross-ref to operational-rules.md
@@ -65,11 +74,11 @@
 - **wave-spec v1.3** — post-mortem fix-round wave: templates reconciled with reality (SPEC optional review-provenance; PLAN attribute-style tasks as primary idiom, neutral gate wording, `model_hint` clarified; STATUS state enum = lifecycle states). Fidelity dual review generalized from model names to roles (static-parity ∥ behavioral-semantics; example pair GLM∥Codex; writer≠reviewer, Flash excluded, single-reviewer NOT accepted). New `review-synthesis.md.tmpl` + `fix-round-brief.md.tmpl` + `ASSUMPTIONS.md.tmpl`. Worker-brief template aligned to the Orca contract (ROLE/MODE + 3-sentence `worker_done` + SUMMARY/EVIDENCE/CHANGES/RISKS/BLOCKERS). Added wave-closeout checklist, top Positioning block, program-maps quality-bar cross-link + book/fidelity worked walks.
 - **wave-spec v1.2** — de-SEO reframe: universal plan-gate for development, content, skill-port, translation, orchestration, and site rebuild. New `references/program-maps.md` with 4 domain-specific menus (skill-port, translation, fidelity port, SEO as optional §4). SPEC/PLAN templates neutral — SEO workstream enum replaced with domain-agnostic placeholders + program-maps pointer. INTENT Sites/URLs→Targets, Stack neutral. Scaling section rewritten: program→waves pattern with worked examples = successive skill-port waves + product-port example; WooCommerce P0–P7 table removed as default. Quality bar, anti-patterns, positioning de-SEO'd. `references/seo-program-map.md` deleted — content migrated to program-maps §4.
 ### Added
-- **multi-model-orchestration v1.3** — new public skill: coordinate 2+ AI models (GLM 5.2, DeepSeek V4 Pro/Flash, Qwen 3.8 Max, Grok 4.5, Codex 5.5, GPT-5.6) for parallel review, cross-validation, and bulk work via Orca orchestration. Includes [platform] routing table, fidelity port dual review rules, deploy gate with corrected curl probe, lifecycle states with commit→PR→merge chain, and writer replaceability pattern.
+- **multi-model-orchestration v1.3** — new public skill: coordinate 2+ AI models (DeepSeek V4 Flash, Qwen 3.8 Max, GLM 5.2, Codex 5.5) for parallel review, cross-validation, and bulk work via Orca orchestration. Includes production routing table, fidelity port dual review rules, deploy gate with corrected curl probe, lifecycle states with commit→PR→merge chain, and writer replaceability pattern.
 
 ### Changed
 - **SKILL.md (multi-model-orchestration):** expanded from v1.2 with 4 new subsections (§2b–§2d), deploy gate curl pattern corrected from `-sI -L | head -1` to dual-pattern (no-`-L` for auth-protected, `-sIL -w` for final status).
-- **routing.md:** added [platform] routing table section (7 task types, synthesis rules, deploy gate, writer replaceability). Codex naming standardized to "Codex 5.5".
+- **routing.md:** added production routing table section (7 task types, synthesis rules, deploy gate, writer replaceability). Codex naming standardized to "Codex 5.5".
 
 ### Fixed
 - **Deploy probe (MAJOR):** corrected `curl -sI -L ... | head -1` which read first redirect status, not final. New dual pattern: `-sI` (no `-L`) for auth-gated route existence proof; `-sIL -w '%{http_code} %{url_effective}'` for final status probe.

@@ -10,7 +10,7 @@
 
 Новый проект с AI-агентом часто начинается с изобретения структуры: куда правила, как не терять контекст между сессиями, где скрипты. Project-bootstrap делает это за одну сессию - описываешь задачу потоком мыслей, на выходе `.agents/` с AGENTS.md, памятью, правилами и скиллами.
 
-Работает на техпроекте (бекапы, серверы, интеграции), на бизнесе (оцифровка маркетинга) и на личном (поиск работы, резюме). Шаблоны подстраиваются под модель: DeepSeek V4, GLM 5+, universal.
+Работает на техпроекте (бекапы, серверы, интеграции), на бизнесе (оцифровка маркетинга) и на личном (поиск работы, резюме). Шаблоны подстраиваются под модель: DeepSeek V4 (Flash — оркестратор), GLM 5+, Qwen 3.8 Max, universal.
 
 ## Для каких проектов
 
@@ -24,15 +24,15 @@
 
 ## С какими LLM удобнее
 
-Заточен под **DeepSeek V4** (Pro на основную работу, Flash на субагентов). Что под это завязано:
+Заточен под **DeepSeek V4 Flash** (оркестратор по умолчанию). Что под это завязано:
 
 - **Closing Anchors** - важные правила в конце AGENTS.md (recency effect DeepSeek V4)
-- **CSA-aware grouping** - связанные правила в одном разделе (бюджет точного контекста около 4000 токенов)
+- **CSA-aware grouping** - связанные правила в одном разделе (бюджет точного контекста около 2000 токенов для Flash)
 - **Progressive Context (Level 1/2/3)** - контекст слоями, не одной плоской таблицей
 - **Anti-Rationalization** - типичные отговорки агента и ответы на них
 - **Adversarial Verification** - критические артефакты проверяет отдельный агент
 
-При этом шаблоны обычный Markdown с YAML frontmatter. Бэкенд может быть OpenAI, Anthropic, Qwen - не обязательно DeepSeek.
+При этом шаблоны обычный Markdown с YAML frontmatter. Бэкенд может быть OpenAI (Codex), Qwen, GLM - не обязательно DeepSeek.
 
 ## Что создаёт
 
@@ -105,7 +105,7 @@ project-bootstrap/
 │   ├── workflow-patterns.md         # 9 архитектурных паттернов
 │   ├── variant-e-structure.md       # Variant E + few-shot примеры
 │   ├── grace-anchors.md             # GRACE-якоря + grep-команды
-│   └── model-profiles.md            # DeepSeek, GLM, universal
+│   └── model-profiles.md            # DeepSeek, GLM, Qwen, Codex, universal
 ├── scripts/
 │   ├── classify_project.sh          # Тип проекта + выбор варианта
 │   └── verify-handoff-gate.sh       # Фаза 4c: handoff-destination

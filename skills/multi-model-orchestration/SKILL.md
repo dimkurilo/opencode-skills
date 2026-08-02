@@ -1,17 +1,17 @@
 ---
 name: multi-model-orchestration
-description: "Coordinate 2+ AI models (GLM 5.2, DeepSeek V4 Pro/Flash, Qwen 3.8 Max, Grok 4.5, Codex 5.5) for parallel review, cross-validation, or bulk work via Orca orchestration. Use when the coordinator says \"обсудите этот вопрос с 2 моделями\", \"multi-model review\", \"cross-validate with N models\", \"parallel architecture specs\", or any task requiring independent perspectives from different model families. ROUTER: новый проект → project-bootstrap · план спринта → wave-spec · 2+ модели → multi-model-orchestration. Do NOT use for single-model tasks, trivial edits, or when §1 decision tree says solo."
+description: "Coordinate 2+ AI models (DeepSeek V4 Flash, Qwen 3.8 Max, GLM 5.2, GPT-5.5) for parallel review, cross-validation, or bulk work via Orca orchestration. Use when the coordinator says \"обсудите этот вопрос с 2 моделями\", \"multi-model review\", \"cross-validate with N models\", \"parallel architecture specs\", or any task requiring independent perspectives from different model families. ROUTER: новый проект → project-bootstrap · план спринта → wave-spec · 2+ модели → multi-model-orchestration. Do NOT use for single-model tasks, trivial edits, or when §1 decision tree says solo."
 ---
 
 # Multi-Model Orchestration
 
 Coordinator dispatches tasks to 2+ model workers via Orca, waits for results, synthesizes.
-Coordinator NEVER implements — only routes, waits, gates, synthesizes.
+Coordinator dispatches, waits, synthesizes, gates. Writing code in a coordinator session requires an explicit owner-pin switch to writer role — coordinator does not combine orchestration with code writing in the same task.
 Coordinator = any model with this skill loaded. This skill does not prescribe coordinator family.
 
 ## TL;DR (minimum path)
 
-**multi-model-orchestration = dispatch/review движок для ≥2 моделей.** Координатор маршрутизирует задачи воркерам (Orca), ждёт, синтезирует. Координатор НЕ пишет код.
+**multi-model-orchestration = dispatch/review движок для ≥2 моделей.** Координатор маршрутизирует задачи воркерам (Orca), ждёт, синтезирует. Координатор не совмещает оркестрацию с написанием кода в одной задаче.
 
 **Когда:** «обсудите с 2 моделями», cross-validate, parallel review, fidelity port, security/RLS (никогда одной моделью). **Когда нет:** §1 говорит solo, тривиал, одна модель.
 
@@ -36,7 +36,7 @@ Skills required: `orca-cli` (terminal ops), `orchestration` (task/dispatch/wait)
 If `orca status` fails or Orca is not installed:
 
 1. Coordinator opens N terminal tabs/windows manually (one per model).
-2. In each terminal: launch the model's CLI (`opencode`, `claude`, `grok`, etc.).
+2. In each terminal: launch the model's CLI (`opencode`, `codex`, etc.).
 3. Copy-paste the model-specific brief (from `references/routing.md`) into each terminal.
 4. Collect outputs manually when workers finish.
 5. Synthesize per §7.
@@ -75,21 +75,19 @@ Otherwise → solo.
 
 | Work | Route to | Family | Why |
 |------|----------|--------|-----|
-| Deep analysis, cross-audit, verification points | **DeepSeek V4 Pro** | DeepSeek | 1M context, structured thinking |
-| Long multi-file implement, architecture synthesis | **GLM 5.2** | Zhipu | 1M state continuity, long-horizon |
-| **Implement (primary coder)** | **Qwen Code** (`qwen --approval-mode yolo`, `/effort medium`) | Alibaba | Native orchestration, worker_done. Reviewer: DeepSeek Pro or GLM 5.2 (NOT OpenCode Qwen) |
-| Complex analysis, multimodal, cross-examination, **fidelity writer** | **Qwen 3.8 Max** | Alibaba | 2.4T weights, native vision, CoT; default fidelity port writer (§2c) |
-| Security / RLS / auth / Storage review | **Codex 5.5 + Qwen Max** (+ Pro for depth) | OpenAI + Alibaba | Gate + RLS; not Pro-only (cross-model lesson) |
-| **Behavioral regression gate** | **Codex 5.5** | OpenAI | Unique role — caught abort/cost MAJOR GLM missed. NOT "just another reviewer" |
-| Fast research, SEO/tools, speed loops | **Grok 4.5** | xAI | Speed, tool-native |
-| Bulk mechanical, inventory, simple edits | **DeepSeek V4 Flash** | DeepSeek | Cheap, fast |
+| **Orchestration / dispatch / handoff** | **DeepSeek V4 Flash** | DeepSeek | Role lock: не совмещает оркестрацию с написанием кода в одной задаче. Dispatch → wait → synthesize → gate. Full role |
+| **Implement (primary writer/coder)** | **DeepSeek V4 Flash** (`A/agent1st_v37.3-flash`) | DeepSeek | Default writer — fast ($0.14/$0.28 per 1M), strong on 0731 benchmarks (SWE-bench 79.0 Flash-Max, LiveBench Coding 69.2). Single-file, bulk code, tests |
+| **Multi-file implement (3+ files)** | **GLM 5.2** (`A/agent1st_glm`) | Zhipu | 1M state continuity, long-horizon multi-file specialty (~15 min implement, ~10 min fix-round) |
+| **Review / architecture / business analysis (default reviewer)** | **Qwen 3.8 Max** (`A/agent1st_qwen-3.8`) | Alibaba | 2.4T weights, native vision, CoT. Owner empirical: level ~ Kimi K3, **сильнее GLM 5.2 в architecture и depth**. NE основной кодер (slow) |
+| Complex analysis, multimodal, cross-examination | **Qwen 3.8 Max** | Alibaba | 2.4T weights, native vision, CoT |
+| Security / RLS / auth / Storage review | **GPT-5.5 + DeepSeek V4 Flash** (parallel) | OpenAI + DeepSeek | Gate + implementer; cross-family mandatory |
+| **Behavioral regression gate** | **GPT-5.5** | OpenAI | Unique role — caught abort/cost MAJOR GLM missed. NOT "just another reviewer" |
+| **Fidelity port** (generator, vectorizer, reference→platform) | **DeepSeek V4 Flash** write (default) / **GLM 5.2** (multi-file) · **Qwen 3.8 Max** ∥ **GPT-5.5** review | DeepSeek/Zhipu · Alibaba ∥ OpenAI | Evidence (production waves): Flash bulk implement; GLM exhaustive static parity; GPT-5.5 behavioral regression gate; Qwen architect/analyst. Dual review mandatory — complementary, not redundant |
 | Cross-QA (review someone else's work) | **Different family** | — | Blind-spot detection |
-| **Fidelity port** (generator, vectorizer, reference→platform) | **Qwen 3.8 Max** write · **GLM 5.2** ∥ **Codex 5.5** review | Alibaba · Zhipu ∥ OpenAI | Evidence (production waves): Qwen byte-identical prompt matrix; GLM exhaustive static parity; Codex behavioral regression gate (caught abort/cost MAJOR). Dual review mandatory — complementary, not redundant |
-| **Orchestration / dispatch / handoff** | **Grok 4.5** | xAI | Orchestrator NEVER implements (§3 role lock). Dispatch → wait → synthesize → gate |
 
 **Cross-family rule:** writer.family ≠ reviewer.family. Qwen Code (Alibaba) writer → reviewer must be DeepSeek/Zhipu/OpenAI, NOT OpenCode Qwen (also Alibaba). Full pairs: `references/routing.md` → Cross-Family Pairs.
 
-**Writer replaceable:** owner phrase «сейчас writer=X» (GLM or Qwen) pins writer instantly — no skill rewrite. Both have confirmed fidelity-implementer capability. See `references/routing.md` for the full [platform] routing table with evidence anchors.
+**Writer replaceable:** owner phrase «сейчас writer=X» (Flash or GLM) pins writer instantly — no skill rewrite. Default writer: DeepSeek V4 Flash (fast, cheap). GLM = swap для multi-file. Qwen 3.8 Max = default reviewer/architect (NE writer — slow). See `references/routing.md` for the full routing table with evidence anchors.
 
 Synthesis: MAJOR from any reviewer → fix before merge; prefer stricter severity on contradictions.
 
@@ -114,7 +112,7 @@ Evidence: production waves had untracked route files — if deployed without tra
 
 **SUMMARY (5 rules):**
 1. **Dual review mandatory:** static-parity reviewer ∥ behavioral-semantics reviewer as two complementary lenses from **different model families**. Single-reviewer fidelity ports are NOT accepted.
-2. **Writer ≠ reviewer.** Flash excluded from fidelity reviews.
+2. **Writer ≠ reviewer.** Cross-family mandatory (writer.family ≠ reviewer.family).
 3. **MAJOR from any reviewer → fix round before In Review.** Stricter severity wins.
 4. **No live smoke = RESIDUAL-RISK-OWNER-SMOKE** in handoff. Document explicitly.
 5. **Deploy gate:** prove shipped surface before handoff (§2b).
@@ -185,7 +183,8 @@ This skill can be used without wave-spec. Inline SUMMARIES in §2b/§2c/§2d cov
 
 ```
 ORCHESTRATOR: dispatch → wait → synthesize → gate.
-If coordinator edits ANY worker file → STOP. Undo. Re-dispatch to worker.
+If coordinator edits ANY worker file without an explicit owner-pin switch to writer role → STOP. Undo. Re-dispatch to worker.
+Switching orchestrator → writer is an explicit owner-pin decision («сейчас writer=X» or «сейчас orchestrator=X»), not a same-task combination.
 Review-only worker_done ≠ right to edit files. Implement = new task.
 Heartbeat ≠ done. One timeout ≠ fail → liveness check → wait again.
 Max 3 workers per wave. Do not "help" workers by editing in coord session.
@@ -213,10 +212,9 @@ After worker_done → idle (end turn).
 
 Model-specific wrapping:
 - **GLM 5.2**: Goal → Context → Constraints → Done. No 【】. No "think step by step".
-- **DeepSeek**: Задача → Где → Контекст → Не трогать + 【思维模式要求】 at end.
+- **DeepSeek V4 Flash**: Задача → Где → Контекст → Не трогать + 【思维模式要求】 at end.
 - **Qwen 3.8 Max**: Context → Objective → Steps → Examples → Response Format. CoT ok.
-- **Qwen Code**: Standard worker-contract (ROLE/MODE/TASK/DONE/OUTPUT). No special wrapping — native CoT.
-- **Grok**: Task → Done. Lean.
+- **GPT-5.5**: Goal → Success → Context → Constraints → Autonomy. Lean contracts, behavioral semantics focus.
 
 ---
 
@@ -368,18 +366,15 @@ Purpose: post-mortem traceability. Not a journal — one block per wave, 5-8 lin
 
 | Model | Relative cost | When justified |
 |-------|--------------|----------------|
-| DeepSeek V4 Flash | Low | Bulk, mechanical, inventory |
-| Grok 4.5 | **Unlimited** (orchestrator) | Speed-critical, research, orchestration |
-| DeepSeek V4 Pro | Medium | Deep analysis, cross-audit, cross-family reviewer |
-| GLM 5.2 | Medium | Long multi-file, architecture, static parity review |
-| Qwen 3.8 Max (OpenCode) | High | Complex reasoning, multimodal, fidelity writer |
-| **Qwen Code** | **High** | Implement (medium effort), native orchestration |
-| Codex 5.5 | High | Security/RLS gate, behavioral regression (unique role) |
+| **DeepSeek V4 Flash** | **Low** | **Orchestrator (default) + primary writer/coder** — dispatch, routing, synthesis, bulk code, tests, single-file implement |
+| GLM 5.2 | Medium | Multi-file implement, architecture, static parity review |
+| Qwen 3.8 Max (OpenCode) | High | **Reviewer / архитектор / бизнес-аналитик** — architecture spec, cross-audit, business analysis, deep constraint analysis (NE основной кодер — slow) |
+| GPT-5.5 | High | Security/RLS gate, behavioral regression (unique role) |
 
 Budget rule: use cheapest model that can do the task. Escalate to expensive models only when:
-- Task requires depth Flash/Grok cannot provide
 - Cross-family review on expensive error (justifies 2-3x cost)
-- Multimodal input requires native vision (Qwen Max only)
+- Multimodal input requires native vision (Qwen 3.8 Max)
+- Behavioral semantics gate (GPT-5.5)
 
 Coordinator names models to human BEFORE dispatch — human can veto expensive choices.
 
@@ -394,4 +389,4 @@ Coordinator names models to human BEFORE dispatch — human can veto expensive c
 - `references/prohibitions.md` — 11 hard prohibitions with correct alternatives
 - **`orca-cli` skill** — terminal ops, worktree management, handoffs. Load via `orca skills get orca-cli`
 - **`orchestration` skill** — task/dispatch/wait, worker_done authority, coordinator loops. Load via `orca skills get orchestration`
-<!-- Changelog: v1.0 · v1.1 MCP/audit/cost · v1.2 dispatch fix · v1.3 [platform] · v1.4 model-card · v1.5 Qwen postmortem P0–P2 · v1.6 (skill update wave): Qwen Code first-class, family field + cross-family routing, PRE-DISPATCH GATE (§3), POST-WORKER_DONE sequence, §10 atomic full cycles, prohibitions.md, Codex behavioral gate, cost Grok unlimited · v1.7 operational rules (3 rules embedded) -->
+<!-- Changelog: v1.0 · v1.1 MCP/audit/cost · v1.2 dispatch fix · v1.3 production routing · v1.4 model-card · v1.5 Qwen postmortem P0–P2 · v1.6 (skill update wave): Qwen Code first-class, family field + cross-family routing, PRE-DISPATCH GATE (§3), POST-WORKER_DONE sequence, §10 atomic full cycles, prohibitions.md, GPT-5.5 behavioral gate · v1.7 operational rules (3 rules embedded) · v1.8 (stack refresh): DeepSeek V4 Flash = orchestrator (full role), writer/test-writer допускается; Qwen 3.8 Max = writer (актуально: см. v1.9); GLM 5.2 = reviewer (актуально: см. v1.9); GPT-5.5 = security gate · v1.9 (stack revise, owner decision 2026-08-03): DeepSeek V4 Flash = orchestrator + primary writer/coder (default); Qwen 3.8 Max = reviewer/архитектор/аналитик (NE writer, slow; owner empirical: сильнее GLM в architecture); GLM 5.2 = multi-file writer + second-line reviewer; GPT-5.5 = security gate (unchanged) -->

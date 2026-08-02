@@ -54,7 +54,7 @@ risks: нет (локальная правка, no deploy)
 
 **Артефакты:** `waves/YYYY-MM-DD-landing-polish/`:
 - `INTENT.md`, `SPEC.xml` (success criteria по каждому блоку), `PLAN.xml`:
-  - T01: блок отзывов (UI-компонент фронтенда), owner=writer (Qwen 3.8 Max), artifact=src/sections/reviews-block.tsx
+  - T01: блок отзывов (UI-компонент фронтенда), owner=writer (DeepSeek V4 Flash), artifact=src/sections/reviews-block.tsx
   - T02: фикс квиз-формы, depends_on=T01 (общий UI-контекст), artifact=src/islands/quiz-form.tsx
   - T03: FAQ-секция + JSON-LD, artifact=src/sections/faq.tsx
   - gates: G1 human перед деплоем на прод

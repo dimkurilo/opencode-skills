@@ -11,7 +11,7 @@ Each skill is instructions, prompt patterns, scripts, and reference material so 
 | Skill | Description |
 |-------|-------------|
 | [project-bootstrap](skills/project-bootstrap/) | Minimal cross-platform project setup for Codex, Grok, OpenCode, ZCode, and GLM/DeepSeek hosts. Uses a short `AGENTS.md` as the universal core; bounded handoff/memory, adapters, and selective GSD are opt-in. Includes read-only inspection, reversible migration, and deterministic verification. [Details](skills/project-bootstrap/README.md) |
-| [multi-model-orchestration](skills/multi-model-orchestration/) | Coordinate 2+ AI models (GLM 5.2, DeepSeek V4 Pro/Flash, Qwen 3.8 Max, Grok 4.5, GPT-5.6) for parallel review, cross-validation, or bulk work via Orca. Routing table, dual review rules, deploy gate, lifecycle. [Details](skills/multi-model-orchestration/README.md) |
+| [multi-model-orchestration](skills/multi-model-orchestration/) | Coordinate 2+ AI models (DeepSeek V4 Flash, Qwen 3.8 Max, GLM 5.2, GPT-5.5) for parallel review, cross-validation, or bulk work via Orca. Routing table, dual review rules, deploy gate, lifecycle. [Details](skills/multi-model-orchestration/README.md) |
 | [vs-architect](skills/vs-architect/) | Verbalized Sampling (arXiv 2510.01171): solution variants with probability estimates - architecture, debugging, strategy, creative work. |
 
 ### Which skill when?

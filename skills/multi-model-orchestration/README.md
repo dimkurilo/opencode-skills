@@ -2,7 +2,7 @@
 
 🇷🇺 [Русская версия (primary)](README.ru.md)
 
-Coordinates 2+ AI models via [Orca](https://onorca.dev) for parallel review, cross-validation, and bulk work. The coordinator routes, dispatches, waits, synthesizes, gates — never implements code.
+Coordinates 2+ AI models via [Orca](https://onorca.dev) for parallel review, cross-validation, and bulk work. The coordinator routes, dispatches, waits, synthesizes, gates — does not combine orchestration with code writing in the same task.
 
 > **Primary docs (single source of truth):** [README.ru.md](README.ru.md) (Russian, maintained) + [SKILL.md](SKILL.md) (canonical contract). This file is a pointer — do not edit content here (README drift root).
 

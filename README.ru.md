@@ -12,7 +12,7 @@
 |-------|----------|
 | [project-bootstrap](skills/project-bootstrap/) | Минимальная кросс-платформенная настройка проекта для Codex, Grok, OpenCode, ZCode и хостов GLM/DeepSeek. Универсальное ядро — короткий `AGENTS.md`; bounded handoff/memory, адаптеры и selective GSD подключаются осознанно. Есть read-only inspection, обратимая миграция и детерминированная проверка. [Подробнее](skills/project-bootstrap/README.ru.md) |
 | [vs-architect](skills/vs-architect/) | Verbalized Sampling (arXiv 2510.01171): несколько вариантов решения с оценками вероятности - архитектура, отладка, стратегия, креатив. |
-| [multi-model-orchestration](skills/multi-model-orchestration/) | Координация 2+ AI-моделей (GLM 5.2, DeepSeek V4 Pro/Flash, Qwen 3.8 Max, Grok 4.5, GPT-5.6) для параллельного ревью, кросс-валидации и массовой работы через Orca. Таблица маршрутизации, правила dual review, deploy gate, жизненный цикл. [Подробнее](skills/multi-model-orchestration/README.ru.md) |
+| [multi-model-orchestration](skills/multi-model-orchestration/) | Координация 2+ AI-моделей (DeepSeek V4 Flash, Qwen 3.8 Max, GLM 5.2, GPT-5.5) для параллельного ревью, кросс-валидации и массовой работы через Orca. Таблица маршрутизации, правила dual review, deploy gate, жизненный цикл. [Подробнее](skills/multi-model-orchestration/README.ru.md) |
 
 ### Какой скилл когда?
 

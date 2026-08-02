@@ -4,30 +4,31 @@
 
 ## Когда использовать
 
-Используй при запуске спринта/волны или когда мультисессионная разработка/контент/порт скиллов/перевод не должна пропускать планирование. Работает в Grok, Claude Code, OpenCode, ZCode, Qwen Code — пишет файлы в проекте, не требует vv-opencode.
+Используй при запуске спринта/волны или когда мультисессионная разработка/контент/порт скиллов/перевод не должна пропускать планирование. Работает в OpenCode, ZCode, Qwen Code — пишет файлы в проекте, не требует vv-opencode.
 
 **НЕ используй** для тривиальных однострочных правок, уже одобренных пользователем.
 
-## Ключевые возможности (v1.4)
+## Ключевые возможности
 
-- **Автогенерация LAUNCH.md (шаг 6b):** команды запуска воркеров из model-card.md + PLAN.xml roles, cross-family check (writer.family ≠ reviewer.family), шаблоны review brief по всем 6 моделям из model-card.md, секция запретов, версионирование при смене ролей
+- **Стек по умолчанию:** DeepSeek V4 Flash (оркестратор по умолчанию + основной writer/coder/тестер; полная роль — dispatch → wait → gate → synthesize; single-file, bulk code, тесты) · Qwen 3.8 Max (reviewer / архитектор / бизнес-аналитик; NE основной кодер — медленная; owner empirical: level ~ Kimi K3, сильнее GLM в architecture) · GLM 5.2 (multi-file writer для 3+ файлов + second-line reviewer; AAII 51, GPQA-D 91.2) · GPT-5.5 (security/fidelity gate, `codex` CLI)
+- **TL;DR + minimum path + лестница обучения:** `mode=quick` (≤1 файл, ≤30 мин, no deploy) → `wave` (спринт 2–7 дней) → `multi-model-orchestration` (2+ модели). Учись деланием, не чтением
+- **Роутер скиллов:** новый проект → `project-bootstrap` · план спринта → `wave-spec` · 2+ модели → `multi-model-orchestration`
+- **Автогенерация LAUNCH.md (шаг 6b):** команды запуска воркеров из model-card.md + PLAN.xml roles, cross-family check (writer.family ≠ reviewer.family), шаблоны review brief из `multi-model-orchestration/references/routing.md`, секция запретов, версионирование при смене ролей
 - **Паттерн NEXT_SESSION (шаг 6c):** уникальные файлы `NEXT_SESSION_I{N}.md` на итерацию (никогда не перезаписывать), copy-paste блок с полным путём (формат по модели оркестратора), корневой указатель `NEXT_SESSION.md`, 9 шагов с verification gates (без дублирования SKILL.md)
 - **Итерационный handoff (шаг 7):** уникальные файлы `iterations/I{N}-<slug>.handoff.md`, корневой SESSION_HANDOFF.md только как указатель
 - **Генерация linear-workflow (шаг 6d):** параметрический `.agents/rules/linear-workflow.md` из параметров волны, APPEND при новой волне в том же проекте
-- **Чеклист валидации Linear:** проект, parent, формат title, русский язык, чеклисты, поток статусов
 - **PLAN.xml `<roles>`:** оркестратор + экзекуторы с tool/agent/flags/effort/family + `<family_rule>`
-- **Cross-family валидация:** writer.family ≠ reviewer.family в LAUNCH.md и anti-patterns
+- **Lifecycle gates (8 состояний):** Implement → In Review → Commit → PR → Merge → Deploy → On Prod → Done. RESIDUAL-RISK-OWNER-SMOKE если live smoke отсутствует
+- **Fidelity dual review:** static-parity reviewer ∥ behavioral-semantics reviewer из разных семейств; writer ≠ reviewer; Flash не назначается fidelity-ревьюером (judgment-роль)
 - **Post-mortem → skill update:** closeout checklist включает создание INTENT.md для улучшений скиллов
 
 ## SoT + Symlink Layout
 
 **Source of Truth (SoT):** `<repo>/skills/wave-spec/` — git-tracked.
 
-**Хостовые symlink'и** (заменяют реальные директории на `ln -s` к SoT):
+**Install into OpenCode** (active CLI):
 
-- `~/.grok/skills/wave-spec` → `<repo>/skills/wave-spec`
 - `~/.config/opencode/skills/wave-spec` → `<repo>/skills/wave-spec`
-- `~/.claude/skills/wave-spec` → `<repo>/skills/wave-spec`
 
 ## Жизненный цикл (одной строкой)
 

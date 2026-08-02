@@ -6,6 +6,6 @@ Portable plan-gate + lifecycle skill (vv-method, multi-CLI): INTENT → SPEC.xml
 
 **Router:** новый проект → `project-bootstrap` · план спринта → `wave-spec` · 2+ модели → `multi-model-orchestration`.
 
-**Use when** starting a sprint/wave that must not skip planning. **Do NOT use** for trivial edits — use `mode=quick` inside the skill. Works in Grok / Claude Code / OpenCode / ZCode / Qwen Code — no vv-opencode runtime.
+**Use when** starting a sprint/wave that must not skip planning. **Do NOT use** for trivial edits — use `mode=quick` inside the skill. Works in OpenCode / ZCode / Qwen Code — no vv-opencode runtime.
 
 Current version + changes: see SKILL.md frontmatter and Changelog.

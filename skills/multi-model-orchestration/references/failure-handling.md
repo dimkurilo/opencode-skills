@@ -62,11 +62,9 @@ After 3 consecutive failures on one task (any combination of models):
 | Model | Known failure mode | Mitigation |
 |-------|-------------------|------------|
 | GLM 5.2 | Overthinking under `max` → output displacement | Stop-signals in protocol; pair "don't" with "do" |
-| DeepSeek Pro | Roleplay thinking without 【】 injection | Always append 【思维模式要求】 |
-| DeepSeek Flash | Weak on complex SWE / October CMS core | Route core paths to Pro; Flash for bulk only |
+| DeepSeek V4 Flash | Roleplay thinking without 【】 injection (orchestrator role) | Always append 【思维模式要求】 in brief; skip only for trivial triage |
 | Qwen 3.8 Max | Reasoning not preserved across turns | Verbalize key state to content field |
-| Qwen Code | Without `--approval-mode yolo` blocks orca commands. Effort persists across sessions | Always `--approval-mode yolo`. Always `/effort <val>` explicitly + `sleep 3` before dispatch |
-| Grok 4.5 | "I'll do it myself" instead of routing. 3+ identical tool calls → loop (P15/P18) | Explicit scope boundaries in brief. 3 identical actions → circuit-break + text response to user |
+| GPT-5.5 | Effort persists across sessions; without explicit `/effort` may run at wrong depth | Always `/effort <val>` explicitly + `sleep 3` before dispatch |
 
 ---
 

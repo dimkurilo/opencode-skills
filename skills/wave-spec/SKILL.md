@@ -1,12 +1,12 @@
 ---
 name: wave-spec
-version: 1.5.0
+version: 1.6.0
 description: >
   Use when starting a sprint/wave that must not skip planning — user says "wave-spec",
   "spec first", "составь спеку/план", "interview then plan", or begins multi-session
   work (development, content, skill-port, translation, orchestration). Produces SPEC.xml
-  + PLAN.xml + worker briefs + STATUS/handoff. Portable across Grok, OpenCode, Claude Code,
-  Qwen Code, ZCode — writes files in the project, no vv-opencode runtime.
+  + PLAN.xml + worker briefs + STATUS/handoff. Portable across OpenCode, Qwen Code, ZCode —
+  writes files in the project, no vv-opencode runtime.
   ROUTER: новый проект → project-bootstrap · план спринта → wave-spec · 2+ модели → multi-model-orchestration.
   For trivial edits (≤1 файл, ≤30 мин, no deploy) use mode=quick below, not the full pipeline.
 ---
@@ -59,17 +59,12 @@ Default: if unclear, start **wave** (or **quick** for trivial). `program` — т
 
 **Source of Truth:** `skills/wave-spec/` in the opencode-skills repo — git-tracked, canonical. All edits go here.
 
-**Host symlinks** (replace real directories with `ln -s` to SoT):
-- `~/.grok/skills/wave-spec` → `<repo>/skills/wave-spec`
-- `~/.config/opencode/skills/wave-spec` → `<repo>/skills/wave-spec`
-- `~/.claude/skills/wave-spec` → `<repo>/skills/wave-spec`
-
-If the repo moves, recreate symlinks:
+**Install into OpenCode** (active CLI):
 ```bash
-ln -sf <new-repo-path>/skills/wave-spec ~/.grok/skills/wave-spec
-ln -sf <new-repo-path>/skills/wave-spec ~/.config/opencode/skills/wave-spec
-ln -sf <new-repo-path>/skills/wave-spec ~/.claude/skills/wave-spec
+ln -sf <repo>/skills/wave-spec ~/.config/opencode/skills/wave-spec
 ```
+
+If the repo moves, recreate the symlink above with the new path.
 ## Hard gate
 
 Until user says **approve / approved / proceed / dig / делай / утверждаю**:
@@ -124,6 +119,8 @@ After INTENT + context read:
 2. Ask **only** questions that unblock SPEC (max 7). Each question: options + recommended default.
 3. Do **not** interview for things already answered in AGENTS/handoff/research.
 
+**Дисциплина интервью (lean):** (a) recommendation-first — каждый вопрос начинай с рекомендуемым ответом по умолчанию и обоснованием (большинство ответов закрывается одним словом); (b) мини-roadmap — перед первым вопросом покажи список открытых вопросов целиком; (c) recap — после интервью одной строкой резюмируй зафиксированные решения, чтобы поймать недопонимание до SPEC.
+
 If user says «решай сам / use defaults» → mark assumptions explicitly: log them via `assets/templates/ASSUMPTIONS.md.tmpl` and record them in the SPEC `<assumptions>` block.
 
 ### 3. SPEC.xml (structured — agent-facing)
@@ -156,23 +153,29 @@ Write to: `…/PLAN.xml`
 
 Required:
 
-- `waves` or for single wave: `tasks` with `id`, `title`, `depends_on`, `owner` (orchestrator|claude|opencode|grok|human), `model_hint`, `artifact` path, `done_when`
+- `waves` or for single wave: `tasks` with `id`, `title`, `depends_on`, `owner` (orchestrator|opencode|codex|human), `model_hint`, `artifact` path, `done_when`
 - Parallel groups: tasks with empty/non-overlapping `depends_on` and different `artifact` paths
 - `gates`: human approval points (deploy, purchase, CMS production)
 - `roles`: orchestrator + executors with tool/agent/flags/effort/**family** + `<family_rule>`:
 
 ```xml
 <roles>
-  <orchestrator family="xAI">grok-4.5</orchestrator>
+  <!-- Default stack: Flash orchestrator + primary writer · Qwen reviewer/architect · GLM multi-file writer + 2nd-line reviewer · GPT-5.5 security gate -->
+  <orchestrator tool="opencode" agent="A/agent1st_v37.3-flash" family="DeepSeek">
+    deepseek-v4-flash
+  </orchestrator>
   <executors>
-    <executor id="writer" tool="qwen" flags="--approval-mode yolo" effort="/effort medium" family="Alibaba">
-      Primary coder
+    <executor id="writer" tool="opencode" agent="A/agent1st_v37.3-flash" family="DeepSeek">
+      DeepSeek V4 Flash — primary writer/coder (single-file, bulk code, tests); fast + cheap, strong on 0731 benchmarks
     </executor>
-    <executor id="reviewer" tool="opencode" agent="A/agent1st_v36-pro" family="DeepSeek">
-      Reviewer (cross-family with writer)
+    <executor id="writer-multifile" tool="opencode" agent="A/agent1st_glm" family="Zhipu" optional="true">
+      GLM 5.2 — multi-file writer (3+ файлов; 1M state continuity); second-line reviewer
     </executor>
-    <executor id="glm" tool="opencode" agent="A/agent1st_v13-glm" family="Zhipu" optional="true">
-      Optional reviewer / multi-file writer (availability per model-card.md)
+    <executor id="reviewer" tool="opencode" agent="A/agent1st_qwen-3.8" family="Alibaba">
+      Qwen 3.8 Max — reviewer / архитектор / бизнес-аналитик (default reviewer; owner empirical: сильнее GLM в architecture)
+    </executor>
+    <executor id="security" tool="codex" family="OpenAI" optional="true">
+      GPT-5.5 — behavioral regression gate (security/RLS/fidelity ports)
     </executor>
   </executors>
   <launch_file>LAUNCH.md</launch_file>
@@ -301,7 +304,7 @@ Copy-paste format by orchestrator (рабочие оркестраторы вл�
 | **Qwen 3.8 Max** | ### Context / ### Objective / ### Constraints |
 | **GLM 5.2** | ### Goal / ### Constraints / ### Done |
 
-Default (if orchestrator not specified): Qwen 3.8 Max format. Flash-оркестратор — только механика по утверждённому PLAN (triage finding: dispatch/wait/gate/test; см. model-card.md, prohibitions #12 сужены), НЕ суждение/синтез и НЕ multi-file writer. Полная таблица форматов (Grok/DeepSeek Pro/Codex) — в `assets/templates/LAUNCH.md.tmpl`, если эти модели используются как оркестраторы.
+Default (if orchestrator not specified): **DeepSeek V4 Flash** — формат брифов в `assets/templates/LAUNCH.md.tmpl` (writer brief = Flash/GLM; reviewer brief = Qwen/GLM; security brief = GPT-5.5). **Оркестратор по умолчанию — DeepSeek V4 Flash** (`A/agent1st_v37.3-flash`): полная роль — dispatch → wait → gate → synthesize, НЕ «механика только». **Writer по умолчанию — также DeepSeek V4 Flash** (single-file/bulk/tests; multi-file → GLM 5.2). Полная таблица форматов — в `assets/templates/LAUNCH.md.tmpl`.
 
 ### 6d. Linear workflow generation (if project uses Linear)
 
@@ -329,7 +332,7 @@ Maintain `…/STATUS.md`:
 # STATUS
 | id | owner | state | artifact | notes |
 |----|-------|-------|----------|-------|
-| T01 | claude | done | research/... | |
+| T01 | qwen | done | research/... | |
 ```
 
 **Per-iteration handoff:** each iteration creates `iterations/I{N}-<slug>.handoff.md` (unique file).
@@ -389,10 +392,12 @@ Tasks must appear in INTENT + evidence — never force irrelevant workstreams.
 
 | Role | Default | Allowed (owner pin) |
 |------|---------|---------------------|
-| Orchestrator (runs this skill) | **Grok 4.5** | Grok 4.5 · DeepSeek V4 Pro · Qwen 3.8 Max · GLM 5.2 ⚠️ |
-| Executor | Claude+GLM / OpenCode / Grok | only approved task brief + artifacts |
+| Orchestrator (runs this skill) | **DeepSeek V4 Flash** | DeepSeek V4 Flash (default) · GLM 5.2 ⚠️ |
+| Writer (single-file / bulk / tests) | **DeepSeek V4 Flash** | DeepSeek V4 Flash (default) · GLM 5.2 (multi-file swap) |
+| Reviewer / архитектор / аналитик | **Qwen 3.8 Max** | Qwen 3.8 Max (default) · GLM 5.2 (second line) |
+| Security / fidelity gate | **GPT-5.5** (`codex` CLI) | GPT-5.5 (unique role) |
 
-**Orchestrator owner pin:** «сейчас orchestrator=Pro/GLM/Qwen» — мгновенно меняет модель. Flash исключён. GLM = ⚠️ tool passivity (agent anti-patterns §4.5). См. `model-card.md`.
+**Оркестратор и writer по умолчанию — DeepSeek V4 Flash** (`A/agent1st_v37.3-flash`). Owner pin: «сейчас orchestrator=GLM» (мульти-файловые/архитектурные волны) или «сейчас writer=GLM» (multi-file implement). Qwen 3.8 Max — default reviewer/architect (NE writer — slow). GLM = ⚠️ tool passivity (agent anti-patterns §4.5). См. `model-card.md`.
 
 Executors **do not** rewrite SPEC/PLAN. They may append STATUS notes.
 ---
@@ -404,6 +409,8 @@ Executors **do not** rewrite SPEC/PLAN. They may append STATUS notes.
 - Parallel tasks **do not share write paths**.  
 - Deploy / paid tools / production CMS = `owner=human` gate.  
 - No fabricated metrics (traffic, positions, conversion rates, benchmark scores) without source.
+- `done_when` = **исполняемая команда** (grep/test/curl) или проверяемый факт; проза — только если команды нет.
+- **no_placeholders** (только проза, не слоты шаблонов): в SPEC/PLAN запрещены «TBD / implement later», «similar to TNN» (повтори контракт полностью), «add error handling» без конкретных правил. XML-слоты (`<todo>`, `{{placeholders}}`) — легитимны.
 
 ## References
 
@@ -433,7 +440,7 @@ Executors **do not** rewrite SPEC/PLAN. They may append STATUS notes.
 - **Writing wave artifacts outside the specified project directory.** Scope is relative to the REPO ROOT of the opencode-skills project.
 ---
 
-## Lifecycle Gates (lessons from production incidents)
+## Lifecycle Gates (production lessons)
 
 **Context:** production-incident root cause — agent marked "In Review" / "next product" while code not on prod. No hard states: implement ≠ In Review ≠ merged ≠ deployed ≠ owner smoke ≠ Done. This section encodes the lifecycle contract for waves built with this skill.
 
@@ -478,8 +485,8 @@ No probe and no named residual = not Done.
 For fidelity ports, reference→platform migrations, or behavioral parity waves:
 
 1. **Dual review mandatory:** a static-parity reviewer (file:line matrix, code structure) ∥ a behavioral-semantics reviewer (hosted semantics, cost/state regressions). Example pair: GLM ∥ Codex — but the ROLE matters, not the product: any two complementary lenses from different model families satisfy this. Single-reviewer fidelity ports are NOT accepted.
-2. **Writer ≠ reviewer.** Flash = explicitly excluded from fidelity reviews (simplifies; production-wave post-mortem).
-3. **MAJOR from any reviewer → fix round before In Review.** Stricter severity wins on contradictions.
+2. **Writer ≠ reviewer.** Flash не назначается fidelity-ревьюером (judgment-роль; reasoning-бенчи заметно слабее GLM/GPT-5.5 — GPQA 71.2 vs 91.2/93.6).
+3. **MAJOR from any reviewer → fix round before In Review.** Stricter severity wins on contradictions. **2 fix-rounds на ревью; round 3 = эскалация владельцу (не ещё один round).**
 4. **No live smoke = RESIDUAL-RISK-OWNER-SMOKE** in handoff. Document explicitly. Do not claim Done — claim Done-with-residual.
 5. **Deploy gate:** curl new routes before handoff (see below).
 
@@ -518,7 +525,7 @@ Evidence: production waves had untracked route files — if deployed without tra
 ## Positioning
 
 wave-spec is a **universal plan-gate + lifecycle skill for 1–3 week product waves across any domain** (development, content, skill-port, translation, orchestration, site rebuild). It is NOT gsd-core, gsd-coordinator, or vv-opencode runtime — no agentic dispatch, no worktree groups, no structured handoff beyond project-local SESSION_HANDOFF. The lifecycle gates above are the contract; everything else is project protocol.
-For multi-model orchestration (parallel review, dispatch, fidelity port routing): see `skills/multi-model-orchestration/` — a separate skill for [platform]-level coordination. wave-spec delegates to it when multi-model review is needed; multi-model does NOT own the plan-gate pipeline.
+For multi-model orchestration (parallel review, dispatch, fidelity port routing): see `skills/multi-model-orchestration/` — a separate skill for multi-model coordination. wave-spec delegates to it when multi-model review is needed; multi-model does NOT own the plan-gate pipeline.
 
 ## Cross-skill compatibility
 
@@ -544,7 +551,8 @@ wave-spec is the **canonical source of truth** for lifecycle gates, fidelity dua
 - **v1.0** — initial portable wave-spec from vv-method
 - **v1.1 (skill update wave)** — lifecycle gates (Implement→In Review→Commit→PR→Merge→Deploy Probe→On Prod→Done), fidelity dual review, deploy probe curl pattern, RESIDUAL-RISK-OWNER-SMOKE, NEXT product ban, Installation/SoT section, discoverability pointers, positioning, README bilingual + residual
 - **v1.2 (reframe wave)** — de-SEO: universal plan-gate across domains. `program-maps.md` (4 menus); SEO optional §4 only. Templates neutral; INTENT Targets + neutral Stack; Scaling examples = successive skill-port waves + product-port example; not WooCommerce-default.
-- **v1.3 (post-mortem fix-round wave)** — templates reconciled with reality: SPEC optional review-provenance (`version`/`review_round`/`accepted_by`/`accepted_at`/`review_sources`) + `<assumptions>` block; PLAN attribute-style tasks as primary idiom (child-elements documented fallback), neutral gate wording, `model_hint` clarified; STATUS state enum = lifecycle states (`implement_done|in_review|commit|pr|merge|deploy_gate|on_prod|done`). Fidelity dual review generalized from model names to roles (static-parity ∥ behavioral-semantics; example pair GLM ∥ Codex; writer≠reviewer, Flash excluded, single-reviewer NOT accepted). New `review-synthesis.md.tmpl`, `fix-round-brief.md.tmpl`, `ASSUMPTIONS.md.tmpl`. Worker-brief aligned to the Orca contract (ROLE/MODE + 3-sentence `worker_done` + SUMMARY/EVIDENCE/CHANGES/RISKS/BLOCKERS). Added wave-closeout checklist, top Positioning block, program-maps quality-bar cross-link + book/fidelity worked walks.
+- **v1.3 (post-mortem fix-round wave)** — templates reconciled with reality: SPEC optional review-provenance (`version`/`review_round`/`accepted_by`/`accepted_at`/`review_sources`) + `<assumptions>` block; PLAN attribute-style tasks as primary idiom (child-elements documented fallback), neutral gate wording, `model_hint` clarified; STATUS state enum = lifecycle states (`implement_done|in_review|commit|pr|merge|deploy_gate|on_prod|done`). Fidelity dual review generalized from model names to roles (static-parity ∥ behavioral-semantics; example pair GLM ∥ Codex; writer≠reviewer, cross-family mandatory, single-reviewer NOT accepted). New `review-synthesis.md.tmpl`, `fix-round-brief.md.tmpl`, `ASSUMPTIONS.md.tmpl`. Worker-brief aligned to the Orca contract (ROLE/MODE + 3-sentence `worker_done` + SUMMARY/EVIDENCE/CHANGES/RISKS/BLOCKERS). Added wave-closeout checklist, top Positioning block, program-maps quality-bar cross-link + book/fidelity worked walks.
 - **v1.4 (skill update wave)** — LAUNCH.md auto-generation (step 6b) with cross-family check + per-model brief templates + prohibitions; NEXT_SESSION pattern (step 6c): unique files NEXT_SESSION_I{N}.md + copy-paste block with full path + root pointer + 10 sections (no SKILL.md duplication); iteration handoff (step 7): unique per-iteration files + root pointer; linear-workflow generation (step 6d) + Linear validation checklist; PLAN.xml `<roles>` with family + `<family_rule>`; anti-patterns: vv-controller, terminal send, same-family, handoff overwrite, model-card check; closeout: post-mortem → skill update. New templates: LAUNCH.md.tmpl, iteration-handoff.md.tmpl, NEXT_SESSION.md.tmpl, linear-workflow.md.tmpl.
 - **v1.4.1 (2026-07-28)** — NEXT_SESSION template split (bug-fix): the single ambiguous `NEXT_SESSION.md.tmpl` (iteration steps 0–8) renamed to `NEXT_SESSION_ITER.md.tmpl`; new `NEXT_SESSION.md.tmpl` = root pointer (table of iterations + current pointer). §6c now references BOTH templates with MANDATORY both-files wording. Fixes agents writing iteration content into the pointer file (data-migration T01). Backward compatible: `NEXT_SESSION.md.tmpl` path still exists (now the pointer).
+- **v1.6.0 (2026-08-03, stack revision + lean delta)** — стек: DeepSeek V4 Flash = оркестратор по умолчанию (полная роль) + writer по умолчанию (single-file/bulk/tests); Qwen 3.8 Max = reviewer/архитектор/бизнес-аналитик (default reviewer, owner decision); GLM 5.2 = multi-file writer (3+ файлов) + second-line reviewer; GPT-5.5 = security/fidelity gate (codex CLI). Именование модели выправлено: «GPT-5.5» (модель) / «codex» (CLI). Roles XML в SKILL/SPEC/PLAN обновлён под стек. Lean-дельта из vv-opencode 1.2.1: interview дисциплина (§2: recommendation-first/roadmap/recap), done_when = исполняемая команда, no_placeholders (prose-only), лимит fix-rounds 2 → эскалация. Убраны упоминания Claude Code и внутренних артефактов. Benchmarks-секции (2026-08-03) в model-card.md/model-profiles.md с evidence-статусами.
 - **v1.5.0 (2026-08-02, triumvirate refactor: Qwen 3.8 Max ∥ DeepSeek V4 Flash ∥ GLM 5.2)** — tailoring for a non-developer owner (2 working orchestrators). TL;DR + minimum-path + learning ladder (quick→wave→multi) + router line in description. `mode=quick` (≤1 файл/≤30 мин/no deploy) + `quick-spec.md.tmpl`. NEXT_SESSION hybrid threshold (≤2 итераций = компакт шаги 0/3/8; 3+ = полный 9-шаг) + spec-delta line `Changes vs I{N-1}` (в SKILL и в NEXT_SESSION_ITER.md.tmpl — drift-fix). 5 orchestrator copy-paste formats → 2 (Qwen Max, GLM) + default; Flash-формат удалён (запрещён #12). Wave closeout: + secret-redaction grep, + archive wave (mv в waves/archive/), + reflect-вопрос. Fixed duplicate anti-patterns. program mode де-акцентирован (см. references/program-maps.md). New: references/glossary.md (15 терминов), references/worked-examples.md (3 примера), cross-link на operational-rules.md (3 operational rules). LAUNCH.md.tmpl: review-brief шаблоны → ссылка на routing.md (−120 строк, drift-fix). Core untouched: 8 lifecycle states, cross-family rule, deploy probe, written≠persisted.
