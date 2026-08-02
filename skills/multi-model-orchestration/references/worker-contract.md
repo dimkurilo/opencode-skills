@@ -17,7 +17,7 @@ Rules:
 - After `worker_done` → idle. Do not poll or continue.
 - review-only mode: CHANGES must be "None". Findings only (except the review report path if the brief allows writing it).
 - implement mode: CHANGES lists every modified file.
-- **written≠persisted gate (ALL workers, implement mode):** before `worker_done`, run `git status --short` and/or `ls -la` / `wc -l` and confirm **every** path in CHANGES / `--files-modified` exists on disk with expected content. A claimed file missing on disk = **FAIL** — do **not** send success `worker_done`. Report FAIL in `--subject` and list missing paths in `--body` / report. Trusting self-report without disk proof caused [TICKET] BLOCK (notes claimed `model-card.md` NEW while `ls` showed absent).
+- **written≠persisted gate (ALL workers, implement mode):** before `worker_done`, run `git status --short` and/or `ls -la` / `wc -l` and confirm **every** path in CHANGES / `--files-modified` exists on disk with expected content. A claimed file missing on disk = **FAIL** — do **not** send success `worker_done`. Report FAIL in `--subject` and list missing paths in `--body` / report. Trusting self-report without disk proof caused a production BLOCK (notes claimed a file NEW while `ls` showed absent).
 
 ---
 
@@ -112,22 +112,22 @@ orca orchestration send --to <coordinator_handle> --type worker_done \
   --json
 ```
 
-## Anti-Pattern: Reconstructing send from memory ([RULE])
+## Anti-Pattern: Reconstructing send from memory (worker_done rule)
 
 **Hard prohibition:** never reconstruct `orca orchestration send` command from memory. Always copy from this document or `orca skills get orchestration`.
 
-**Reason:** GLM-family workers have documented tendency to reconstruct CLI commands from parametric memory, dropping the `--to <coordinator-handle>` flag. Without `--to`, orca returns a msg ID (e.g., `Sent [MSG]`) but message routes to void — coordinator never receives it.
+**Reason:** Some worker families have a documented tendency to reconstruct CLI commands from parametric memory, dropping the `--to <coordinator-handle>` flag. Without `--to`, orca returns a msg ID (e.g., `Sent msg_<id>`) but message routes to void — coordinator never receives it.
 
-**[TICKET][ITER] incident (2026-07-28):** GLM reviewer reconstructed send, dropped `--to`, [MSG] lost. Coordinator trusted "Sent msg_..." terminal output, waited 15+ min, then became messenger (pasted verdict manually).
+**Production incident:** a reviewer reconstructed send, dropped `--to`, message lost. Coordinator trusted "Sent msg_..." terminal output, waited 15+ min, then became messenger (pasted verdict manually).
 
 **Mitigation:**
 1. Brief MUST contain explicit example: `orca orchestration send --to <COORDINATOR-HANDLE> --type worker_done ...`
 2. Worker copy-pastes from brief, does not retype
-3. Coordinator verifies every expected worker_done via GLOBAL `inbox` filtered by payload taskId — not handle-scoped `check --peek` ([RULE]; see warning below)
+3. Coordinator verifies every expected worker_done via GLOBAL `inbox` filtered by payload taskId — not handle-scoped `check --peek` (verify-arrival rule; see warning below)
 
 ---
 
-## Handle Drift Warning: `check` is handle-scoped, `inbox` is global ([RULE])
+## Handle Drift Warning: `check` is handle-scoped, `inbox` is global (verify-arrival rule)
 
 > **check is handle-scoped; inbox is global. Handle drift after terminal restart makes `check=0` while `inbox=N`. Verify via inbox filtered by taskId.**
 
@@ -137,7 +137,7 @@ orca orchestration send --to <coordinator_handle> --type worker_done \
 
 **Coordinator rule:** verify arrival via `orca orchestration inbox --limit 20 --json` filtered by `type=="worker_done"` and payload `taskId` — not handle-scoped `check`. If inbox has it but `check --wait` missed it, re-resolve via `orca terminal list --worktree active --json` and re-dispatch active tasks onto the new handle.
 
-**Source:** [TICKET][ITER] + routing investigation [TASK-ID] (2026-07-28).
+**Source:** production incident + routing investigation.
 
 ---
 

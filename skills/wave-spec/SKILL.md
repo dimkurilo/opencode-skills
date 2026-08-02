@@ -128,7 +128,7 @@ If user says «решай сам / use defaults» → mark assumptions explicitl
 
 ### 3. SPEC.xml (structured — agent-facing)
 
-**Markdown с required-sections достаточен** для SPEC/PLAN ([TICKET] T-Q3b: свежий агент извлекает required-поля из MD и XML одинаково, 5/5). XML — опционален (только если появится реальный парсер/валидатор; сейчас его нет). Обязательные секции: Goal, Done_when, Verifier, Scope, Risks.
+**Markdown с required-sections достаточен** для SPEC/PLAN (triage finding: свежий агент извлекает required-поля из MD и XML одинаково, 5/5). XML — опционален (только если появится реальный парсер/валидатор; сейчас его нет). Обязательные секции: Goal, Done_when, Verifier, Scope, Risks.
 Human narrative stays in INTENT.md.
 
 Use template: `assets/templates/SPEC.xml.tmpl`  
@@ -242,9 +242,9 @@ Orchestrator tracks progress in STATUS.md.
 Generate `waves/<date>-<slug>/LAUNCH.md` from:
 
 **Reference versions** (check before generation — if references are newer, regenerate LAUNCH.md):
-- `multi-model-orchestration/references/model-card.md` — last verified: 2026-07-28
-- `multi-model-orchestration/references/routing.md` — last verified: 2026-07-28
-- ⚠️ If either file modified after these dates → STALE REFERENCE. Regenerate LAUNCH.md.
+- `multi-model-orchestration/references/model-card.md` — see its "Updated:" marker
+- `multi-model-orchestration/references/routing.md` — see its "Updated:" marker
+- ⚠️ If either file modified after the marker → STALE REFERENCE. Regenerate LAUNCH.md.
 1. `multi-model-orchestration/references/model-card.md` — agent pins, commands, **model family**
 2. `PLAN.xml` — roles from `<roles>` section
 3. `multi-model-orchestration/references/routing.md` — brief templates per model
@@ -265,7 +265,7 @@ Mandatory sections:
 **Format principle (model-agnostic):** any LLM orchestrator will execute a ready-made bash block blindly without validating against the source. Therefore NEXT_SESSION uses **steps + verification gates**, NOT copy-paste bash recipes.
 
 Pattern:
-1. **Unique file per iteration:** `NEXT_SESSION_I{N}.md` (e.g. `NEXT_SESSION_[ITER].md`). Never overwrite previous iteration's file.
+1. **Unique file per iteration:** `NEXT_SESSION_I{N}.md` (e.g. `NEXT_SESSION_I1.md`). Never overwrite previous iteration's file.
 2. **Copy-paste block at top:** short imperative (3-4 lines). Must include **full path** to the NEXT_SESSION file. Format by orchestrator model (from SPEC `<orchestrator>`).
 3. **Step 0 = load source:** `orca skills get orchestration` — the orchestrator MUST read the actual guide, not guess from cache. This is the single most important step.
 4. **Each step = action + verification gate:** a concrete verifiable fact in the output (e.g. `"ok": true`, file exists, worker_done received). NOT "check that X is correct".
@@ -281,7 +281,7 @@ Templates (two files mandatory):
 
 MANDATORY: every iteration produces BOTH files. NEXT_SESSION.md without NEXT_SESSION_<iter>.md = incomplete. NEXT_SESSION_<iter>.md without NEXT_SESSION.md pointer = orphan.
 
-**Порог компактности (гибрид):** волна **≤2 итераций** → компактный NEXT_SESSION = шаги **0 (load), 3 (dispatch), 8 (handoff)** + gates на каждый (без полных описаний шагов 1–2, 4–7); **3+ итераций** → ОБЯЗАТЕЛЬНО полный 9-шаг из `NEXT_SESSION_ITER.md.tmpl` (инциденты [RULE] случались на итерируемых волнах, [ITER] = 4-я итерация). Шаблон-формула (9 шагов) остаётся учебником lifecycle. **Не путать с `mode=quick`:** quick — для trivial-правок (≤1 файл, вообще без NEXT_SESSION); компактный NEXT_SESSION — для коротких ВОЛН (1–2 итерации, с dispatch/review).
+**Порог компактности (гибрид):** волна **≤2 итераций** → компактный NEXT_SESSION = шаги **0 (load), 3 (dispatch), 8 (handoff)** + gates на каждый (без полных описаний шагов 1–2, 4–7); **3+ итераций** → ОБЯЗАТЕЛЬНО полный 9-шаг из `NEXT_SESSION_ITER.md.tmpl` (инциденты operational rules случались на итерируемых волнах — на 4-й итерации длинной волны). Шаблон-формула (9 шагов) остаётся учебником lifecycle. **Не путать с `mode=quick`:** quick — для trivial-правок (≤1 файл, вообще без NEXT_SESSION); компактный NEXT_SESSION — для коротких ВОЛН (1–2 итерации, с dispatch/review).
 
 **Step structure (9 steps, 0–8):**
 - Step 0: Load sources (orchestration guide + SPEC + linear-workflow)
@@ -301,7 +301,7 @@ Copy-paste format by orchestrator (рабочие оркестраторы вл�
 | **Qwen 3.8 Max** | ### Context / ### Objective / ### Constraints |
 | **GLM 5.2** | ### Goal / ### Constraints / ### Done |
 
-Default (if orchestrator not specified): Qwen 3.8 Max format. Flash-оркестратор — только механика по утверждённому PLAN ([TICKET] T-Q2: dispatch/wait/gate/test; см. model-card.md, prohibitions #12 сужены), НЕ суждение/синтез и НЕ multi-file writer. Полная таблица форматов (Grok/DeepSeek Pro/Codex) — в `assets/templates/LAUNCH.md.tmpl`, если эти модели используются как оркестраторы.
+Default (if orchestrator not specified): Qwen 3.8 Max format. Flash-оркестратор — только механика по утверждённому PLAN (triage finding: dispatch/wait/gate/test; см. model-card.md, prohibitions #12 сужены), НЕ суждение/синтез и НЕ multi-file writer. Полная таблица форматов (Grok/DeepSeek Pro/Codex) — в `assets/templates/LAUNCH.md.tmpl`, если эти модели используются как оркестраторы.
 
 ### 6d. Linear workflow generation (if project uses Linear)
 
@@ -374,7 +374,7 @@ Do **not** put the entire project into one wave.
 
 | Domain | Shape | Program phases |
 |--------|-------|---------------|
-| **Skill-port / orchestration** | opencode-skills [TICKET] [client-project] [client-project] I0–I7 | P0 Inventory+baseline → P1 Architecture/contract → P2 Port/fidelity → P3 Review/lifecycle → P4 Dispatch → P5 Documentation → P6 Release |
+| **Skill-port / orchestration** | successive skill-port waves (I0→I7) | P0 Inventory+baseline → P1 Architecture/contract → P2 Port/fidelity → P3 Review/lifecycle → P4 Dispatch → P5 Documentation → P6 Release |
 | **Book translation** | multi-pass: glossary→draft→literary→QA→typeset | P0 Glossary freeze → P1 Draft (3 models × 3 passes) → P2 Literary adaptation → P3 Consistency QA → P4 Typesetting |
 | **Product fidelity port** | SaaS/platform: reference→parity→port→regress→probe→review | P0 Reference capture → P1 Parity matrix → P2 Scaffolding+CI → P3 Core domain → P4 API surface → P5 UX/UI → P6 Regression+deploy probe |
 | **Site/content rebuild** | SEO, content audit, site migration | P0 Inventory+access+baseline → P1 Technical foundations → P2 Performance/CWV → P3 Templates+schema → P4 Content system → P5 GEO/AEO → P6 Internal links+nav → P7 Measurement cadence |
@@ -412,7 +412,7 @@ Executors **do not** rewrite SPEC/PLAN. They may append STATUS notes.
 - `references/vv-portability.md` — mapping to vv-opencode tags
 - `references/glossary.md` — 15 терминов (SPEC/PLAN/lifecycle/residual-risk/deploy probe/worker_done/cross-family/…)
 - `references/worked-examples.md` — 3 энд-ту-энд примера из реальных волн (quick / 1-итерация wave / pet-project)
-- **Operational rules ([RULE]/2/3):** `project-bootstrap/references/operational-rules.md` — `--to` на worker_done, проверка через global inbox (не handle-scoped check), writer-swap при API retry storm. Читать при диспетчеризации.
+- **Operational rules (3 rules):** `project-bootstrap/references/operational-rules.md` — `--to` на worker_done, проверка через global inbox (не handle-scoped check), writer-swap при API retry storm. Читать при диспетчеризации.
 
 ## Anti-patterns
 
@@ -433,9 +433,9 @@ Executors **do not** rewrite SPEC/PLAN. They may append STATUS notes.
 - **Writing wave artifacts outside the specified project directory.** Scope is relative to the REPO ROOT of the opencode-skills project.
 ---
 
-## Lifecycle Gates ([TICKET] → [TICKET] lessons)
+## Lifecycle Gates (lessons from production incidents)
 
-**Context:** [TICKET] root cause — agent marked "In Review" / "next product" while code not on prod. No hard states: implement ≠ In Review ≠ merged ≠ deployed ≠ owner smoke ≠ Done. This section encodes the lifecycle contract for waves built with this skill.
+**Context:** production-incident root cause — agent marked "In Review" / "next product" while code not on prod. No hard states: implement ≠ In Review ≠ merged ≠ deployed ≠ owner smoke ≠ Done. This section encodes the lifecycle contract for waves built with this skill.
 
 ### Lifecycle States
 
@@ -478,7 +478,7 @@ No probe and no named residual = not Done.
 For fidelity ports, reference→platform migrations, or behavioral parity waves:
 
 1. **Dual review mandatory:** a static-parity reviewer (file:line matrix, code structure) ∥ a behavioral-semantics reviewer (hosted semantics, cost/state regressions). Example pair: GLM ∥ Codex — but the ROLE matters, not the product: any two complementary lenses from different model families satisfy this. Single-reviewer fidelity ports are NOT accepted.
-2. **Writer ≠ reviewer.** Flash = explicitly excluded from fidelity reviews (simplifies, [TICKET] post-mortem).
+2. **Writer ≠ reviewer.** Flash = explicitly excluded from fidelity reviews (simplifies; production-wave post-mortem).
 3. **MAJOR from any reviewer → fix round before In Review.** Stricter severity wins on contradictions.
 4. **No live smoke = RESIDUAL-RISK-OWNER-SMOKE** in handoff. Document explicitly. Do not claim Done — claim Done-with-residual.
 5. **Deploy gate:** curl new routes before handoff (see below).
@@ -511,7 +511,7 @@ Adapt the probe to your deploy surface:
 
 Principle: one observable command that proves the artifact reached production. No probe = RESIDUAL-RISK-OWNER-SMOKE.
 
-Evidence: [TICKET] had untracked route files — if deployed without tracking, 404. This gate catches missing artifacts before signoff.
+Evidence: production waves had untracked route files — if deployed without tracking, 404. This gate catches missing artifacts before signoff.
 
 ---
 
@@ -542,9 +542,9 @@ wave-spec is the **canonical source of truth** for lifecycle gates, fidelity dua
 ## Changelog
 
 - **v1.0** — initial portable wave-spec from vv-method
-- **v1.1 ([TICKET])** — lifecycle gates (Implement→In Review→Commit→PR→Merge→Deploy Probe→On Prod→Done), fidelity dual review, deploy probe curl pattern, RESIDUAL-RISK-OWNER-SMOKE, NEXT product ban, Installation/SoT section, discoverability pointers, positioning, README bilingual + residual
-- **v1.2 ([TICKET] reframe)** — de-SEO: universal plan-gate across domains. `program-maps.md` (4 menus); SEO optional §4 only. Templates neutral; INTENT Targets + neutral Stack; Scaling examples = [TICKET] + [client-project]; not WooCommerce-default.
-- **v1.3 ([TICKET] post-mortem fix-round)** — templates reconciled with reality: SPEC optional review-provenance (`version`/`review_round`/`accepted_by`/`accepted_at`/`review_sources`) + `<assumptions>` block; PLAN attribute-style tasks as primary idiom (child-elements documented fallback), neutral gate wording, `model_hint` clarified; STATUS state enum = lifecycle states (`implement_done|in_review|commit|pr|merge|deploy_gate|on_prod|done`). Fidelity dual review generalized from model names to roles (static-parity ∥ behavioral-semantics; example pair GLM ∥ Codex; writer≠reviewer, Flash excluded, single-reviewer NOT accepted). New `review-synthesis.md.tmpl`, `fix-round-brief.md.tmpl`, `ASSUMPTIONS.md.tmpl`. Worker-brief aligned to the Orca contract (ROLE/MODE + 3-sentence `worker_done` + SUMMARY/EVIDENCE/CHANGES/RISKS/BLOCKERS). Added wave-closeout checklist, top Positioning block, program-maps quality-bar cross-link + book/fidelity worked walks.
-- **v1.4 ([TICKET])** — LAUNCH.md auto-generation (step 6b) with cross-family check + per-model brief templates + prohibitions; NEXT_SESSION pattern (step 6c): unique files NEXT_SESSION_I{N}.md + copy-paste block with full path + root pointer + 10 sections (no SKILL.md duplication); iteration handoff (step 7): unique per-iteration files + root pointer; linear-workflow generation (step 6d) + Linear validation checklist; PLAN.xml `<roles>` with family + `<family_rule>`; anti-patterns: vv-controller, terminal send, same-family, handoff overwrite, model-card check; closeout: post-mortem → skill update. New templates: LAUNCH.md.tmpl, iteration-handoff.md.tmpl, NEXT_SESSION.md.tmpl, linear-workflow.md.tmpl.
+- **v1.1 (skill update wave)** — lifecycle gates (Implement→In Review→Commit→PR→Merge→Deploy Probe→On Prod→Done), fidelity dual review, deploy probe curl pattern, RESIDUAL-RISK-OWNER-SMOKE, NEXT product ban, Installation/SoT section, discoverability pointers, positioning, README bilingual + residual
+- **v1.2 (reframe wave)** — de-SEO: universal plan-gate across domains. `program-maps.md` (4 menus); SEO optional §4 only. Templates neutral; INTENT Targets + neutral Stack; Scaling examples = successive skill-port waves + product-port example; not WooCommerce-default.
+- **v1.3 (post-mortem fix-round wave)** — templates reconciled with reality: SPEC optional review-provenance (`version`/`review_round`/`accepted_by`/`accepted_at`/`review_sources`) + `<assumptions>` block; PLAN attribute-style tasks as primary idiom (child-elements documented fallback), neutral gate wording, `model_hint` clarified; STATUS state enum = lifecycle states (`implement_done|in_review|commit|pr|merge|deploy_gate|on_prod|done`). Fidelity dual review generalized from model names to roles (static-parity ∥ behavioral-semantics; example pair GLM ∥ Codex; writer≠reviewer, Flash excluded, single-reviewer NOT accepted). New `review-synthesis.md.tmpl`, `fix-round-brief.md.tmpl`, `ASSUMPTIONS.md.tmpl`. Worker-brief aligned to the Orca contract (ROLE/MODE + 3-sentence `worker_done` + SUMMARY/EVIDENCE/CHANGES/RISKS/BLOCKERS). Added wave-closeout checklist, top Positioning block, program-maps quality-bar cross-link + book/fidelity worked walks.
+- **v1.4 (skill update wave)** — LAUNCH.md auto-generation (step 6b) with cross-family check + per-model brief templates + prohibitions; NEXT_SESSION pattern (step 6c): unique files NEXT_SESSION_I{N}.md + copy-paste block with full path + root pointer + 10 sections (no SKILL.md duplication); iteration handoff (step 7): unique per-iteration files + root pointer; linear-workflow generation (step 6d) + Linear validation checklist; PLAN.xml `<roles>` with family + `<family_rule>`; anti-patterns: vv-controller, terminal send, same-family, handoff overwrite, model-card check; closeout: post-mortem → skill update. New templates: LAUNCH.md.tmpl, iteration-handoff.md.tmpl, NEXT_SESSION.md.tmpl, linear-workflow.md.tmpl.
 - **v1.4.1 (2026-07-28)** — NEXT_SESSION template split (bug-fix): the single ambiguous `NEXT_SESSION.md.tmpl` (iteration steps 0–8) renamed to `NEXT_SESSION_ITER.md.tmpl`; new `NEXT_SESSION.md.tmpl` = root pointer (table of iterations + current pointer). §6c now references BOTH templates with MANDATORY both-files wording. Fixes agents writing iteration content into the pointer file (data-migration T01). Backward compatible: `NEXT_SESSION.md.tmpl` path still exists (now the pointer).
-- **v1.5.0 (2026-08-02, [TICKET] — triumvirate refactor: Qwen 3.8 Max ∥ DeepSeek V4 Flash ∥ GLM 5.2)** — tailoring for a non-developer owner (2 working orchestrators). TL;DR + minimum-path + learning ladder (quick→wave→multi) + router line in description. `mode=quick` (≤1 файл/≤30 мин/no deploy) + `quick-spec.md.tmpl`. NEXT_SESSION hybrid threshold (≤2 итераций = компакт шаги 0/3/8; 3+ = полный 9-шаг) + spec-delta line `Changes vs I{N-1}` (в SKILL и в NEXT_SESSION_ITER.md.tmpl — drift-fix). 5 orchestrator copy-paste formats → 2 (Qwen Max, GLM) + default; Flash-формат удалён (запрещён #12). Wave closeout: + secret-redaction grep, + archive wave (mv в waves/archive/), + reflect-вопрос. Fixed duplicate anti-patterns. program mode де-акцентирован (см. references/program-maps.md). New: references/glossary.md (15 терминов), references/worked-examples.md (3 примера), cross-link на operational-rules.md ([RULE]). LAUNCH.md.tmpl: review-brief шаблоны → ссылка на routing.md (−120 строк, drift-fix). Core untouched: 8 lifecycle states, cross-family rule, deploy probe, written≠persisted.
+- **v1.5.0 (2026-08-02, triumvirate refactor: Qwen 3.8 Max ∥ DeepSeek V4 Flash ∥ GLM 5.2)** — tailoring for a non-developer owner (2 working orchestrators). TL;DR + minimum-path + learning ladder (quick→wave→multi) + router line in description. `mode=quick` (≤1 файл/≤30 мин/no deploy) + `quick-spec.md.tmpl`. NEXT_SESSION hybrid threshold (≤2 итераций = компакт шаги 0/3/8; 3+ = полный 9-шаг) + spec-delta line `Changes vs I{N-1}` (в SKILL и в NEXT_SESSION_ITER.md.tmpl — drift-fix). 5 orchestrator copy-paste formats → 2 (Qwen Max, GLM) + default; Flash-формат удалён (запрещён #12). Wave closeout: + secret-redaction grep, + archive wave (mv в waves/archive/), + reflect-вопрос. Fixed duplicate anti-patterns. program mode де-акцентирован (см. references/program-maps.md). New: references/glossary.md (15 терминов), references/worked-examples.md (3 примера), cross-link на operational-rules.md (3 operational rules). LAUNCH.md.tmpl: review-brief шаблоны → ссылка на routing.md (−120 строк, drift-fix). Core untouched: 8 lifecycle states, cross-family rule, deploy probe, written≠persisted.

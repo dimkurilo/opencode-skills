@@ -40,7 +40,7 @@
 - **POST-WORKER_DONE последовательность:** verify files → Linear comment → dispatch reviewer → wait → synthesis → ТОЛЬКО ПОТОМ In Review. Без сокращений
 - **Hard Prohibitions:** 11 запретов с правильными альтернативами в `references/prohibitions.md`
 - **Codex 5.5 behavioral gate:** уникальная роль — нашёл abort/cost MAJOR, который GLM пропустил. НЕ «ещё один ревьювер»
-- **Таблица маршрутизации:** 7+ типов задач → модели с evidence из волн I3–[TICKET]
+- **Таблица маршрутизации:** 7+ типов задач → модели с evidence из production waves
 - **Dual review обязателен:** fidelity-порты требуют GLM 5.2 (static parity) ∥ Codex 5.5 (hosted semantics) — комплементарны, не избыточны
 - **Deploy / smoke gate:** доказать, что поставленная поверхность существует перед handoff (принцип + curl-примеры в `references/routing.md`)
 - **Жизненный цикл:** 8 состояний (см. wave-spec §Lifecycle Gates). Не схлопывать в «writer Done»

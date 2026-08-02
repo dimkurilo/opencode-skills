@@ -79,12 +79,12 @@ Otherwise → solo.
 | Long multi-file implement, architecture synthesis | **GLM 5.2** | Zhipu | 1M state continuity, long-horizon |
 | **Implement (primary coder)** | **Qwen Code** (`qwen --approval-mode yolo`, `/effort medium`) | Alibaba | Native orchestration, worker_done. Reviewer: DeepSeek Pro or GLM 5.2 (NOT OpenCode Qwen) |
 | Complex analysis, multimodal, cross-examination, **fidelity writer** | **Qwen 3.8 Max** | Alibaba | 2.4T weights, native vision, CoT; default fidelity port writer (§2c) |
-| Security / RLS / auth / Storage review | **Codex 5.5 + Qwen Max** (+ Pro for depth) | OpenAI + Alibaba | Gate + RLS; not Pro-only (I4 lesson) |
+| Security / RLS / auth / Storage review | **Codex 5.5 + Qwen Max** (+ Pro for depth) | OpenAI + Alibaba | Gate + RLS; not Pro-only (cross-model lesson) |
 | **Behavioral regression gate** | **Codex 5.5** | OpenAI | Unique role — caught abort/cost MAJOR GLM missed. NOT "just another reviewer" |
 | Fast research, SEO/tools, speed loops | **Grok 4.5** | xAI | Speed, tool-native |
 | Bulk mechanical, inventory, simple edits | **DeepSeek V4 Flash** | DeepSeek | Cheap, fast |
 | Cross-QA (review someone else's work) | **Different family** | — | Blind-spot detection |
-| **Fidelity port** (generator, vectorizer, reference→platform) | **Qwen 3.8 Max** write · **GLM 5.2** ∥ **Codex 5.5** review | Alibaba · Zhipu ∥ OpenAI | [TICKET] evidence: Qwen byte-identical prompt matrix; GLM exhaustive static parity; Codex behavioral regression gate (caught abort/cost MAJOR). Dual review mandatory — complementary, not redundant |
+| **Fidelity port** (generator, vectorizer, reference→platform) | **Qwen 3.8 Max** write · **GLM 5.2** ∥ **Codex 5.5** review | Alibaba · Zhipu ∥ OpenAI | Evidence (production waves): Qwen byte-identical prompt matrix; GLM exhaustive static parity; Codex behavioral regression gate (caught abort/cost MAJOR). Dual review mandatory — complementary, not redundant |
 | **Orchestration / dispatch / handoff** | **Grok 4.5** | xAI | Orchestrator NEVER implements (§3 role lock). Dispatch → wait → synthesize → gate |
 
 **Cross-family rule:** writer.family ≠ reviewer.family. Qwen Code (Alibaba) writer → reviewer must be DeepSeek/Zhipu/OpenAI, NOT OpenCode Qwen (also Alibaba). Full pairs: `references/routing.md` → Cross-Family Pairs.
@@ -104,7 +104,7 @@ Full routing details + brief templates: `references/routing.md`.
 
 **SUMMARY:** After merge/deploy (or skill install), prove the shipped surface exists before handoff. The probe checks existence, not correctness — correctness is verified at In Review. Adapt the probe to the target stack (web curl, CLI binary, package install, skill load path). Principle: one observable command that proves the artifact reached production. No probe = RESIDUAL-RISK-OWNER-SMOKE.
 
-Evidence: [TICKET] had untracked route files — if deployed without tracking, 404.
+Evidence: production waves had untracked route files — if deployed without tracking, 404.
 
 ---
 
@@ -119,7 +119,7 @@ Evidence: [TICKET] had untracked route files — if deployed without tracking, 4
 4. **No live smoke = RESIDUAL-RISK-OWNER-SMOKE** in handoff. Document explicitly.
 5. **Deploy gate:** prove shipped surface before handoff (§2b).
 
-Evidence: [TICKET] — GLM-only would have missed abort MAJOR; Codex-only would have missed normTemperature + refine edge.
+Evidence (production waves): GLM-only would have missed abort MAJOR; Codex-only would have missed a numeric edge case + refine path.
 
 For non-fidelity waves: dual review is recommended but not mandatory. At minimum, writer ≠ reviewer.
 
@@ -127,9 +127,9 @@ For non-fidelity waves: dual review is recommended but not mandatory. At minimum
 
 ## 2d. Lifecycle Gates
 
-**Canonical definition:** `skills/wave-spec/SKILL.md` §"Lifecycle Gates ([TICKET] → [TICKET] lessons)".
+**Canonical definition:** `skills/wave-spec/SKILL.md` §"Lifecycle Gates (lessons from production incidents)".
 
-8 states, linear order, deploy probe, RESIDUAL-RISK-OWNER-SMOKE — полная таблица в каноне ([TICKET] T-Q3a: дубль убран, один источник правды).
+8 states, linear order, deploy probe, RESIDUAL-RISK-OWNER-SMOKE — полная таблица в каноне (дубль убран, один источник правды).
 
 ---
 
@@ -208,8 +208,8 @@ review-only → findings only, NO file edits.
 Blocked → ask/escalation, do not thrash.
 After worker_done → idle (end turn).
 ```
-- **NEW [RULE]**: Brief ALWAYS contains explicit `--to <coordinator-handle>` example. Without `--to`, orca returns msg ID but message goes to void route ([TICKET][ITER] incident [MSG]).
-- **NEW [RULE] self-protection for implement workers**: Brief contains clause: "On API retry attempt #5+ → terminal read first → git diff --stat → if files modified match expected → idle and signal via heartbeat; if blocked → Ctrl-C and wait for coordinator swap. Do NOT continue retrying."
+- **NEW worker_done rule**: Brief ALWAYS contains explicit `--to <coordinator-handle>` example. Without `--to`, orca returns msg ID but message goes to void route (production incident: message lost).
+- **NEW writer-swap rule self-protection for implement workers**: Brief contains clause: "On API retry attempt #5+ → terminal read first → git diff --stat → if files modified match expected → idle and signal via heartbeat; if blocked → Ctrl-C and wait for coordinator swap. Do NOT continue retrying."
 
 Model-specific wrapping:
 - **GLM 5.2**: Goal → Context → Constraints → Done. No 【】. No "think step by step".
@@ -231,8 +231,8 @@ Model-specific wrapping:
 | 3 consecutive failures | Circuit-break. Route to different model or escalate to human |
 | Worker reports FAIL | Coordinator decides: re-dispatch with fix context OR route to different model |
 
-| **NEW [RULE]** | After `check --wait`, verify delivery via **GLOBAL inbox** (`orca orchestration inbox --limit 20 --json`, filter by payload taskId), NOT handle-scoped `check`. `check` is handle-scoped → it misses worker_done on **handle drift** (stale recipient handle after terminal restart) or **self-send** (stored from==to); both give `check=0` while `inbox=N`. If inbox has the worker_done but `check --wait` didn't return it → your handle changed (restart): re-resolve via `terminal list` / re-dispatch. If inbox lacks it → real routing miss, recover from terminal output ([RULE]) |
-| **NEW [RULE]** | On API retry attempt #5+ in worker terminal: `terminal read` first → `git diff --stat` → if files modified match expected scope → dispatch verify+finalize brief to fresh writer terminal (NOT redo from scratch). If files not modified → re-dispatch from scratch or cross-family swap |
+| **NEW verify-arrival rule** | After `check --wait`, verify delivery via **GLOBAL inbox** (`orca orchestration inbox --limit 20 --json`, filter by payload taskId), NOT handle-scoped `check`. `check` is handle-scoped → it misses worker_done on **handle drift** (stale recipient handle after terminal restart) or **self-send** (stored from==to); both give `check=0` while `inbox=N`. If inbox has the worker_done but `check --wait` didn't return it → your handle changed (restart): re-resolve via `terminal list` / re-dispatch. If inbox lacks it → real routing miss, recover from terminal output (writer-swap rule) |
+| **NEW writer-swap rule** | On API retry attempt #5+ in worker terminal: `terminal read` first → `git diff --stat` → if files modified match expected scope → dispatch verify+finalize brief to fresh writer terminal (NOT redo from scratch). If files not modified → re-dispatch from scratch or cross-family swap |
 
 Details: `references/failure-handling.md`.
 
@@ -300,15 +300,15 @@ Build the exact commands from the orchestration guide. The sequence is:
 - After step 6: worker_done received. **Timeout ≠ failure** → terminal read → if working → repeat wait.
 - If worker printed report as text but no worker_done → terminal send: "worker_done = orca orchestration send CLI command. Not text."
 
-### NEW [RULE]/2/3 ([TICKET] operational rules)
+### NEW operational rules (3 rules)
 
 Canonical source: `skills/project-bootstrap/references/operational-rules.md`.
 
-**[RULE]**: `worker_done` MANDATORY `--to <coordinator-handle>`. Without it → void route.
-**[RULE]**: After `check --wait` → verify delivery via **GLOBAL inbox** filtered by taskId (`inbox --limit 20 --json`), NOT handle-scoped `check`. `check` misses worker_done on handle drift (stale recipient handle) or self-send (from==to): `check=0` while `inbox=N`. Terminal "Sent msg_..." ≠ delivery proof.
-**[RULE]**: On API retry #5+ → `terminal read` → file inspect → verify+finalize brief (NOT redo).
+**Rule 1 (worker_done rule)**: `worker_done` MANDATORY `--to <coordinator-handle>`. Without it → void route.
+**Rule 2 (verify-arrival rule)**: After `check --wait` → verify delivery via **GLOBAL inbox** filtered by taskId (`inbox --limit 20 --json`), NOT handle-scoped `check`. `check` misses worker_done on handle drift (stale recipient handle) or self-send (from==to): `check=0` while `inbox=N`. Terminal "Sent msg_..." ≠ delivery proof.
+**Rule 3 (writer-swap rule)**: On API retry #5+ → `terminal read` → file inspect → verify+finalize brief (NOT redo).
 
-Source: [TICKET][ITER] [incident-date] — GLM reviewer missed `--to`, [MSG] lost.
+Source: production incident — reviewer missed `--to`, message lost.
 
 ### Shell timeout rule
 
@@ -394,4 +394,4 @@ Coordinator names models to human BEFORE dispatch — human can veto expensive c
 - `references/prohibitions.md` — 11 hard prohibitions with correct alternatives
 - **`orca-cli` skill** — terminal ops, worktree management, handoffs. Load via `orca skills get orca-cli`
 - **`orchestration` skill** — task/dispatch/wait, worker_done authority, coordinator loops. Load via `orca skills get orchestration`
-<!-- Changelog: v1.0 · v1.1 MCP/audit/cost · v1.2 dispatch fix · v1.3 [platform] · v1.4 model-card · v1.5 Qwen postmortem P0–P2 · v1.6 [TICKET]: Qwen Code first-class, family field + cross-family routing, PRE-DISPATCH GATE (§3), POST-WORKER_DONE sequence, §10 atomic full cycles, prohibitions.md, Codex behavioral gate, cost Grok unlimited -->
+<!-- Changelog: v1.0 · v1.1 MCP/audit/cost · v1.2 dispatch fix · v1.3 [platform] · v1.4 model-card · v1.5 Qwen postmortem P0–P2 · v1.6 (skill update wave): Qwen Code first-class, family field + cross-family routing, PRE-DISPATCH GATE (§3), POST-WORKER_DONE sequence, §10 atomic full cycles, prohibitions.md, Codex behavioral gate, cost Grok unlimited · v1.7 operational rules (3 rules embedded) -->

@@ -8,17 +8,17 @@
 ## [Unreleased]
 
 ### Added
-- **multi-model-orchestration v1.7.0** ([TICKET]):
-  - 3 [RULE]/2/3 operational rules в SKILL: §4 brief structure (explicit `--to` example + [RULE] self-protection clause), §5 failure handling ([RULE] verify queue arrival + [RULE] writer swap protocol rows), §10 Orca commands cross-ref to operational-rules.md
-  - `references/worker-contract.md`: anti-pattern "Reconstructing send from memory" ([RULE]) с [TICKET][ITER] incident evidence
-  - `references/failure-handling.md`: 2 new failure modes — "Message Routing Void" ([RULE]) + "API Retry Storm — Writer Swap" ([RULE]) с detection/recovery protocols
-- **project-bootstrap v2.1.0** ([TICKET]):
-  - NEW `references/operational-rules.md`: canonical 3 [RULE]/2/3 reference для embedding в generated AGENTS.md
+- **multi-model-orchestration v1.7.0**:
+  - 3 operational rules в SKILL: §4 brief structure (explicit `--to` example + writer-swap rule self-protection clause), §5 failure handling (verify-arrival rule queue arrival + writer-swap rule protocol rows), §10 Orca commands cross-ref to operational-rules.md
+  - `references/worker-contract.md`: anti-pattern "Reconstructing send from memory" (worker_done rule) с production incident evidence
+  - `references/failure-handling.md`: 2 new failure modes — "Message Routing Void" (verify-arrival rule) + "API Retry Storm — Writer Swap" (writer-swap rule) с detection/recovery protocols
+- **project-bootstrap v2.1.0**:
+  - NEW `references/operational-rules.md`: canonical 3 operational rules reference для embedding в generated AGENTS.md
   - `assets/templates/AGENTS.md.tmpl`: 2 new conditional placeholders `${OPERATIONAL_RULES_MULTI_MODEL}` (преамбула) + `${OPERATIONAL_RULES_RECENCY}` (closing anchors) — включаются для multi-model project type
   - SKILL.md: variant-e-model expanded с multi-model detection logic; placeholders table expanded с 2 new entries; banner → v2.1.0
-- **AGENTS.md (repo dev)**: преамбула расширена с 4 до 7 железных правил ([RULE]/2/3 + 4 существующих) + closing anchors extended с 3 до 6 compressed правил
+- **AGENTS.md (repo dev)**: преамбула расширена с 4 до 7 железных правил (3 operational rules + 4 существующих) + closing anchors extended с 3 до 6 compressed правил
 
-- **wave-spec v1.4.0** ([TICKET]):
+- **wave-spec v1.4.0**:
   - LAUNCH.md auto-generation (step 6b): cross-family check, per-model brief templates (6 models), prohibitions, versioning. No copy-paste bash — sequence description only
   - NEXT_SESSION pattern (step 6c): **steps + verification gates format** (model-agnostic). Step 0 = load `orca skills get orchestration`. 8 steps with concrete gates. No copy-paste bash blocks. Linear woven into flow (step 1 = In Progress, step 7 = comment + In Review)
   - Iteration handoff (step 7): unique per-iteration files, root SESSION_HANDOFF.md as pointer
@@ -28,7 +28,7 @@
   - Post-mortem → skill update in closeout checklist
   - New templates: LAUNCH.md.tmpl, iteration-handoff.md.tmpl, NEXT_SESSION.md.tmpl, linear-workflow.md.tmpl
   - worker-brief.md.tmpl + fix-round-brief.md.tmpl: written≠persisted gate + worker_done CLI rule
-- **multi-model-orchestration v1.6.0** ([TICKET]):
+- **multi-model-orchestration v1.6.0**:
   - Qwen Code first-class: separate CLI, `/effort`, native worker_done, `--approval-mode yolo`
   - Family field for all models (Alibaba, Zhipu, DeepSeek, OpenAI, xAI) + cross-family routing
   - PRE-DISPATCH GATE (§3): 6-point mandatory checklist before every dispatch
@@ -48,22 +48,22 @@
 - **multi-model-orchestration v1.5** (Qwen skill postmortem P0–P2):
   - **P0:** `worker-contract.md` — live Orca `worker_done` flags (`--task-id`, `--dispatch-id`, `--files-modified`, `--report-path`); body = 3-sentence summary; full contract in report file. **written≠persisted** gate for all implement workers (`git status`/`ls` before success `worker_done`). **model-card.md** — launch pins for Codex 5.5 + GPT-5.6 (native Codex CLI) and all OpenCode agents.
   - **P1:** bilingual README layout includes `model-card.md`; SKILL §13 cost table + Codex row; deploy curl canonical only in `routing.md` (SKILL §2b = principle + pointer); heartbeat row in SKILL §5.
-- **[ITER] fix (2026-07-28)**: 
+- **Routing-fix wave**:
   - multi-model-orchestration/README.md + README.ru.md: sync "7 explicit gates" → "8 states (see wave-spec §Lifecycle Gates)"
   - multi-model-orchestration/SKILL.md: §2c Rule 1 add "two complementary lenses from different model families" guard (MAJOR, ensemble FM2); §2b Deploy add "probe checks existence, not correctness" qualifier (MINOR, ensemble FM3)
   - wave-spec/SKILL.md: §6b version-anchor — frontmatter `version: 1.4.0` (metadata cross-reference); canonical Lifecycle/Fidelity/Deploy sections unchanged
-  - wave-spec/assets/templates/NEXT_SESSION.md.tmpl: [TICKET] Orca bypass guard added (aligns with §3 Role Lock)
+  - wave-spec/assets/templates/NEXT_SESSION.md.tmpl: Orca bypass guard added (production incident; aligns with §3 Role Lock)
   - .agents/scripts/lint-skill.sh: cross-reference drift detector — diff SUMMARY blocks against cited wave-spec sections (ensemble dominant risk mitigation)
   - lint PASS on all 3 skills (wave-spec, multi-model-orchestration, project-bootstrap)
-- **Codex + GLM cross-family review ([ITER])**: Codex 5.5 writer (took over from DeepSeek Pro after API timeout) ∥ GLM 5.2 reviewer = valid cross-family (OpenAI ≠ Zhipu). 0 MAJOR, 0 escalation. **Deviation:** single-reviewer fallback (originally planned double review; Codex promoted to writer after Pro stuck on retry #10).
+- **Cross-family review (routing-fix wave)**: fallback writer (took over from primary writer after API timeout) ∥ reviewer = valid cross-family. 0 MAJOR, 0 escalation. **Deviation:** single-reviewer fallback (originally planned double review; fallback promoted to writer after primary stuck on retry #10).
 
 ### Fixed
 - **wave-spec v1.4.1** — NEXT_SESSION template naming fix: the single ambiguous `assets/templates/NEXT_SESSION.md.tmpl` (iteration steps 0–8) is renamed to `NEXT_SESSION_ITER.md.tmpl`; a new `NEXT_SESSION.md.tmpl` is the root pointer (table of iterations + current pointer). SKILL.md §6c now references BOTH templates with MANDATORY both-files wording. Root cause of data-migration T01 writing iteration content into `NEXT_SESSION.md` instead of `NEXT_SESSION_<iter>.md`. Backward compatible — `NEXT_SESSION.md.tmpl` still resolves (now to the pointer).
-- README drift source resolved ([TICKET] reproduction path).
+- README drift source resolved (production-incident reproduction path).
   - **P2:** deploy gate generalized (principle-first); Qwen §2 row marks fidelity writer; Solo Defaults table filled in `routing.md`; SKILL changelog comment → v1.5.
 - **multi-model-orchestration:** Qwen agent pin is now **versionless** — default OpenCode agent is `A/agent1st_qwen-3.8` (`~/.config/opencode/agents/A/agent1st_qwen-3.8.md`). Versioned `v5.1` / `v5.2` agent files may remain on disk as history/rollback only; skills always pin the versionless name — protocol content lives inside the agent file, not the skill. Documented in `references/model-card.md` + `routing.md`.
-- **wave-spec v1.3** — post-mortem fix-round ([TICKET] Qwen v5.2 review): templates reconciled with reality (SPEC optional review-provenance; PLAN attribute-style tasks as primary idiom, neutral gate wording, `model_hint` clarified; STATUS state enum = lifecycle states). Fidelity dual review generalized from model names to roles (static-parity ∥ behavioral-semantics; example pair GLM∥Codex; writer≠reviewer, Flash excluded, single-reviewer NOT accepted). New `review-synthesis.md.tmpl` + `fix-round-brief.md.tmpl` + `ASSUMPTIONS.md.tmpl`. Worker-brief template aligned to the Orca contract (ROLE/MODE + 3-sentence `worker_done` + SUMMARY/EVIDENCE/CHANGES/RISKS/BLOCKERS). Added wave-closeout checklist, top Positioning block, program-maps quality-bar cross-link + book/fidelity worked walks.
-- **wave-spec v1.2** — de-SEO reframe: universal plan-gate for development, content, skill-port, translation, orchestration, and site rebuild. New `references/program-maps.md` with 4 domain-specific menus (skill-port, translation, fidelity port, SEO as optional §4). SPEC/PLAN templates neutral — SEO workstream enum replaced with domain-agnostic placeholders + program-maps pointer. INTENT Sites/URLs→Targets, Stack neutral. Scaling section rewritten: program→waves pattern with worked examples [TICKET] + [client-project] I0–I7; WooCommerce P0–P7 table removed as default. Quality bar, anti-patterns, positioning de-SEO'd. `references/seo-program-map.md` deleted — content migrated to program-maps §4.
+- **wave-spec v1.3** — post-mortem fix-round wave: templates reconciled with reality (SPEC optional review-provenance; PLAN attribute-style tasks as primary idiom, neutral gate wording, `model_hint` clarified; STATUS state enum = lifecycle states). Fidelity dual review generalized from model names to roles (static-parity ∥ behavioral-semantics; example pair GLM∥Codex; writer≠reviewer, Flash excluded, single-reviewer NOT accepted). New `review-synthesis.md.tmpl` + `fix-round-brief.md.tmpl` + `ASSUMPTIONS.md.tmpl`. Worker-brief template aligned to the Orca contract (ROLE/MODE + 3-sentence `worker_done` + SUMMARY/EVIDENCE/CHANGES/RISKS/BLOCKERS). Added wave-closeout checklist, top Positioning block, program-maps quality-bar cross-link + book/fidelity worked walks.
+- **wave-spec v1.2** — de-SEO reframe: universal plan-gate for development, content, skill-port, translation, orchestration, and site rebuild. New `references/program-maps.md` with 4 domain-specific menus (skill-port, translation, fidelity port, SEO as optional §4). SPEC/PLAN templates neutral — SEO workstream enum replaced with domain-agnostic placeholders + program-maps pointer. INTENT Sites/URLs→Targets, Stack neutral. Scaling section rewritten: program→waves pattern with worked examples = successive skill-port waves + product-port example; WooCommerce P0–P7 table removed as default. Quality bar, anti-patterns, positioning de-SEO'd. `references/seo-program-map.md` deleted — content migrated to program-maps §4.
 ### Added
 - **multi-model-orchestration v1.3** — new public skill: coordinate 2+ AI models (GLM 5.2, DeepSeek V4 Pro/Flash, Qwen 3.8 Max, Grok 4.5, Codex 5.5, GPT-5.6) for parallel review, cross-validation, and bulk work via Orca orchestration. Includes [platform] routing table, fidelity port dual review rules, deploy gate with corrected curl probe, lifecycle states with commit→PR→merge chain, and writer replaceability pattern.
 

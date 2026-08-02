@@ -127,7 +127,7 @@ disable-model-invocation: true
 - `variant-e-full` → полная преамбула + чеклист + closing anchors (DeepSeek).
 - `variant-e-grace` → Variant E + GRACE-якоря в кодовых файлах.
 - `variant-e-model` → модельно-специфичные closing anchors.
-  - **Multi-model project type ([RULE]/2/3, [TICKET]):** если classify_project.sh детектит multi-model signals (orca orchestration, dispatch --inject, worker_done в контексте) → обязательно включить operational rules из `references/operational-rules.md` через `${OPERATIONAL_RULES_MULTI_MODEL}` placeholder в преамбуле + `${OPERATIONAL_RULES_RECENCY}` в closing anchors.
+  - **Multi-model project type (3 operational rules):** если classify_project.sh детектит multi-model signals (orca orchestration, dispatch --inject, worker_done в контексте) → обязательно включить operational rules из `references/operational-rules.md` через `${OPERATIONAL_RULES_MULTI_MODEL}` placeholder в преамбуле + `${OPERATIONAL_RULES_RECENCY}` в closing anchors.
 - `lightweight` → облегчённая преамбула без технических правил.
 - `base` → базовый шаблон.
 
@@ -320,9 +320,9 @@ task(auditor) + task(auditor-glm)
 | `${LOADED_CONTEXT_L2}` | AGENTS.md | Level 2: по триггеру | Rules с триггер-словами |
 | `${LOADED_CONTEXT_L3}` | AGENTS.md | Level 3: on-demand | Skills, commands, agents |
 | `${PREAMBLE_RULES}` | AGENTS.md | N железных правил IF-THEN (преамбула) | Извлеки из задачи |
-| `${OPERATIONAL_RULES_MULTI_MODEL}` | AGENTS.md | 3 [RULE]/2/3 IF-THEN rules (multi-model projects only) | Include если project type = agent/multi-model; иначе empty |
+| `${OPERATIONAL_RULES_MULTI_MODEL}` | AGENTS.md | 3 operational rules IF-THEN (multi-model projects only) | Include если project type = agent/multi-model; иначе empty |
 | `${CLOSING_ANCHORS}` | AGENTS.md | Правила в recency-зоне | Дубликат PREAMBLE_RULES + модельные якоря |
-| `${OPERATIONAL_RULES_RECENCY}` | AGENTS.md | 3 compressed [RULE]/2/3 one-liners (multi-model projects only) | Include если project type = agent/multi-model; иначе empty |
+| `${OPERATIONAL_RULES_RECENCY}` | AGENTS.md | 3 compressed operational rule one-liners (multi-model projects only) | Include если project type = agent/multi-model; иначе empty |
 | `${WORK_PROTOCOL}` | AGENTS.md | Command-first протокол | Конкретные команды |
 | `${SETUP_COMMANDS}` | AGENTS.md | Команды настройки | Если нужны |
 | `${INIT_NOTE}` | AGENTS.md | Заметка о создании | «Агентская инфраструктура v2, модули: ...» |

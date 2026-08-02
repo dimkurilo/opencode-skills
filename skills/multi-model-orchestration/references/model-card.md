@@ -3,8 +3,8 @@
 > **What this IS:** Evidence-based role map. 30-second reference: who does what, what to never confuse.
 > **What this is NOT:** Capability rankings. ★★★★★ beauty contests. Roles differ, not "smarter."
 
-Source: I3–[TICKET] post-mortems. Self-contained — reads without [client-project] checkout.
-Updated: 2026-07-26.
+Source: production-wave post-mortems. Self-contained — reads without any product checkout.
+Updated: see CHANGELOG.
 
 ---
 
@@ -63,13 +63,13 @@ Both persist across sessions. Always set explicitly.
 
 | Model | Role | Не путать с | Evidence 1-liner |
 |-------|------|-------------|------------------|
-| **Qwen 3.8 Max** (`agent1st_qwen-3.8`) | Fidelity writer · RLS reviewer | General writer | [TICKET]: 5832-case byte-identical prompt matrix, 0 failures, build/tsc green. Best RLS alignment — caught `is_active_user()` MAJOR with concrete one-line fix. |
+| **Qwen 3.8 Max** (`agent1st_qwen-3.8`) | Fidelity writer · RLS reviewer | General writer | Evidence (production waves): 5832-case byte-identical prompt matrix, 0 failures, build/tsc green. Best RLS alignment — caught `is_active_user()` MAJOR with concrete one-line fix. |
 | **Qwen Code** (`qwen --approval-mode yolo`) | Primary coder (implement) · Native orchestration | OpenCode Qwen (same family, different CLI) | Native worker_done/heartbeat. `/effort` not `/variants`. `--approval-mode yolo` mandatory for Orca. Cross-family reviewer: DeepSeek Pro or GLM 5.2. |
-| **GLM 5.2** | Multi-file writer (default) · Static parity reviewer (best in stack) | Sole reviewer | I4/I5: ~15 min multi-file implement, ~10 min fix-round, build green. [TICKET]: 40+ verification points, 9 functions byte-checked, 0 false positives — best static parity auditor. **Перед запуском проверить доступность** — возможны временные ограничения тарифа. При недоступности: DeepSeek V4 Pro или Qwen 3.8 Max. |
-| **Codex 5.5** | Merge gate · Behavioral regression gate | "Just another reviewer" | I4: caught UNIQUE(user_id,nonce) cross-user MAJOR. [TICKET]: caught abort/cost MAJOR that GLM's static review missed. Best hosted-semantics gate in the stack — unique role, not redundant. |
-| **DeepSeek V4 Pro** | Depth analyst · Race/ordering | Security gate · Sole merge gate | I4: best depth on 10-constraint matrix, resurrection races. But under-severity on RLS — rated disabled-user SELECT + global nonce as PASS/soft O* while Codex/Qwen independently rated MAJOR. |
-| **DeepSeek V4 Flash** | Bulk · Hotfix · Simple edits | Multi-file writer · Fidelity writer | I3 post-mortem: edge-case SQL bugs after RLS changes, lock leaks after reorder, in-memory guards on serverless. "Almost right, then hotfix" — not primary on multi-file tasks. |
-| **Grok 4.5** | Orchestrator | Implementer | [TICKET]: correct role lock, correct routing, correct synthesis. Never implements code — dispatch → wait → gate. **Orchestrator role is owner-pinnable (§Owner Pin below).** |
+| **GLM 5.2** | Multi-file writer (default) · Static parity reviewer (best in stack) | Sole reviewer | Evidence (production waves): ~15 min multi-file implement, ~10 min fix-round, build green. 40+ verification points, 9 functions byte-checked, 0 false positives — best static parity auditor. **Перед запуском проверить доступность** — возможны временные ограничения тарифа. При недоступности: DeepSeek V4 Pro или Qwen 3.8 Max. |
+| **Codex 5.5** | Merge gate · Behavioral regression gate | "Just another reviewer" | Evidence (production waves): caught UNIQUE(user_id,nonce) cross-user MAJOR. Caught abort/cost MAJOR that GLM's static review missed. Best hosted-semantics gate in the stack — unique role, not redundant. |
+| **DeepSeek V4 Pro** | Depth analyst · Race/ordering | Security gate · Sole merge gate | Evidence (production waves): best depth on 10-constraint matrix, resurrection races. But under-severity on RLS — rated disabled-user SELECT + global nonce as PASS/soft O* while Codex/Qwen independently rated MAJOR. |
+| **DeepSeek V4 Flash** | Bulk · Hotfix · Simple edits | Multi-file writer · Fidelity writer | Post-mortem (production waves): edge-case SQL bugs after RLS changes, lock leaks after reorder, in-memory guards on serverless. "Almost right, then hotfix" — not primary on multi-file tasks. |
+| **Grok 4.5** | Orchestrator | Implementer | Evidence (production waves): correct role lock, correct routing, correct synthesis. Never implements code — dispatch → wait → gate. **Orchestrator role is owner-pinnable (§Owner Pin below).** |
 
 ---
 
@@ -82,9 +82,9 @@ Both persist across sessions. Always set explicitly.
 - **«сейчас writer=Pro»** → DeepSeek V4 Pro is the writer. Reviewer must be different family (GLM/Codex/Qwen).
 
 Both confirmed fidelity-capable:
-- [TICKET]: Qwen wrote 5832-case byte-identical prompt matrix · GLM reviewed static parity (0 false positives).
-- I4/I5: GLM wrote multi-file architecture · Codex∥Pro reviewed (build green, fix-round ~10 min).
-- [TICKET]: DeepSeek V4 Pro as orchestrator completed full cycle (dispatch→wait→verify→fix→re-dispatch) on 2 test waves.
+- Evidence (production waves): Qwen wrote 5832-case byte-identical prompt matrix · GLM reviewed static parity (0 false positives).
+- Evidence (production waves): GLM wrote multi-file architecture · Codex∥Pro reviewed (build green, fix-round ~10 min).
+- Evidence (skill update wave): DeepSeek V4 Pro as orchestrator completed full cycle (dispatch→wait→verify→fix→re-dispatch) on 2 test waves.
 
 The orchestrator reads the owner pin and routes accordingly. The model card documents current capability — it does not encode a permanent assignment.
 
@@ -93,11 +93,11 @@ The orchestrator reads the owner pin and routes accordingly. The model card docu
 **«сейчас orchestrator=X» instantly pins the session orchestrator. Default: Grok 4.5.**
 
 - **«сейчас orchestrator=Grok»** → Grok 4.5 (default, xAI family, fastest dispatch)
-- **«сейчас orchestrator=Pro»** / **«orchestrator=DeepSeek»** → DeepSeek V4 Pro (1M context, structured thinking, [TICKET] evidence)
+- **«сейчас orchestrator=Pro»** / **«orchestrator=DeepSeek»** → DeepSeek V4 Pro (1M context, structured thinking, production-wave evidence)
 - **«сейчас orchestrator=Qwen»** → Qwen 3.8 Max (2.4T weights, CoT, vision)
 - **«сейчас orchestrator=GLM»** → GLM 5.2 (1M state continuity, Self-Harness. ⚠️ Watch: tool passivity, session drift, overthinking — agent anti-patterns §4.5). Best for architecture-heavy waves.
 
-**Flash as orchestrator — mechanics only ([TICKET] T-Q2):** допускается как оркестратор-механик для волн по УЖЕ утверждённому PLAN: dispatch → wait → gate → test. НЕ для суждения/синтеза high-stakes (minority-first или внешний синтезатор), НЕ для multi-file writer (I3: almost-right-then-hotfix, model-card role = bulk/hotfix writer). Ограничения: no write вне тестов волны, no deploy, no paid/CRM, внешний верификатор существует.
+**Flash as orchestrator — mechanics only (triage finding):** допускается как оркестратор-механик для волн по УЖЕ утверждённому PLAN: dispatch → wait → gate → test. НЕ для суждения/синтеза high-stakes (minority-first или внешний синтезатор), НЕ для multi-file writer (production-wave lesson: almost-right-then-hotfix, model-card role = bulk/hotfix writer). Ограничения: no write вне тестов волны, no deploy, no paid/CRM, внешний верификатор существует.
 
 The orchestrator pin affects:
 - NEXT_SESSION copy-paste block format (Grok: Task/Autonomy, Pro: Задача/Где/Должно быть/Не трогать, Qwen: Context/Objective/Constraints, GLM: Goal/Context/Constraints/Done)
@@ -109,12 +109,12 @@ The orchestrator pin affects:
 | Task type | Writer | Review | Notes |
 |-----------|--------|--------|-------|
 | **Implement (Qwen Code)** | Qwen Code (`qwen --approval-mode yolo`, `/effort medium`) | DeepSeek Pro (DeepSeek) or GLM 5.2 (Zhipu) | Cross-family mandatory. NOT OpenCode Qwen as reviewer (same Alibaba family). |
-| **Fidelity port** | Qwen 3.8 Max (default) | GLM 5.2 ∥ Codex 5.5 | Dual review mandatory. Flash explicitly excluded (I3: simplifies). Writer ≠ reviewer — cross-family. |
-| **Security / RLS / auth** | Codex + Qwen (parallel) | + Pro (depth supplement) | **Never Pro-only as sole gate** (I4 under-severity lesson). Pro = correctness/depth, not gate authority. |
+| **Fidelity port** | Qwen 3.8 Max (default) | GLM 5.2 ∥ Codex 5.5 | Dual review mandatory. Flash explicitly excluded (production-wave lesson: simplifies). Writer ≠ reviewer — cross-family. |
+| **Security / RLS / auth** | Codex + Qwen (parallel) | + Pro (depth supplement) | **Never Pro-only as sole gate** (production-wave under-severity lesson). Pro = correctness/depth, not gate authority. |
 | **Multi-file implement** (3+ files) | GLM 5.2 (default, owner can swap to Qwen) | Pro + Codex or Qwen Code | Writer ≠ reviewer mandatory. Owner pin overrides default. |
 | **Deep race / ordering** | DeepSeek V4 Pro | Codex 5.5 (behavioral semantics) | Pro for depth on lock ordering, constraint matrices. Codex for hosted semantics — complementary. |
 | **Bulk / hotfix** (1-2 files) | Flash | — | Solo OK for trivial. Not multi-file. |
-| **Orchestration** | **Grok 4.5** (default) · **DeepSeek V4 Pro** · **Qwen 3.8 Max** · **GLM 5.2** ⚠️ | — | Owner pin (§below). Never implements (§3 role lock). GLM = architecture-heavy waves; ⚠️ tool passivity + drift. Evidence: [TICKET] — DeepSeek V4 Pro completed full orchestration cycle on 2 test waves. |
+| **Orchestration** | **Grok 4.5** (default) · **DeepSeek V4 Pro** · **Qwen 3.8 Max** · **GLM 5.2** ⚠️ | — | Owner pin (§below). Never implements (§3 role lock). GLM = architecture-heavy waves; ⚠️ tool passivity + drift. Evidence (skill update wave): DeepSeek V4 Pro completed full orchestration cycle on 2 test waves. |
 
 ### Cross-family pairs (writer.family ≠ reviewer.family)
 
@@ -130,13 +130,13 @@ The orchestrator pin affects:
 
 ## Anti-Patterns
 
-1. **Flash as multi-file writer** → I3: edge-case bugs, almost-right-then-hotfix. Flash = bulk/hotfix only.
-2. **Pro as sole security gate** → I4: under-severity on RLS. Pro = depth supplement, not gate authority.
+1. **Flash as multi-file writer** → Production waves: edge-case bugs, almost-right-then-hotfix. Flash = bulk/hotfix only.
+2. **Pro as sole security gate** → Production waves: under-severity on RLS. Pro = depth supplement, not gate authority.
 3. **Writer = reviewer (same model family)** → Blind-spot risk. Cross-family review mandatory for product code. Qwen Code writer + OpenCode Qwen reviewer = BOTH Alibaba = violation.
-4. **Codex = "just another reviewer"** → Codex = the behavioral regression gate. [TICKET]: caught abort/cost MAJOR that GLM's static review missed. Unique role — "ещё reviewer" understates its gate function.
+4. **Codex = "just another reviewer"** → Codex = the behavioral regression gate. Caught abort/cost MAJOR that GLM's static review missed (production waves). Unique role — "ещё reviewer" understates its gate function.
 5. **Writer self-review** → No model reviews its own work on fidelity/security tasks. Dual review = different families.
 6. **Pro-only merge decision** → Pro under-calls security severity. Merge decisions need behavioral semantics gate (Codex).
-7. **written≠persisted** → Claim `worker_done` / CHANGES without `ls`/`git status` proof. [TICKET]: notes said model-card NEW while public path missing. Gate binds **all** workers (`worker-contract.md`).
+7. **written≠persisted** → Claim `worker_done` / CHANGES without `ls`/`git status` proof. Production incident: notes said a file NEW while public path missing. Gate binds **all** workers (`worker-contract.md`).
 8. **Qwen Code without `--approval-mode yolo`** → Blocks orca commands on confirmation prompts. Always `qwen --approval-mode yolo` for Orca workers.
 9. **Launching model without checking availability** → Pins and availability change. Check this table before every launch. ⚠️ = temporarily unavailable.
 
@@ -144,6 +144,6 @@ The orchestrator pin affects:
 
 ## Evidence Anchors (Post-Mortem Sources)
 
-- **I3 (Flash multi-file):** Full skeleton in ~11 min, but edge-case SQL bugs after RLS changes, lock leaks after reorder, in-memory guards on serverless. "Almost right, then hotfix" pattern → Flash excluded from multi-file writer role.
-- **I4 (Pro under-severity):** Pro rated disabled-user SELECT and global nonce as PASS/soft O*. Codex and Qwen independently rated both as MAJOR. Pattern: Pro trends depth on correctness, under-calls security/behavioral severity. → Pro = depth supplement, never sole security gate.
-- **[TICKET] (Qwen/Codex complementary):** Qwen wrote 5832-case byte-identical prompt matrix with 0 failures (fidelity writer confirmed). GLM reviewed 40+ static verification points with 0 false positives (static parity confirmed). Codex caught abort/cost MAJOR — a hosted-semantics regression that GLM's static-only review missed. Dual review = necessary, not redundant. Codex gate = complementary, not "just another review."
+- **Production wave (Flash multi-file):** Full skeleton in ~11 min, but edge-case SQL bugs after RLS changes, lock leaks after reorder, in-memory guards on serverless. "Almost right, then hotfix" pattern → Flash excluded from multi-file writer role.
+- **Production wave (Pro under-severity):** Pro rated disabled-user SELECT and global nonce as PASS/soft O*. Codex and Qwen independently rated both as MAJOR. Pattern: Pro trends depth on correctness, under-calls security/behavioral severity. → Pro = depth supplement, never sole security gate.
+- **Production wave (Qwen/Codex complementary):** Qwen wrote 5832-case byte-identical prompt matrix with 0 failures (fidelity writer confirmed). GLM reviewed 40+ static verification points with 0 false positives (static parity confirmed). Codex caught abort/cost MAJOR — a hosted-semantics regression that GLM's static-only review missed. Dual review = necessary, not redundant. Codex gate = complementary, not "just another review."

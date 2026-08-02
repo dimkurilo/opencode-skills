@@ -6,7 +6,7 @@ Use when kind=program for a multi-wave project. A **program** = workstreams + ph
 
 For multi-skill portfolio development (e.g. opencode-skills), cross-platform fidelity ports (product → reference platform), and orchestration/skill-to-skill pipeline builds.
 
-**Shape evidence:** [TICKET] waves in opencode-skills; [client-project] I0→I7 in [client-project].
+**Shape evidence:** successive skill-port waves in opencode-skills (I0→I7); same shape applies to any fidelity-port program (product → platform).
 
 ### Typical workstreams
 

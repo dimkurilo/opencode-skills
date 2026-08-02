@@ -1,5 +1,7 @@
 # Routing — Model Selection & Brief Templates
 
+> Updated: see CHANGELOG.
+
 ## Full Routing Table
 
 > **Перед запуском:** проверить доступность модели в `model-card.md`. Пины и статусы меняются.
@@ -21,26 +23,26 @@
 | Multimodal (screenshots, images) | Qwen 3.8 Max | Alibaba | — | GLM (text-only) |
 | Protocol/skill review (3-model) | GLM + DeepSeek Pro + Qwen Max | Zhipu + DeepSeek + Alibaba | — | — |
 
-**Evidence ([client-project] I4, 2026-07-25):** same review task ×3 → Codex best merge gate (user-scoped idempotency MAJOR); Qwen best RLS (`is_active_user`); Pro best race depth but under-severity on RLS. Synthesis: any MAJOR from any N → fix before merge; prefer stricter severity.
+**Evidence (production wave):** same review task ×3 → Codex best merge gate (user-scoped idempotency MAJOR); Qwen best RLS (`is_active_user`); Pro best race depth but under-severity on RLS. Synthesis: any MAJOR from any N → fix before merge; prefer stricter severity.
 
-## [platform] Routing ([client-project] — experience I3–[TICKET])
+## [platform] Routing (production-wave experience)
 
 | Task type | Primary | Review/Gate | Notes |
 |-----------|---------|-------------|-------|
-| **Fidelity port** (generator, vectorizer) | **Qwen 3.8 Max** | **GLM 5.2** (static parity) ∥ **Codex 5.5** (hosted semantics/merge gate) | Qwen confirmed strong fidelity writer ([TICKET]: 5832-case byte-identical prompt matrix, build/tsc green). GLM = best static parity auditor; Codex = best behavioral regression gate (caught abort/cost MAJOR GLM missed). Flash = explicitly excluded on fidelity ports (simplifies, per I3 post-mortem). |
-| **Security / RLS / auth** | **Codex + Qwen Max** (parallel) | + Pro for depth/race analysis | **Never Pro-only as sole security gate** (I4 lesson: Pro under-severity'd disabled-user SELECT + global nonce as PASS/soft, while Codex/Qwen rated MAJOR). Pro = correctness/depth supplement, not gate authority. |
-| **Architecture multi-file** (3+ files) | **GLM 5.2** (default) | Pro + Codex or Qwen | OR **Qwen 3.8 Max** if owner says "fidelity override" or "Qwen writer" — owner phrase pins without skill rewrite. GLM multi-file = confirmed I4/I5 (~15 min implement, fix-round ~10 min, build green). |
+| **Fidelity port** (generator, vectorizer) | **Qwen 3.8 Max** | **GLM 5.2** (static parity) ∥ **Codex 5.5** (hosted semantics/merge gate) | Qwen confirmed strong fidelity writer (production waves: 5832-case byte-identical prompt matrix, build/tsc green). GLM = best static parity auditor; Codex = best behavioral regression gate (caught abort/cost MAJOR GLM missed). Flash = explicitly excluded on fidelity ports (simplifies, per production-wave post-mortem). |
+| **Security / RLS / auth** | **Codex + Qwen Max** (parallel) | + Pro for depth/race analysis | **Never Pro-only as sole security gate** (production-wave lesson: Pro under-severity'd disabled-user SELECT + global nonce as PASS/soft, while Codex/Qwen rated MAJOR). Pro = correctness/depth supplement, not gate authority. |
+| **Architecture multi-file** (3+ files) | **GLM 5.2** (default) | Pro + Codex or Qwen | OR **Qwen 3.8 Max** if owner says "fidelity override" or "Qwen writer" — owner phrase pins without skill rewrite. GLM multi-file = confirmed in production waves (~15 min implement, fix-round ~10 min, build green). |
 | **Deep race / ordering / ops unblock** | **DeepSeek V4 Pro** | **Codex 5.5** (semantics) | Pro = best depth on race conditions, lock ordering, constraint matrices. NOT sole merge gate — pair with Codex for behavioral semantics. |
-| **Bulk / mechanical / hotfix** | **DeepSeek V4 Flash** | — | Flash only on bulk, 1-2 file hotfixes, inventory, mechanical tasks. Not primary multi-file (I3 post-mortem: edge-case bugs, lock leaks, almost-right-then-hotfix pattern). |
+| **Bulk / mechanical / hotfix** | **DeepSeek V4 Flash** | — | Flash only on bulk, 1-2 file hotfixes, inventory, mechanical tasks. Not primary multi-file (production-wave post-mortem: edge-case bugs, lock leaks, almost-right-then-hotfix pattern). |
 | **Orchestration / dispatch / handoff** | **Grok 4.5** (default) · **DeepSeek V4 Pro** · **Qwen 3.8 Max** · **GLM 5.2** ⚠️ (owner pin, see model-card.md) | — | Orchestrator NEVER implements code. Flash EXCLUDED. GLM = architecture-heavy waves; watch tool passivity + drift (agent anti-patterns §4.5). |
-| **Implement (post-I6 default)** | **GLM 5.2** or owner re-pick | Writer family ≠ reviewer family | Writer ≠ reviewer is mandatory for product code. If owner says "сейчас writer=Qwen", pin Qwen for the session. |
+| **Implement (default)** | **GLM 5.2** or owner re-pick | Writer family ≠ reviewer family | Writer ≠ reviewer is mandatory for product code. If owner says "сейчас writer=Qwen", pin Qwen for the session. |
 
 **Synthesis rules ([platform], evidence-based):**
 - **MAJOR or BLOCK from any reviewer → fix-round before In Review.** Do not average away.
 - **Contradiction severity** (one PASS/soft, another MAJOR) → prefer the **stricter** finding; re-read evidence paths.
-- **Pro under-severity note:** Pro trends toward depth on correctness but under-severity on security/behavioral regressions (I4 evidence). If Pro rates something O*/soft while Codex/Qwen rate MAJOR → take stricter. Never Pro-only on security/auth/RLS gate.
-- **Fidelity dual review mandatory:** any behavioral port task (generator, vectorizer, any reference→platform) MUST have dual review (GLM∥Codex) — static parity + hosted semantics are complementary, not redundant ([TICKET] evidence). No single-reviewer fidelity port.
-- **No live smoke = owner residual gate:** if paid-generation budget prevents live smoke ([TICKET] pattern), document explicitly in handoff as RESIDUAL-RISK-OWNER-SMOKE. Do not claim Done without live smoke — claim Done-with-residual.
+- **Pro under-severity note:** Pro trends toward depth on correctness but under-severity on security/behavioral regressions (production-wave evidence). If Pro rates something O*/soft while Codex/Qwen rate MAJOR → take stricter. Never Pro-only on security/auth/RLS gate.
+- **Fidelity dual review mandatory:** any behavioral port task (generator, vectorizer, any reference→platform) MUST have dual review (GLM∥Codex) — static parity + hosted semantics are complementary, not redundant (production-wave evidence). No single-reviewer fidelity port.
+- **No live smoke = owner residual gate:** if paid-generation budget prevents live smoke (production-wave pattern), document explicitly in handoff as RESIDUAL-RISK-OWNER-SMOKE. Do not claim Done without live smoke — claim Done-with-residual.
 
 **Deploy / smoke gate (post-merge or post-deploy handoff):**
 
@@ -54,10 +56,10 @@ Adapt the probe to your deploy surface:
 - **Package/skill:** verify file existence + size at install path
 - **API:** curl API endpoints
 
-Evidence: [TICKET] — untracked route files, deployed without tracking → 404.
+Evidence: production waves — untracked route files, deployed without tracking → 404.
 
 **Writer GLM ↔ Qwen replaceable:**
-Owner phrase «сейчас writer=X» (X = GLM or Qwen) instantly pins the writer model for the current wave. No skill rewrite needed. The orchestrator reads this phrase from NEXT_SESSION §2 or owner chat and routes accordingly. Both GLM and Qwen have confirmed fidelity-writer capability ([TICKET]: Qwen write/GLM review; I4/I5: GLM write/Codex∥Pro review). See `references/model-card.md` for current roles + launch pins.
+Owner phrase «сейчас writer=X» (X = GLM or Qwen) instantly pins the writer model for the current wave. No skill rewrite needed. The orchestrator reads this phrase from NEXT_SESSION §2 or owner chat and routes accordingly. Both GLM and Qwen have confirmed fidelity-writer capability (production waves: Qwen write/GLM review; other waves: GLM write/Codex∥Pro review). See `references/model-card.md` for current roles + launch pins.
 
 ## Solo Defaults (when NOT multi)
 
@@ -137,7 +139,7 @@ Output: SUMMARY / EVIDENCE / CHANGES / RISKS / BLOCKERS
 | **Agent file** | `~/.config/opencode/agents/A/agent1st_qwen-3.8.md` |
 | **Absolute** | `~/.config/opencode/agents/A/agent1st_qwen-3.8.md` |
 | **Pin** | **Versionless** — skills always pin `A/agent1st_qwen-3.8`. Versioned `v5.1` / `v5.2` files may remain on disk as history/rollback only, never the launch target for new work. |
-| **Protocol** | [TICKET] JUDGMENT patches (runtime-boundary fidelity, self-skepticism, evidence hygiene, brief-as-plan, written≠persisted, …) live **inside the agent file** — bumping the protocol does not require a skill edit. |
+| **Protocol** | Production-wave JUDGMENT patches (runtime-boundary fidelity, self-skepticism, evidence hygiene, brief-as-plan, written≠persisted, …) live **inside the agent file** — bumping the protocol does not require a skill edit. |
 
 
 ```
@@ -204,8 +206,8 @@ Qwen Code does not require model-specific wrapping — native CoT, understands s
 ## Codex 5.5 — Behavioral Regression Gate (unique role)
 
 Codex 5.5 is NOT "just another reviewer". Unique role: behavioral regression gate.
-- [TICKET]: caught abort/cost MAJOR that GLM's static review missed
-- I4: caught UNIQUE(user_id,nonce) cross-user MAJOR
+- Production waves: caught abort/cost MAJOR that GLM's static review missed
+- Production waves: caught UNIQUE(user_id,nonce) cross-user MAJOR
 - Hosted-semantics gate: checks what static parity misses
 
 **Mandatory in:**
@@ -266,7 +268,7 @@ Codex 5.5 is NOT "just another reviewer". Unique role: behavioral regression gat
 | DeepSeek Pro | DeepSeek | Qwen Code, GLM 5.2, Codex 5.5 | DeepSeek Flash (DeepSeek) |
 | Codex 5.5 | OpenAI | Qwen Code, GLM 5.2, DeepSeek Pro | — |
 
-**Rule:** writer.family ≠ reviewer.family. Violation = blind-spot risk ([TICKET] evidence).
+**Rule:** writer.family ≠ reviewer.family. Violation = blind-spot risk (production-wave evidence).
 
 ---
 

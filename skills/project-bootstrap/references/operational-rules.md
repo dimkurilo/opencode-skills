@@ -1,7 +1,7 @@
 # Operational Rules — Canonical Reference
 
 > Канонические operational rules для embedding в generated AGENTS.md (multi-model project type).
-> Source: [internal-incident]/[ITER] [incident-date].
+> Source: production incident during a multi-model skill port.
 > Применяются через `${OPERATIONAL_RULES_MULTI_MODEL}` placeholder в `AGENTS.md.tmpl`.
 
 ---
@@ -19,12 +19,12 @@
 
 ## 3 Iron Rules (IF-THEN, primacy + recency)
 
-### [RULE]: worker_done требует обязательный `--to`
+### Rule 1 (worker_done rule): worker_done требует обязательный `--to`
 
 **IF** sendишь `worker_done` (или heartbeat/escalation) через `orca orchestration send`
 **THEN** ОБЯЗАТЕЛЬНО включай `--to <coordinator-handle>` в CLI
 
-**Без --to:** orca возвращает msg ID (выглядит как успех: `Sent [MSG]`), но message уходит в void route. Координатор никогда его не получит.
+**Без --to:** orca возвращает msg ID (выглядит как успех: `Sent msg_<id>`), но message уходит в void route. Координатор никогда его не получит.
 
 **Пример (правильно):**
 ```bash
@@ -42,13 +42,13 @@ orca orchestration send --to <COORDINATOR-HANDLE> --type worker_done \
 orca orchestration send --subject "PASS" --body "..." --task-id <TID> --json
 ```
 
-**Source:** [TICKET][ITER] [incident-date] — GLM reviewer реконструировал `orca orchestration send` из памяти, пропустил `--to`, [MSG] потерян. Координатор стал messenger'ом (paste GLM verdict manually).
+**Source:** production incident — reviewer реконструировал `orca orchestration send` из памяти, пропустил `--to`, message потерян. Координатор стал messenger'ом (paste verdict manually).
 
-**Per-family blind spot:** GLM family имеет склонность реконструировать send-команды из памяти, а не copy из brief. Qwen Code нативно понимает lifecycle (меньше риск). Codex严格执行 brief. Для GLM workers — обязательно explicit example в brief.
+**Per-family blind spot:** некоторые worker-families имеют склонность реконструировать send-команды из памяти, а не copy из brief. Другие нативно понимают lifecycle (меньше риск) или выполняют brief буквально. Для reconstruct-prone workers — обязательно explicit example в brief.
 
 ---
 
-### [RULE]: Verify delivery via global inbox, не trust terminal output
+### Rule 2 (verify-arrival rule): Verify delivery via global inbox, не trust terminal output
 
 **IF** после `check --wait` получил `Sent msg_...` в terminal output (или ждёшь worker_done)
 **THEN** НЕ доверяй handle-scoped `check`. Верифицируй delivery через **GLOBAL inbox**, фильтруя по payload taskId.
@@ -79,13 +79,13 @@ orca orchestration check --peek --json | grep -A 2 "worker_done"
 - **inbox НЕ показывает worker_done с нужным taskId** → реальный routing miss. Recovery:
   1. `terminal read --terminal <worker_handle>` — что worker реально сделал
   2. Если worker напечатал report как текст, но не sendил через CLI → `terminal send`: "Отправь worker_done через `orca orchestration send --to <COORDINATOR-HANDLE> --from <YOUR-HANDLE> --type worker_done ...`. Текстовый отчёт в чат = FAILURE."
-  3. Если worker sendил но без `--to` → re-dispatch с explicit example в brief ([RULE] fix)
+  3. Если worker sendил но без `--to` → re-dispatch с explicit example в brief (Rule 1 fix)
 
-**Source:** [TICKET][ITER] + routing investigation [TASK-ID] (2026-07-28): `check`=handle-scoped vs `inbox`=global; доказано self-send skip (EXP1/EXP3) + stale-handle invisibility (EXP5, [MSG] → orphaned [TERM-ID]).
+**Source:** production incident + routing investigation: `check`=handle-scoped vs `inbox`=global; доказано self-send skip + stale-handle invisibility (message → orphaned handle).
 
 ---
 
-### [RULE]: Writer swap protocol на API retry storm
+### Rule 3 (writer-swap rule): Writer swap protocol на API retry storm
 
 **IF** worker в terminal output показывает API retry attempt #5+ (например: `Request Timeout: request timeout [retrying in 8s attempt #10]`)
 **THEN** НЕ жди до упора и НЕ redo-from-scratch. Выполни swap protocol:
@@ -112,7 +112,7 @@ git status --short
 
 **Step 4:** Document в handoff: что произошло, какой branch выбран, reserve dispatch использован.
 
-**Source:** [TICKET][ITER] — DeepSeek Pro applied 6 items but stuck on retry #10 without `worker_done`. Codex 5.5 verify+finalize brief succeeded in 5 min. Если бы координатор сделал redo-from-scratch → потерял бы всю работу Pro.
+**Source:** production incident — primary writer applied 6 items but stuck on retry #10 without `worker_done`. Fallback writer verify+finalize brief succeeded in 5 min. Если бы координатор сделал redo-from-scratch → потерял бы всю работу primary writer.
 
 ---
 
@@ -120,40 +120,39 @@ git status --short
 
 При генерации AGENTS.md для multi-model project type:
 
-**ПРЕАМБУЛА** (primacy-зона): 3 правила в формате IF-THEN с `Source: [TICKET]` anchor:
+**ПРЕАМБУЛА** (primacy-зона): 3 правила в формате IF-THEN с incident anchor:
 ```markdown
 ➡ Sendишь worker_done?
    → ОБЯЗАТЕЛЬНО: `--to <coordinator-handle>`. Без него msg уходит в void route.
-   → Source: [TICKET][ITER] — [MSG] потерян.
+   → Source: incident — message потерян (пропущен `--to`).
 
 ➡ После `check --wait` получил "Sent msg_..."?
    → НЕ trust handle-scoped check. Верифицируй через GLOBAL inbox (`orca orchestration inbox --limit 20 --json`, фильтр по taskId).
    → `check` пропускает worker_done при handle drift (stale recipient) и self-send (from==to): check=0, inbox=N.
-   → Source: [TICKET][ITER] + routing investigation 2026-07-28.
+   → Source: incident + routing investigation.
 
 ➡ Worker на API retry #5+?
    → НЕ redo. СНАЧАЛА: terminal read → git diff → verify+finalize brief, не redo.
-   → Source: [TICKET][ITER] — Codex verify+finalize в 5 мин после Pro retry #10.
+   → Source: incident — fallback writer verify+finalize в 5 мин после retry storm.
 ```
 
 **CLOSING ANCHORS** (recency-зона): 3 однострочных compressed версии:
 ```markdown
-➡ worker_done: `--to <coordinator-handle>` обязательно ([RULE], [TICKET]).
-➡ После `check --wait` → verify delivery через GLOBAL inbox (фильтр taskId), не handle-scoped check; check=0/inbox=N ⇒ handle drift или self-send ([RULE], [TICKET]).
-➡ API retry #5+ → terminal read → file inspect → verify+finalize ([RULE], [TICKET]).
+➡ worker_done: `--to <coordinator-handle>` обязательно (Rule 1, incident).
+➡ После `check --wait` → verify delivery через GLOBAL inbox (фильтр taskId), не handle-scoped check; check=0/inbox=N ⇒ handle drift или self-send (Rule 2, incident).
+➡ API retry #5+ → terminal read → file inspect → verify+finalize (Rule 3, incident).
 ```
 
-**Per-family blind spots note** для GLM workers (опционально, в §1 Gotchas):
+**Per-family blind spots note** для reconstruct-prone workers (опционально, в §1 Gotchas):
 ```markdown
-| GLM (Zhipu) workers | Реконструирует send-команды из памяти, пропускает `--to` | Всегда explicit example в brief + verify через check --peek |
+| Some family workers | Реконструирует send-команды из памяти, пропускает `--to` | Всегда explicit example в brief + verify через check --peek |
 ```
 
 ---
 
 ## References
 
-- `[internal-wave]/iterations/[ITER]-fix.handoff.md` — исходные 3 LR definitions с incident evidence
+- `<wave>/iterations/<iteration>-fix.handoff.md` — исходные 3 rule definitions с incident evidence
 - `skills/multi-model-orchestration/references/worker-contract.md` — inject preamble (где `--to` в CLI примере нужно усилить bold)
 - `skills/multi-model-orchestration/references/failure-handling.md` — где "Message routing void" failure mode нужно добавить
-- [TICKET] (internal tracker) — incident source for [RULE]/2/3
-- [TICKET] (internal tracker) — LR operational rules source
+- (production incident) — incident source for the 3 operational rules

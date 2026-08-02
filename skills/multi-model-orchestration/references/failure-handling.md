@@ -92,7 +92,7 @@ TASK_ID=$(orca orchestration task-create --spec "<brief + 'Previous attempt fail
 orca orchestration dispatch --task $TASK_ID --to <new_handle> --inject --json
 ```
 
-## Message Routing Void ([RULE])
+## Message Routing Void (verify-arrival rule)
 
 **Symptom:** `orca orchestration send` returns `Sent msg_<id>` in terminal, but coordinator's `check --wait` never receives the message. Queue shows heartbeats but no worker_done.
 
@@ -108,13 +108,13 @@ orca orchestration dispatch --task $TASK_ID --to <new_handle> --inject --json
 2. If worker finished work but send command lacked `--to` → re-instruct: `terminal send "Re-send worker_done with --to <COORDINATOR-HANDLE>"`
 3. If worker gone → recover report from terminal output, manually update coordinator state
 
-**Source:** [TICKET][ITER] [incident-date] — [MSG] lost in void route.
+**Source:** production incident — message lost in void route.
 
 ---
 
-## Handle Drift / Stale Recipient ([RULE])
+## Handle Drift / Stale Recipient (verify-arrival rule)
 
-**Symptom:** coordinator's `check --wait` / `check --peek` / `check --all` return 0 messages, but `orca orchestration inbox` shows the expected worker_done (and others). The worker correctly sent `worker_done` with `--to` ([RULE] satisfied).
+**Symptom:** coordinator's `check --wait` / `check --peek` / `check --all` return 0 messages, but `orca orchestration inbox` shows the expected worker_done (and others). The worker correctly sent `worker_done` with `--to` (worker_done rule satisfied).
 
 **Root cause:** `check` is **handle-scoped** ("every message for the handle"); `inbox` (no `--terminal`) is **runtime-global** ("across recipients"). Terminal handles are ephemeral routing metadata — a pane gets a NEW handle after restart/reconnect. A worker_done addressed to the coordinator's OLD handle (the one in the worker's preamble at dispatch time) stays in the global log (`inbox`) but is invisible to `check` on the coordinator's CURRENT handle. Identical symptom, second trigger: a **self-send** (stored `from == to`, e.g. a worker running in the coordinator's terminal sends `worker_done --to <coordinator>` without `--from`) is skipped by `check` but present in `inbox`.
 
@@ -130,11 +130,11 @@ orca orchestration dispatch --task $TASK_ID --to <new_handle> --inject --json
 3. Re-dispatch active tasks (or have workers re-resolve) so subsequent lifecycle mail targets the NEW handle.
 4. Self-send prevention: workers set an explicit `--from <own-handle>`; never rely on auto-resolution from a shared/coordinator terminal.
 
-**Source:** [TICKET][ITER] + routing investigation [TASK-ID] (2026-07-28). [MSG] addressed to orphaned `[TERM-ID]…` while coordinator was on `[TERM-ID]…`; `check=0`, `inbox` showed it. Proven: self-send skip (EXP1/EXP3) + stale-handle invisibility (EXP5).
+**Source:** production incident + routing investigation. A message addressed to an orphaned handle while the coordinator was on a different handle; `check=0`, `inbox` showed it. Proven: self-send skip + stale-handle invisibility.
 
 ---
 
-## API Retry Storm — Writer Swap ([RULE])
+## API Retry Storm — Writer Swap (writer-swap rule)
 
 **Symptom:** worker terminal shows `Request Timeout: request timeout [retrying in 8s attempt #10]` or similar API retry loop.
 
@@ -148,5 +148,5 @@ orca orchestration dispatch --task $TASK_ID --to <new_handle> --inject --json
    - **Files not modified or partial** → writer did not do the work. Ctrl-C, re-dispatch from scratch (optionally cross-family swap).
 4. **Document** in handoff: branch chosen, reserve dispatch consumed.
 
-**Source:** [TICKET][ITER] — DeepSeek Pro applied 6 items but stuck on retry #10. Codex 5.5 verify+finalize succeeded in 5 min. If coordinator had redo-from-scratch → all Pro work lost.
+**Source:** production incident — primary writer applied 6 items but stuck on retry #10. Fallback writer verify+finalize succeeded in 5 min. If coordinator had redo-from-scratch → all primary work lost.
 
