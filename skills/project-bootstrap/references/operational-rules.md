@@ -155,5 +155,5 @@ git status --short
 - `[internal-wave]/iterations/[ITER]-fix.handoff.md` — исходные 3 LR definitions с incident evidence
 - `skills/multi-model-orchestration/references/worker-contract.md` — inject preamble (где `--to` в CLI примере нужно усилить bold)
 - `skills/multi-model-orchestration/references/failure-handling.md` — где "Message routing void" failure mode нужно добавить
-- [TICKET] (Linear): https://linear.app/[client]/issue/[TICKET]
-- [TICKET] (Linear): https://linear.app/[client]/issue/[TICKET]
+- [TICKET] (internal tracker) — incident source for [RULE]/2/3
+- [TICKET] (internal tracker) — LR operational rules source

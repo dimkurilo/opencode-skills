@@ -12,7 +12,7 @@
 | **Mode (quick/wave/task/program)** | Режим по масштабу: quick (≤1 файл/≤30 мин/no deploy), wave (спринт 2–7 дней, default), task (атомарная задача внутри волны), program (много-волновой портфель). | Не тягать полный lifecycle на мелочь. |
 | **Lifecycle states** | 8 состояний: Implement done → In Review → Commit → PR → Merge → Deploy gate → On prod → Done. Каждое — отдельный гейт. | «Writer сказал Done» ≠ «на проде». [TICKET]: агент пометил Done, код не был на проде. |
 | **In Review** | Состояние после dual review: 0 MAJOR или все MAJOR закрыты; writer ≠ reviewer. | Не путать с «writer закончил» (Implement done). |
-| **Cross-family rule** | `writer.family ≠ reviewer.family` (например Alibaba-Qwen пишет → Zhipu-GLM или DeepSeek ревьюит). | Разные семейства ловят слепые пятна друг друга. В [accounting] кросс-аудит поймал потерю [X]% стока. |
+| **Cross-family rule** | `writer.family ≠ reviewer.family` (например Alibaba-Qwen пишет → Zhipu-GLM или DeepSeek ревьюит). | Разные семейства ловят слепые пятна друг друга. Кросс-аудит поймал потерю [X]% стока при миграции данных. |
 | **Dual review** | Два ревьюера с разными линзами: static-parity (структура/file:line) ∥ behavioral-semantics (поведение/cost/state). Для fidelity — обязательно. | Одна линза пропускает целый класс багов. |
 | **Deploy probe** | curl-проверка, что новый маршрут/артефакт СУЩЕСТВУЕТ на проде (307/302 = ок, 404 = нет). Не проверяет корректность — только наличие. | [TICKET]: непротреканные файлы давали 404 на проде. |
 | **written≠persisted** | Gate перед worker_done: `git status`/`ls`/`wc -l` доказывает, что каждый заявленный путь реально на диске. Заявлено, но нет = FAIL. | «Отчёт есть, файла нет» — классический сбой ([TICKET]). |
