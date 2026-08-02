@@ -129,20 +129,7 @@ For non-fidelity waves: dual review is recommended but not mandatory. At minimum
 
 **Canonical definition:** `skills/wave-spec/SKILL.md` §"Lifecycle Gates ([TICKET] → [TICKET] lessons)".
 
-**SUMMARY — 8 states (linear order):**
-
-| State | Definition | Gate |
-|-------|-----------|------|
-| **Implement done** | Writer finished, verification green, every claimed path exists on disk (written≠persisted) | `worker_done` + `git status` / `ls` proof |
-| **In Review** | Dual review passed (0 MAJOR or all MAJOR fixed), writer ≠ reviewer | Synthesis: stricter wins |
-| **Commit** | Public paths committed to branch. No dev files (AGENTS.md, SESSION_HANDOFF, .agents/) staged | `git status` clean of dev files. No merge yet |
-| **PR** | Pull request opened, reviewable | PR description complete, reviewers assigned |
-| **Merge** | PR approved, merged to main | CI green, no unresolved review threads |
-| **Deploy gate passed** | Deploy probe passed: new routes/paths return ≠ 404 | `curl` probes confirm route/path existence |
-| **On prod (owner residual)** | Deployed. Smoke-tested by orchestrator OR owner | No live smoke = RESIDUAL-RISK-OWNER-SMOKE |
-| **Done (complete)** | All gates above passed, handoff written, project tracker updated | Orchestrator signs off |
-
-Do not equate "writer claims Done" with "In Review passed" or "prod-ready". Commit, PR, Merge, and Deploy are separate verify-then-advance gates — do not batch them into a single step.
+8 states, linear order, deploy probe, RESIDUAL-RISK-OWNER-SMOKE — полная таблица в каноне ([TICKET] T-Q3a: дубль убран, один источник правды).
 
 ---
 

@@ -128,7 +128,7 @@ If user says «решай сам / use defaults» → mark assumptions explicitl
 
 ### 3. SPEC.xml (structured — agent-facing)
 
-**Prefer XML** for SPEC/PLAN (schema-like nesting; easier for agents to parse than free MD).
+**Markdown с required-sections достаточен** для SPEC/PLAN ([TICKET] T-Q3b: свежий агент извлекает required-поля из MD и XML одинаково, 5/5). XML — опционален (только если появится реальный парсер/валидатор; сейчас его нет). Обязательные секции: Goal, Done_when, Verifier, Scope, Risks.
 Human narrative stays in INTENT.md.
 
 Use template: `assets/templates/SPEC.xml.tmpl`  
@@ -301,7 +301,7 @@ Copy-paste format by orchestrator (рабочие оркестраторы вл�
 | **Qwen 3.8 Max** | ### Context / ### Objective / ### Constraints |
 | **GLM 5.2** | ### Goal / ### Constraints / ### Done |
 
-Default (if orchestrator not specified): Qwen 3.8 Max format. Flash как оркестратор запрещён (prohibitions #12) — формата для него нет. Полная таблица форматов (Grok/DeepSeek Pro/Codex) — в `assets/templates/LAUNCH.md.tmpl`, если эти модели используются как оркестраторы.
+Default (if orchestrator not specified): Qwen 3.8 Max format. Flash-оркестратор — только механика по утверждённому PLAN ([TICKET] T-Q2: dispatch/wait/gate/test; см. model-card.md, prohibitions #12 сужены), НЕ суждение/синтез и НЕ multi-file writer. Полная таблица форматов (Grok/DeepSeek Pro/Codex) — в `assets/templates/LAUNCH.md.tmpl`, если эти модели используются как оркестраторы.
 
 ### 6d. Linear workflow generation (if project uses Linear)
 

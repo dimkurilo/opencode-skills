@@ -97,7 +97,7 @@ The orchestrator reads the owner pin and routes accordingly. The model card docu
 - **«сейчас orchestrator=Qwen»** → Qwen 3.8 Max (2.4T weights, CoT, vision)
 - **«сейчас orchestrator=GLM»** → GLM 5.2 (1M state continuity, Self-Harness. ⚠️ Watch: tool passivity, session drift, overthinking — agent anti-patterns §4.5). Best for architecture-heavy waves.
 
-**Flash is EXCLUDED from orchestrator role:** no `plan-before-act` anchor (P1 = act-immediately), no `task: true` in frontmatter, model-card role = bulk/hotfix only (I3 post-mortem).
+**Flash as orchestrator — mechanics only ([TICKET] T-Q2):** допускается как оркестратор-механик для волн по УЖЕ утверждённому PLAN: dispatch → wait → gate → test. НЕ для суждения/синтеза high-stakes (minority-first или внешний синтезатор), НЕ для multi-file writer (I3: almost-right-then-hotfix, model-card role = bulk/hotfix writer). Ограничения: no write вне тестов волны, no deploy, no paid/CRM, внешний верификатор существует.
 
 The orchestrator pin affects:
 - NEXT_SESSION copy-paste block format (Grok: Task/Autonomy, Pro: Задача/Где/Должно быть/Не трогать, Qwen: Context/Objective/Constraints, GLM: Goal/Context/Constraints/Done)
