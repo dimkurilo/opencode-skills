@@ -19,14 +19,14 @@ Updated: 2026-07-26.
 |-------|--------|-----------|----------------------------------|
 | **Qwen 3.8 Max** | Alibaba | OpenCode agent **`A/agent1st_qwen-3.8`** (versionless) | `opencode --agent A/agent1st_qwen-3.8` |
 | **Qwen Code** | Alibaba | **Separate CLI** `qwen` (NOT an OpenCode agent) | `qwen --approval-mode yolo` |
-| **GLM 5.2** | Zhipu | OpenCode `A/agent1st_v13-glm` | `opencode --agent A/agent1st_v13-glm` · fallback model: `-m zai-coding-plan/glm-5.2` |
+| **GLM 5.2** | Zhipu | OpenCode `A/agent1st_glm` | `opencode --agent A/agent1st_glm` · fallback model: `-m zai-coding-plan/glm-5.2` |
 | **DeepSeek V4 Pro** | DeepSeek | OpenCode `A/agent1st_v36-pro` | `opencode --agent A/agent1st_v36-pro` · if agent not found: `opencode -m opencode-go/deepseek-v4-pro` |
-| **DeepSeek V4 Flash** | DeepSeek | OpenCode `A/agent1st_v36-flash` | `opencode --agent A/agent1st_v36-flash` · fallback: `-m opencode-go/deepseek-v4-flash` |
+| **DeepSeek V4 Flash** | DeepSeek | OpenCode `A/agent1st_v37.3-flash` | `opencode --agent A/agent1st_v37.3-flash` · fallback: `-m opencode-go/deepseek-v4-flash` |
 | **Codex 5.5** | OpenAI | **Native Codex CLI** (not an OpenCode `A/` agent) | `orca terminal create --command "codex" --json` · or shell `codex` · optional: `codex --model gpt-5.5` / effort flags per host |
 | **Grok 4.5** | xAI | Orchestrator / Grok CLI | Coordinator session (this skill). Worker research: host Grok CLI if available — **not** for product implement. |
 
 **OpenCode agents** live under `~/.config/opencode/agents/` (nested `A/` → launch name **`A/<stem>`**, e.g. `A/agent1st_qwen-3.8`).  
-**Qwen versionless pin:** skills always pin `A/agent1st_qwen-3.8`. Versioned `v5.1` / `v5.2` files may remain as history/rollback only. Protocol patches (incl. written≠persisted) live **inside the agent file** — bumping protocol does not require a skill edit.
+**Qwen versionless pin:** skills always pin `A/agent1st_qwen-3.8`. Versioned `v5.3` files may remain as history/rollback only. Protocol patches (incl. written≠persisted) live **inside the agent file** — bumping protocol does not require a skill edit.
 
 **Codex is not a missing pin:** it is **outside** OpenCode agent files. Security gate and fidelity merge gate still **route to Codex 5.5** via the native Codex CLI above. Do not invent a fake `A/agent1st-codex` unless the host actually provides one.
 
