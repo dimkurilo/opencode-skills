@@ -45,7 +45,7 @@ Out of scope: ${OUT_OF_SCOPE}
 
 1. Выполнить правку (один исполнитель, без диспетчеризации).
 2. **written≠persisted:** `git status --short` / `ls` — заявленный путь реально на диске.
-3. **Secret redaction:** `grep -rnEi 'token|password|api[_-]?key|Bearer' .` — нет секретов в diff.
+3. **Secret redaction (value-aware):** `grep -rnE '(token|password|api[_-]?key|bearer|secret|Token|Password|Bearer|Secret|TOKEN|PASSWORD|API[_-]?KEY|BEARER|SECRET)[[:space:]:=]+[^[:space:]]*[a-z][^[:space:]]{14,}' .` — ловит ЗНАЧЕНИЯ (15+ chars с lowercase), игнорит имена переменных вроде `SOURCE_API_KEY`. 0 FP на типичной волне. Найденное → `[REDACTED]`.
 4. Проверить success criteria (S1, S2) — факт, не «должно работать».
 
 ## Archive (по завершении)
