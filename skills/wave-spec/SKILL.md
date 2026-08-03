@@ -125,7 +125,7 @@ If user says «решай сам / use defaults» → mark assumptions explicitl
 
 ### 3. SPEC.xml (structured — agent-facing)
 
-**Markdown с required-sections достаточен** для SPEC/PLAN (triage finding: свежий агент извлекает required-поля из MD и XML одинаково, 5/5). XML — опционален (только если появится реальный парсер/валидатор; сейчас его нет). Обязательные секции: Goal, Done_when, Verifier, Scope, Risks.
+**Markdown с required-sections достаточен** для SPEC/PLAN (triage finding: свежий агент извлекает required-поля из MD и XML одинаково, 5/5). XML — опционален; портативный валидатор `scripts/verify-spec.sh` уже покрывает оба формата поровну, поэтому MD предпочтительнее (см. `## XML vs Markdown (policy)` ниже). Обязательные секции: Goal, Done_when, Verifier, Scope, Risks.
 Human narrative stays in INTENT.md.
 
 Use template: `assets/templates/SPEC.xml.tmpl`  
@@ -356,12 +356,11 @@ End of session: append pointer to `SESSION_HANDOFF.md`. Facts → MEMORY.md.
 | Artifact | Format | Why |
 |----------|--------|-----|
 | INTENT | Markdown | human freeform |
-| SPEC / PLAN / task cards | **XML** | nested structure, required fields, agent-parseable (vv-method without vv runtime) |
+| SPEC / PLAN / task cards | **Markdown с required-sections (default); XML опционален** | format triage (2026-08): свежий агент извлекает required-поля из MD и XML одинаково (5/5); `scripts/verify-spec.sh` проверяет оба формата |
 | Worker brief | Markdown | easy to paste into any terminal |
 | STATUS / HANDOFF | Markdown | human + append-only |
 
-You do **not** need `vv-opencode` installed. XML is just the **on-disk contract**.  
-If the harness cannot write XML cleanly, fall back to the same tags as Markdown headings — but prefer XML.
+**Одна точка правды** (format reconciliation): default = **Markdown с required-sections** (Goal, Done_when, Verifier, Scope, Risks — см. §2 примечание ~строка 128). XML — только если под него есть реальный парсер/валидатор; сейчас `scripts/verify-spec.sh` покрывает оба формата поровну, поэтому MD предпочтительнее (проще писать, читать и diffs). vv-opencode runtime не требуется ни для одного из форматов.
 
 GRACE anchors: optional in INTENT/STATUS; for XML use attributes `id="…"` on elements instead of HTML comments.
 
@@ -468,6 +467,7 @@ Do **not** equate "writer claims Done" with "In Review passed" or "prod-ready". 
 Gate before lifecycle-**Done** — tie the contract to concrete folder artifacts:
 
 - STATUS.md final state = `done` (lifecycle enum); every task row reconciled, no orphan `in_review` / `commit`.
+- **wave-spec validator:** перед закрытием волны запустить `bash skills/wave-spec/scripts/verify-spec.sh waves/<date>-<slug>/` — exit 0 = PASS. Что проверяется: SPEC = 5 required-секций (Goal, Done_when, Verifier, Scope, Risks); PLAN = минимум одна задача (checkbox/`<task>`/T-heading) + done_when. FAIL = волна не закрывается как Done, пока отсутствующие секции/элементы не будут добавлены.
 - SESSION_HANDOFF block appended (project protocol); durable facts → MEMORY.md.
 - `reviews/` and `notes/` archived inside the wave folder (`waves/<date>-<slug>/`).
 - **Secret redaction:** перед коммитом/handoff прогнать `grep -rnEi 'token|password|api[_-]?key|Bearer|secret' waves/<date>-<slug>/` — найденные секреты заменить на `[REDACTED]` (владелец работает с ключами внешних сервисов — CRM/склады/пиксели; секрет не должен уехать в handoff/review/tracker).

@@ -15,6 +15,7 @@
   - Карточки моделей = текущее состояние + evidence, без истории переходов; убраны упоминания Claude Code.
   - NEW Benchmarks-секции (2026-08-03) в `model-card.md`/`model-profiles.md`: данные по 5 моделям с evidence-статусами (vendor/indep/anecdotal), включая глубокий ресёрч Qwen 3.8 Max (спеки 983,616 токенов, публичных бенчей нет, ⚠️ не путать с 3.7 Max).
 - **multi-model-orchestration / project-bootstrap**: стек и именование синхронизированы (Flash/Qwen/GLM/GPT-5.5); model-profiles дополнены Qwen 3.8 Max и GPT-5.5.
+- **wave-spec**: format policy reconciliation (format triage 2026-08, 5/5) — секция `## XML vs Markdown (policy)` в SKILL.md приведена в соответствие с §2 (~строка 128): default = Markdown с required-sections (Goal, Done_when, Verifier, Scope, Risks), XML опционален. Одна точка правды по XML vs MD (устранён дрейф формата в волнах: 07-25 XML, 07-27 MD, 08-02 без SPEC). README.md + README.ru.md синхронно обновлены. NEW портативный валидатор `skills/wave-spec/scripts/verify-spec.sh` (bash + grep, без рантайма, macOS/Linux) — встроен в wave-closeout checklist (верификация на обоих format-ab-образцах: PASS для MD и XML).
 
 ### Added
 - **multi-model-orchestration v1.7.0**:

@@ -34,6 +34,10 @@
 
 Implement done → In Review (dual review) → Commit → PR → Merge → Deploy probe (curl ≠ 404) → On prod (owner smoke OR RESIDUAL-RISK-OWNER-SMOKE) → Done. Никакой передачи «NEXT product», пока Deploy gate не пройден.
 
+## Политика форматов (SPEC/PLAN)
+
+**Markdown с required-sections — по умолчанию** (Goal, Done_when, Verifier, Scope, Risks). XML — опционален (format triage 2026-08: свежий агент извлекает required-поля из MD и XML одинаково, 5/5; XML имеет смысл только если под него есть реальный парсер/валидатор). Канон: SKILL.md `## XML vs Markdown (policy)`. Портативный валидатор (bash + grep, без рантайма): `bash skills/wave-spec/scripts/verify-spec.sh waves/<date>-<slug>/` — запускается в wave closeout (exit 0 = PASS).
+
 ## Ссылки
 
 - `references/program-maps.md` — domain-specific program maps (4 меню: skill-port, перевод, fidelity port, SEO)
