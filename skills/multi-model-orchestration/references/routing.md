@@ -142,6 +142,7 @@ Output: SUMMARY / EVIDENCE / CHANGES / RISKS / BLOCKERS
 | **Absolute** | `~/.config/opencode/agents/A/agent1st_qwen-3.8.md` |
 | **Pin** | **Versionless** — skills always pin `A/agent1st_qwen-3.8`. Versioned `v5.1` / `v5.2` files may remain on disk as history/rollback only, never the launch target for new work. |
 | **Protocol** | Production-wave JUDGMENT patches (runtime-boundary fidelity, self-skepticism, evidence hygiene, brief-as-plan, written≠persisted, …) live **inside the agent file** — bumping the protocol does not require a skill edit. |
+| **Benchmarks (2026-08-03)** | Vendor (qwen.ai/blog): GPQA-D 92.6 · Terminal-Bench 2.1 86.6 · OSWorld-V 86.1 · IFBench 82.8 · SWE-bench Pro 67.7 (Fable 5: 80.0). Independent verification pending — role остаётся owner-decided. ⚠️ не путать с 3.7 Max (SWE-bench 80.4 / GPQA 92.4 — другая модель). |
 
 
 ```

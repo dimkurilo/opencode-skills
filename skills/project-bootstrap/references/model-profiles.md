@@ -46,20 +46,27 @@
 
 ## Qwen 3.8 Max (Alibaba) — reviewer / архитектор / бизнес-аналитик
 
-> **Evidence status:** role = **owner decision + anecdotal/community evidence** (no formal eval). Owner empirical: level ~ Kimi K3, **сильнее GLM 5.2 в architecture и depth of thought**. **Public benchmarks: NONE** (verified 2026-08-03 — LiveBench/ArtificialAnalysis/LMArena/BenchLM/Vals.ai = 0 rows for 3.8). ⚠️ **Do NOT confuse with Qwen 3.7 Max** (SWE-bench Verified 80.4, GPQA 92.4, Terminal-Bench 69.7 — ДРУГАЯ модель; «все цифры 3.8 в обзорах — на самом деле 3.7» — Wiegold). APIVALE 54.8% SWE-bench (third-party API reseller) = unreliable, **not cited**. Role = NE основной кодер (медленная); default reviewer/architect в текущем стеке.
+> **Evidence status:** role = **owner decision + vendor benchmarks (qwen.ai/blog, 2026-08-03) + anecdotal/community evidence**; independent verification pending. Vendor benches: GPQA-D 92.6, Terminal-Bench 2.1 86.6, OSWorld-V 86.1, IFBench 82.8, SWE-bench Pro 67.7 (ниже Fable 5: 80.0). Owner empirical: level ~ Kimi K3, **сильнее GLM 5.2 в architecture и depth of thought**. ⚠️ **Do NOT confuse with Qwen 3.7 Max** (SWE-bench Verified 80.4, GPQA 92.4, Terminal-Bench 69.7 — ДРУГАЯ модель; «все цифры 3.8 в ранних обзорах — на самом деле 3.7» — Wiegold). Role = НЕ основной кодер (медленная); default reviewer/architect в текущем стеке.
 
-### Спеки [official 2026-07-19, docs.qwencloud.com + X @Alibaba_Qwen]
-- **2.4T total sparse MoE** (активные параметры НЕ раскрыты вендором).
-- **Контекст: 983,616 токенов** (НЕ ровно 1M; max output 131,072).
-- **Reasoning всегда включён** — уровни low/high/xhigh, дефолт xhigh.
+### Спеки [GA blog qwen.ai/blog 2026-08-03; ранее docs.qwencloud.com 2026-07-19]
+- **2.4T total sparse MoE, 95B active** (активные параметры раскрыты в GA-блоге).
+- **Контекст: 1M токенов** (blog config `context_window: 1000000`; docs.qwencloud.com ранее указывал 983,616; max output 131,072).
+- **Reasoning всегда включён** — `reasoning_effort` xhigh/medium/low, дефолт xhigh.
 - **Мультимодальный ввод** — текст, изображения, видео, документы.
-- Превью меняется ежедневно («continuously evolving»).
+- Построен на архитектуре Qwen 3.5; model ID `qwen3.8-max`.
 
 ### Статус релиза (verified 2026-08-03)
-- Превью `qwen3.8-max-preview` в Token Plan / Qoder (с 19.07.2026, WAIC).
-- Open-weight анонсировано БЕЗ даты и лицензии.
-- **HF-репозитория НЕТ**: HF API возвращает 0 моделей, `Qwen/Qwen3.8-Max` → 401; GitHub README без упоминаний 3.8.
-- Позиционирование вендора [self-reported marketing, без методологии]: «second only to Fable 5» — НЕ подтверждено ни одной таблицей бенчей.
+- **GA-анонс: qwen.ai/blog 2026-08-03** («Qwen3.8-Max: A New Bar for Coding and Cowork»); доступен через QwenCloud API (`qwen3.8-max`) с 03.08.2026; превью в Token Plan / Qoder с 19.07.2026 (WAIC).
+- **Первая open-weight модель Max-класса**: веса обещаны «next week» на Hugging Face / ModelScope (анонс 2026-08-03).
+- **HF-репозитория на дату проверки НЕТ**: HF API возвращает 0 моделей, `Qwen/Qwen3.8-Max` → 401.
+- Per-token цена официально НЕ опубликована; mirror: $2/$6/$0.25 cached per 1M [MarkTechPost, **unverified**]. Token Plan: Lite $6 / Standard ~$18-20 / Pro $68-70 в месяц.
+
+### Vendor benchmarks (qwen.ai/blog, 2026-08-03; independent verification pending)
+- **Judgment:** GPQA-Diamond **92.6** (GPT-5.6 Sol 94.1, Fable 5 92.6, Opus 4.8 92.0) — уровень GLM 91.2 / GPT-5.5 93.6.
+- **Agentic:** Terminal-Bench 2.1 **86.6** (Claude Code harness, avg@10), OSWorld-Verified **86.1**, IFBench **82.8**, PaperBench **93.0**, Toolathlon 72.5, WideSearch 81.9.
+- **Coding:** SWE-bench Pro 67.7 (ниже Fable 5: 80.0), DeepSWE 1.1 56.6, FrontierSWE 73.5 (Fable 5: 88.8); SWE-bench Verified НЕ опубликован.
+- **Multimodal:** MMMU-Pro 82.3, MathVision 95.2/97.7, VideoMME 90.4, OmniDocBench 1.5 92.1.
+- Все vendor self-reported; harnesses различаются по моделям (сравнения не apples-to-apples).
 
 ### Роль в стеке
 - **Qwen 3.8 Max = reviewer / архитектор / бизнес-аналитик (default reviewer).** Архитектурные спецификации, cross-audit, бизнес-анализ, deep constraint analysis, RLS review.
@@ -193,7 +200,7 @@ Compact evidence snapshot. Profiles above document attention-паттерны; t
 |-------|---------------------------------|-------------------------|-------------------|----------------------------|-------------|
 | **DeepSeek V4 Flash** (build 0731, API release 2026-07-31; HF weights = April preview) | 79.0 (Flash-Max) [indep llm-stats]; Terminal-Bench 2.1 = 82.7 **[vendor self-reported]**; DSBench-FullStack 68.7 / Hard 59.6 **[vendor]** | 71.2 **[vendor]** | 1M context; LiveBench overall 65.5 (Coding 69.2, Agentic Coding **37.6**, Math 79.6; cost/task $0.016) [indep livebench.ai, release 2026-06-25]; MMLU-Pro 86.2 [indep]; AAII 50 [indep artificialanalysis]; LMArena Elo 1431 (#40, snapshot 2026-07-28) | $0.14 / $0.28; 2500 concurrency | api-docs.deepseek.com/updates, livebench.ai, llm-stats.com, artificialanalysis.ai, LMArena |
 | **DeepSeek V4 Pro** (preview) | 80.6 **[vendor]** | 90.1 **[vendor]** | 1M context; LiveBench overall 71.6 (Agentic 42.6) [indep]; AAII 44 [indep] | $0.435 / $0.87 | vendor, livebench.ai, artificialanalysis.ai |
-| **Qwen 3.8 Max** | **Public benchmarks NOT published** (verified 2026-08-03: LiveBench/ArtificialAnalysis/LMArena/BenchLM/Vals = 0 rows for 3.8). ⚠️ **Do NOT confuse with Qwen 3.7 Max** (SWE-bench Verified 80.4, GPQA 92.4, Terminal-Bench 69.7 — different model, all 3.8 numbers in reviews are actually 3.7). APIVALE 54.8% SWE-bench (third-party API reseller) = unreliable, **not cited**. **Anecdotal/community (single runs, NOT reproducible):** Trilogy AI StackPerf 80/100 vs Kimi K3 83/100 (269-file arch task, 354 repo-цитаты, 0 failed tool-calls, tool-use 9/10); KingBench 65/80 (#2 behind Fable 5, community); 36kr 22.07 won 4/6 rounds vs GLM-5.2/K3 BUT дал ФЕЙКОВОЕ решение в раунде «карусель». | — | **983,616 tokens** (NOT 1M) context [official 2026-07-19]; max output 131,072; reasoning always-on (low/high/xhigh, default xhigh); multimodal input (text/images/video/docs); preview «continuously evolving». HF repo: **нет** (HF API 0 models, Qwen/Qwen3.8-Max → 401, проверено 2026-08-03); open-weight announced БЕЗ даты и лицензии. | **Token Plan** [official]: Lite $6, Standard ~$18-20, Pro $68-70/month; preview at 1/10 rate (1/50 at night); **per-token API price: NOT published**. Owner subscription confirmed. | role: owner decision + anecdotal; specs: [official 2026-07-19, docs.qwencloud.com, X @Alibaba_Qwen]; bench sources: trilology.ai/stackperf, kingbench (community), 36kr.com (2026-07-22) |
+| **Qwen 3.8 Max** (GA blog 2026-08-03) | SWE-bench Pro 67.7 **[vendor]** (Fable 5 80.0, Opus 4.8 69.2, GPT-5.6 Sol 64.6); DeepSWE 1.1 56.6; FrontierSWE 73.5 (Fable 5 88.8); SWE-bench Verified в блоге НЕ опубликован. ⚠️ **Do NOT confuse with Qwen 3.7 Max** (SWE-bench Verified 80.4, GPQA 92.4, Terminal-Bench 69.7 — different model, all 3.8 numbers in early reviews are actually 3.7). **Anecdotal/community (single runs, NOT reproducible):** Trilogy AI StackPerf 80/100 vs Kimi K3 83/100 (269-file arch task, 0 failed tool-calls, tool-use 9/10; longer + more tokens); KingBench 65/80 (#2 behind Fable 5, community); 36kr 22.07 won 4/6 rounds vs GLM-5.2/K3 BUT дал ФЕЙКОВОЕ решение в раунде «карусель». | GPQA-Diamond **92.6 [vendor]** (GPT-5.6 Sol 94.1, Fable 5 92.6, Opus 4.8 92.0; GLM 5.2 ref 91.2); HLE 43.6 (Fable 5 53.3); IFBench **82.8 [vendor]** (lead) | 1M context (blog config `context_window: 1000000`; docs.qwencloud.com ранее: 983,616); max output 131,072; reasoning_effort xhigh/medium/low (default xhigh); multimodal input (text/images/video/docs). Agentic [vendor]: Terminal-Bench 2.1 **86.6** (Claude Code harness, avg@10), OSWorld-Verified **86.1** (lead), PaperBench **93.0** (lead), Toolathlon 72.5, WideSearch 81.9, MRCR v2 256K 92.9. Multimodal [vendor]: MMMU-Pro 82.3, MathVision 95.2/97.7, VideoMME 90.4, OmniDocBench 1.5 92.1. Open weights: **first Max-class open-weight model** — HF/ModelScope «next week» (анонс 2026-08-03; HF-репо на дату проверки ещё нет, Qwen/Qwen3.8-Max → 401). **All vendor self-reported; independent verification pending.** | Per-token price официально НЕ опубликована. **Token Plan** [official]: Lite $6, Standard ~$18-20, Pro $68-70/month. Mirror claim $2/$6/$0.25-cached per 1M [MarkTechPost, **unverified**]. Owner subscription confirmed. | qwen.ai/blog?id=qwen3.8 (vendor, 2026-08-03); docs.qwencloud.com (specs 2026-07-19); marktechpost.com (price mirror, unverified); trilology.ai/stackperf, kingbench (community), 36kr.com (2026-07-22) |
 | **GLM 5.2** (Zhipu) | SWE-bench Pro 62.1 **[vendor]**; Terminal-Bench 2.1 = 81.0 **[vendor]**; FrontierSWE 74.4; DeepSWE 46.2 | 91.2 **[vendor]** | 1M context; LiveBench 73.2 [indep]; MCP-Atlas 76.8; AAII 51 (**open-weight leader**) [indep]; ~106 tok/s | Z.ai $1.40 / $4.40 | z.ai/blog/glm-5.2, livebench.ai, artificialanalysis.ai |
 | **GPT-5.5** (OpenAI) | SWE-bench Pro 58.6 **[vendor]**; Terminal-Bench 2.0 = 82.7 **[vendor]** | 93.6 **[vendor]** | 1M context; OSWorld 78.7; BrowseComp 84.4; AAII 55 [indep] | $5 / $30 | openai.com/index/introducing-gpt-5-5, artificialanalysis.ai |
 
@@ -201,7 +208,7 @@ Compact evidence snapshot. Profiles above document attention-паттерны; t
 
 - **Flash-0731 agentic numbers — vendor self-reported**, independently not reproduced. LiveBench Agentic Coding sub-score = 37.6 flags weak multi-step agency.
 - **Flash reasoning weak** (GPQA-D 71.2 vs GLM 91.2, GPT-5.5 93.6). Reviewer/judgment role для Flash **не benchmark-supported**.
-- **Qwen 3.8 Max — public benchmarks absent (verified 2026-08-03).** Reviewer/architect role = owner decision + anecdotal/community evidence (no formal eval). ⚠️ Do NOT confuse with Qwen 3.7 Max (SWE-bench 80.4, GPQA 92.4 — ДРУГАЯ модель). Anecdotal: StackPerf 80/100 vs Kimi K3 83; KingBench 65/80; 36kr 4/6 rounds vs GLM-5.2/K3 (1 fake solution). Strengths: design/writing/architecture/dynamic understanding. Weaknesses: ОЧЕНЬ slow for code (slowest model — Wiegold), hallucinations в длинных сессиях, фейки при неясных требованиях. NE основной кодер.
+- **Qwen 3.8 Max — vendor benchmarks опубликованы 2026-08-03 (qwen.ai/blog); independent verification pending.** Reviewer/architect role = owner decision + vendor benches + anecdotal. Judgment vendor-supported: GPQA-D 92.6 (уровень GLM 91.2 / GPT-5.5 93.6); agentic: TB2.1 86.6, OSWorld-V 86.1, IFBench 82.8; coding: SWE-bench Pro 67.7 (ниже Fable 5: 80.0). ⚠️ Do NOT confuse with Qwen 3.7 Max (SWE-bench 80.4, GPQA 92.4 — ДРУГАЯ модель). Anecdotal: StackPerf 80/100 vs Kimi K3 83; KingBench 65/80; 36kr 4/6 rounds vs GLM-5.2/K3 (1 fake solution). Strengths: design/writing/architecture/dynamic understanding. Weaknesses: ОЧЕНЬ slow for code (slowest model — Wiegold), hallucinations в длинных сессиях, фейки при неясных требованиях. NE основной кодер — vendor-бенчи не отменяют latency-данные.
 - **«Flash не хуже GLM» — частично:** AAII 50 vs 51 (близко), reasoning заметно слабее.
 - **GLM 5.2 и GPT-5.5** — единственные с независимыми judgment/review цифрами (AAII 51 и 55; GPQA-D 91.2 и 93.6). Их роли benchmark-supported.
 - **DeepSeek V4 Pro** указан для справки (preview, vendor-only); в active stack не входит.
@@ -215,7 +222,8 @@ Compact evidence snapshot. Profiles above document attention-паттерны; t
 - `z.ai/blog/glm-5.2` — GLM-5.2 vendor numbers
 - `openai.com/index/introducing-gpt-5-5` — GPT-5.5 vendor numbers
 - `lmarena.ai` (Elo leaderboard, snapshot 2026-07-28) — Flash Elo 1431, rank #40
-- **Qwen 3.8 Max**: `docs.qwencloud.com` + `x.com/Alibaba_Qwen` (2026-07-19, official specs); `hf.co/Qwen/Qwen3.8-Max` (verified 2026-08-03: HF API 0 models, 401); `trilogy.ai/stackperf` (StackPerf 80/100 vs Kimi K3 83); KingBench community run; `36kr.com` (2026-07-22, Chinese coverage); `manish.sh`, `ben.wiegold.com` review, `r/LocalLLaMA`, `r/Qwen_AI` (anecdotal community evidence)
+- `qwen.ai/blog?id=qwen3.8` (2026-08-03, official GA launch + benchmark tables — vendor self-reported, indep verification pending)
+- **Qwen 3.8 Max**: `qwen.ai/blog?id=qwen3.8` (2026-08-03, vendor benches); `docs.qwencloud.com` + `x.com/Alibaba_Qwen` (2026-07-19, official specs); `hf.co/Qwen/Qwen3.8-Max` (verified 2026-08-03: HF API 0 models, 401 — open weights announced «next week»); `marktechpost.com` (2026-08-03, price mirror $2/$6 — unverified); `trilogy.ai/stackperf` (StackPerf 80/100 vs Kimi K3 83); KingBench community run; `36kr.com` (2026-07-22, Chinese coverage); `manish.sh`, `ben.wiegold.com` review, `r/LocalLLaMA`, `r/Qwen_AI` (anecdotal community evidence)
 
 ---
 
