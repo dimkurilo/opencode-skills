@@ -81,7 +81,7 @@
 - **Владимир Иванов [@turboproject](https://t.me/turboproject)** - GRACE, семантические якоря, knowledge graph
 - **[vv-opencode (GRACE)](https://github.com/osovv/vv-opencode)** - delegation packet, трёхслойная spec-to-code, модульные контракты
 - **[AGENTS.md Patterns (Blake Crosley)](https://blakecrosley.com/blog/agents-md-patterns)** - command-first, closure-defined, лимит ~150 строк
-- **Agent1st Protocol v30 (DeepSeek)** - CSA citation budget, Closing Anchors, Cascade Breaker, Failure Packet (внутренний протокол)
+- **[Agent1st Protocol](https://github.com/dimkurilo/agent1st-protocols)** — CSA citation budget, Closing Anchors, Cascade Breaker, Failure Packet (публичные системные инструкции для агентных моделей: DeepSeek V4, GLM 5.2, Qwen 3.8)
 
 ## Установка
 

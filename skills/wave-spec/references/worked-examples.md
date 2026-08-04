@@ -12,16 +12,16 @@
 
 ```markdown
 # INTENT (5 строк)
-Хочу: исправить опечатку «[price]» → «[price].» в hero-блоке.
-Успех: на странице «[price].», grep не находит «[currency]».
-Out of scope: другие блоки, цены.
+Хочу: обновить версию «v1.2» → «v1.3» в hero-блоке.
+Успех: на странице «v1.3», grep не находит «v1.2».
+Out of scope: другие блоки, другие версии.
 
 # SPEC (10 строк)
-goal: заменить «[price]» на «[price].» в src/sections/Hero.tsx
+goal: заменить «v1.2» на «v1.3» в src/sections/Hero.tsx
 success:
-  - S1: grep -rn "[currency]" src/ → 0 совпадений
+  - S1: grep -rn "v1.2" src/ → 0 совпадений
   - S2: npm run build зелёный
-constraints: не трогать другие цены; токен --background не менять
+constraints: не трогать другие версии; токен --background не менять
 risks: нет (локальная правка, no deploy)
 
 # approve → apply → archive
@@ -50,7 +50,7 @@ risks: нет (локальная правка, no deploy)
 
 ## Пример 3. `wave` на 3 задачи — пет-проект без fidelity (доработка лендинга)
 
-**Сценарий:** доработать лендинг пет-проекта ([project]): добавить блок отзывов, поправить квиз, обновить FAQ. 3 задачи, без fidelity-порта → dual review рекомендован, но не обязателен (writer≠reviewer минимум).
+**Сценарий:** доработать лендинг пет-проекта: добавить блок отзывов, поправить квиз, обновить FAQ. 3 задачи, без fidelity-порта → dual review рекомендован, но не обязателен (writer≠reviewer минимум).
 
 **Артефакты:** `waves/YYYY-MM-DD-landing-polish/`:
 - `INTENT.md`, `SPEC.xml` (success criteria по каждому блоку), `PLAN.xml`:
