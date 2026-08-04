@@ -1,45 +1,100 @@
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/hero-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="assets/hero-light.svg">
+  <img alt="wave-spec" src="assets/hero-light.svg" width="100%">
+</picture>
+
 # wave-spec
 
-Портабельный plan-gate skill (vv-метод, мульти-CLI). INTENT → интервью → SPEC.xml + PLAN.xml → утверждение → брифинги воркеров → LAUNCH.md → STATUS/handoff → NEXT_SESSION. Универсальный: разработка, контент, порт скиллов, перевод, оркестрация, перестройка сайтов.
+🇬🇧 [English version](README.md) · **Русский** · [← все скиллы](../../README.md)
+
+**Plan-gate скилл для спринтов, где нельзя пропускать планирование.**
+
+wave-spec проводит короткое интервью перед тем, как писать код или контент, превращает ответы в структурированные `SPEC` + `PLAN` и ведёт агента через dispatch, review, deploy и handoff с lifecycle-гейтами между каждой стадией. Портативный между OpenCode, ZCode, Qwen Code — без рантайма.
+
+---
 
 ## Когда использовать
 
-Используй при запуске спринта/волны или когда мультисессионная разработка/контент/порт скиллов/перевод не должна пропускать планирование. Работает в OpenCode, ZCode, Qwen Code — пишет файлы в проекте, не требует vv-opencode.
+- Запускаете спринт, волну или любую многосессионную работу, где нельзя пропускать планирование.
+- Сказали «составь спеку/план», «spec first», «interview then plan».
+- Работа: разработка, контент, порт скиллов, перевод, оркестрация, перестройка сайта.
 
-**НЕ используй** для тривиальных однострочных правок, уже одобренных пользователем.
+**Не используйте полный пайплайн** для тривиальных правок (≤1 файл, ≤30 мин, no deploy) — внутри скилла есть `mode=quick`.
 
-## Ключевые возможности
+## Как работает
 
-- **Стек по умолчанию:** DeepSeek V4 Flash (оркестратор по умолчанию + основной writer/coder/тестер; полная роль — dispatch → wait → gate → synthesize; single-file, bulk code, тесты) · Qwen 3.8 Max (reviewer / архитектор / бизнес-аналитик; NE основной кодер — медленная; owner empirical: level ~ Kimi K3, сильнее GLM в architecture) · GLM 5.2 (multi-file writer для 3+ файлов + second-line reviewer; AAII 51, GPQA-D 91.2) · GPT-5.5 (security/fidelity gate, `codex` CLI)
-- **TL;DR + minimum path + лестница обучения:** `mode=quick` (≤1 файл, ≤30 мин, no deploy) → `wave` (спринт 2–7 дней) → `multi-model-orchestration` (2+ модели). Учись деланием, не чтением
-- **Роутер скиллов:** новый проект → `project-bootstrap` · план спринта → `wave-spec` · 2+ модели → `multi-model-orchestration`
-- **Автогенерация LAUNCH.md (шаг 6b):** команды запуска воркеров из model-card.md + PLAN.xml roles, cross-family check (writer.family ≠ reviewer.family), шаблоны review brief из `multi-model-orchestration/references/routing.md`, секция запретов, версионирование при смене ролей
-- **Паттерн NEXT_SESSION (шаг 6c):** уникальные файлы `NEXT_SESSION_I{N}.md` на итерацию (никогда не перезаписывать), copy-paste блок с полным путём (формат по модели оркестратора), корневой указатель `NEXT_SESSION.md`, 9 шагов с verification gates (без дублирования SKILL.md)
-- **Итерационный handoff (шаг 7):** уникальные файлы `iterations/I{N}-<slug>.handoff.md`, корневой SESSION_HANDOFF.md только как указатель
-- **Генерация linear-workflow (шаг 6d):** параметрический `.agents/rules/linear-workflow.md` из параметров волны, APPEND при новой волне в том же проекте
-- **PLAN.xml `<roles>`:** оркестратор + экзекуторы с tool/agent/flags/effort/family + `<family_rule>`
-- **Lifecycle gates (8 состояний):** Implement → In Review → Commit → PR → Merge → Deploy → On Prod → Done. RESIDUAL-RISK-OWNER-SMOKE если live smoke отсутствует
-- **Fidelity dual review:** static-parity reviewer ∥ behavioral-semantics reviewer из разных семейств; writer ≠ reviewer; Flash не назначается fidelity-ревьюером (judgment-роль)
-- **Post-mortem → skill update:** closeout checklist включает создание INTENT.md для улучшений скиллов
+```
+INTENT → интервью (3–7 ?) → SPEC → PLAN → утверждение → dispatch → lifecycle gates → Done
+```
 
-## SoT + Symlink Layout
+**Режимы:**
+- `mode=quick` — однофайловая правка, no deploy, одна сессия.
+- `mode=wave` — спринт (2–7 дней), одна тема, полный lifecycle.
+- `mode=program` — мульти-волновой портфель (редко).
+- `mode=task` — атомарная задача внутри волны.
 
-**Source of Truth (SoT):** `<repo>/skills/wave-spec/` — git-tracked.
+**Lifecycle gates (8 состояний, линейно):**
 
-**Install into OpenCode** (active CLI):
+```
+Implement → In Review → Commit → PR → Merge → Deploy probe → On prod → Done
+```
 
-- `~/.config/opencode/skills/wave-spec` → `<repo>/skills/wave-spec`
+Никаких «Done» или «next product», пока deploy probe не вернёт не-404. Если live smoke нет — handoff несёт явный маркер `RESIDUAL-RISK-OWNER-SMOKE` вместо иллюзии определённости.
 
-## Жизненный цикл (одной строкой)
+## Что производит
 
-Implement done → In Review (dual review) → Commit → PR → Merge → Deploy probe (curl ≠ 404) → On prod (owner smoke OR RESIDUAL-RISK-OWNER-SMOKE) → Done. Никакой передачи «NEXT product», пока Deploy gate не пройден.
+```
+waves/<date>-<slug>/
+├── INTENT.md              # свободная цель + критерии успеха + scope
+├── SPEC.xml / SPEC.md     # структурированная спека (XML или markdown-with-required-sections)
+├── PLAN.xml               # задачи с deps, owner, model hint, artifact, gates
+├── STATUS.md              # таблица задач + lifecycle state
+├── worker briefs          # на задачу: ROLE/SCOPE/MODE/DONE/FORBIDDEN
+├── LAUNCH.md              # сгенерированные команды запуска по моделям
+├── NEXT_SESSION_I{N}.md   # один файл на итерацию (не перезаписывать)
+├── NEXT_SESSION.md        # указатель на текущую итерацию
+└── iteration-handoff.md   # handoff на итерацию
+```
 
-## Политика форматов (SPEC/PLAN)
+На closeout запускается `scripts/verify-spec.sh` — портативный bash-валидатор (exit 0 = PASS).
 
-**Markdown с required-sections — по умолчанию** (Goal, Done_when, Verifier, Scope, Risks). XML — опционален (format triage 2026-08: свежий агент извлекает required-поля из MD и XML одинаково, 5/5; XML имеет смысл только если под него есть реальный парсер/валидатор). Канон: SKILL.md `## XML vs Markdown (policy)`. Портативный валидатор (bash + grep, без рантайма): `bash skills/wave-spec/scripts/verify-spec.sh waves/<date>-<slug>/` — запускается в wave closeout (exit 0 = PASS).
+## Стек моделей по умолчанию
 
-## Ссылки
+| Роль | Модель | Зачем |
+|------|--------|-------|
+| Оркестратор + основной writer | **DeepSeek V4 Flash** | быстрый, дешёвый, сильный на 0731 бенчмарках |
+| Multi-file writer (3+ файлов) | **GLM 5.2** | 1M state continuity, длинные горизонты |
+| Reviewer / архитектор (default) | **Qwen 3.8 Max** | depth, архитектура, бизнес-анализ |
+| Security / fidelity gate | **GPT-5.5** | поведенческая семантика, уникальная роль |
 
-- `references/program-maps.md` — domain-specific program maps (4 меню: skill-port, перевод, fidelity port, SEO)
-- `references/vv-portability.md` — маппинг на тэги vv-opencode
-- `assets/templates/` — шаблоны INTENT, SPEC, PLAN, STATUS, брифа воркера, review synthesis, fix-round, ASSUMPTIONS, **LAUNCH.md**, **iteration-handoff.md**, **NEXT_SESSION.md** (указатель), **NEXT_SESSION_ITER.md** (итерация), **linear-workflow.md**
+Owner может пинить любую роль: «сейчас writer=GLM», «сейчас orchestrator=Flash». **Cross-family rule:** writer.family ≠ reviewer.family — ловит слепые пятна.
+
+## Установка
+
+```bash
+ln -sfn ~/Projects/opencode-skills/skills/wave-spec \
+  ~/.config/opencode/skills/wave-spec
+```
+
+## Пример сессии
+
+> **Вы:** wave-spec — порт скилла из Claude Code в opencode + ZCode, 3 задачи.
+>
+> **Агент** *(загружает wave-spec)*: интервью спрашивает про целевые хосты, fidelity-требования, тестовую поверхность → produce `SPEC.xml` (3 задачи, gates) + `PLAN.xml` (writer=Flash, reviewer=Qwen, deploy=skill-load-check) → ждёт утверждения → генерирует `LAUNCH.md` + worker briefs → dispatch → review → closeout с `verify-spec.sh` PASS → Done.
+
+## Что внутри
+
+- **References:** `worked-examples.md` (3 сквозных примера), `program-maps.md` (4 доменных меню), `glossary.md` (15 терминов), `vv-portability.md`.
+- **Шаблоны (14):** `INTENT.md.tmpl`, `SPEC.xml.tmpl`, `PLAN.xml.tmpl`, `STATUS.md.tmpl`, `quick-spec.md.tmpl`, `worker-brief.md.tmpl`, `LAUNCH.md.tmpl`, `NEXT_SESSION.md.tmpl`, `NEXT_SESSION_ITER.md.tmpl`, `iteration-handoff.md.tmpl`, `review-synthesis.md.tmpl`, `fix-round-brief.md.tmpl`, `ASSUMPTIONS.md.tmpl`, `linear-workflow.md.tmpl`.
+- **Скрипты:** `verify-spec.sh`.
+
+## Роутер
+
+```
+новый проект → project-bootstrap · план спринта → wave-spec · 2+ модели → multi-model-orchestration
+```
+
+## Лицензия
+
+MIT · часть [opencode-skills](../../README.md)

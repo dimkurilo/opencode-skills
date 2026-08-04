@@ -1,76 +1,96 @@
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/hero-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="docs/assets/hero-light.svg">
+  <img alt="opencode-skills" src="docs/assets/hero-light.svg" width="100%">
+</picture>
+
 # opencode-skills
 
-🇷🇺 [Русская версия](README.ru.md)
+🇷🇺 [Русская версия](README.ru.md) · **English**
 
-Skills for [opencode](https://github.com/opencode-ai/opencode) and compatible CLIs.
+**Skills that turn an AI agent into a specialist for a concrete job — not a chat partner.**
 
-Each skill is instructions, prompt patterns, scripts, and reference material so an AI agent can do a concrete job. Model-agnostic; several also install into **Grok** (`~/.grok/skills/`).
+Each skill is a pack of instructions, templates, scripts, and reference material that drops into [opencode](https://github.com/opencode-ai/opencode) (or any compatible CLI) and tells the agent exactly how to do one thing well: bootstrap a project, run a planned sprint, coordinate multiple models, or break out of a mode-collapsed loop.
 
-## Skills
+No runtime. No lock-in. Just files the agent reads on demand.
 
-| Skill | Description |
-|-------|-------------|
-| [project-bootstrap](skills/project-bootstrap/) | Minimal cross-platform project setup for Codex, Grok, OpenCode, ZCode, and GLM/DeepSeek hosts. Uses a short `AGENTS.md` as the universal core; bounded handoff/memory, adapters, and selective GSD are opt-in. Includes read-only inspection, reversible migration, and deterministic verification. [Details](skills/project-bootstrap/README.md) |
-| [multi-model-orchestration](skills/multi-model-orchestration/) | Coordinate 2+ AI models (DeepSeek V4 Flash, Qwen 3.8 Max, GLM 5.2, GPT-5.5) for parallel review, cross-validation, or bulk work via Orca. Routing table, dual review rules, deploy gate, lifecycle. [Details](skills/multi-model-orchestration/README.md) |
-| [vs-architect](skills/vs-architect/) | Verbalized Sampling (arXiv 2510.01171): solution variants with probability estimates - architecture, debugging, strategy, creative work. |
+---
+
+## The four skills
+
+| Skill | One-liner | Use when |
+|-------|-----------|----------|
+| [**project-bootstrap**](skills/project-bootstrap/) | Generates the agent "home" for a project in one session — `AGENTS.md`, handoff, memory, rules, adapted to project type and model. | You're starting a new project or rescuing an existing one and want the agent infrastructure right. |
+| [**wave-spec**](skills/wave-spec/) | A plan-gate skill for sprints and waves: `INTENT → interview → SPEC/PLAN → approve → dispatch → lifecycle gates`. Portable across OpenCode, ZCode, Qwen Code. | You're running a multi-session sprint, a content/translation wave, or any work that must not skip planning. |
+| [**multi-model-orchestration**](skills/multi-model-orchestration/) | Coordinates 2+ AI models (DeepSeek V4 Flash, Qwen 3.8 Max, GLM 5.2, GPT-5.5) for parallel review, cross-validation, or bulk work via Orca. | You need independent perspectives, a fidelity port, or a security/RLS review that one model alone can't gate. |
+| [**vs-architect**](skills/vs-architect/) | Verbalized Sampling ([arXiv 2510.01171](https://arxiv.org/abs/2510.01171)) — generates diverse solution variants with probability estimates. | You're choosing between approaches, debugging an unknown root cause, or breaking out of a mode-collapsed loop. |
 
 ### Which skill when?
 
-| You need… | Skill |
-|-----------|--------|
-| Minimal agent project contract or safe legacy migration | **project-bootstrap** |
-| Coordinating 2+ AI models for parallel review, cross-validation, or bulk work | **multi-model-orchestration** |
-| Diverse solution variants with probabilities | **vs-architect** |
+```
+New project, "set up the agent structure"          →  project-bootstrap
+Sprint/wave that must not skip planning            →  wave-spec
+2+ models for review, cross-validation, bulk work  →  multi-model-orchestration
+Diverse variants with probabilities                →  vs-architect
+```
 
-## Installation
+The three planning skills chain: **project-bootstrap** sets up the agent home → **wave-spec** runs the sprint inside it → **multi-model-orchestration** cross-reviews the work. **vs-architect** is a standalone thinking tool.
 
-### Quick install
+---
+
+## Install
 
 ```bash
 git clone git@github.com:dimkurilo/opencode-skills.git ~/Projects/opencode-skills
 
-ln -sfn ~/Projects/opencode-skills/skills/project-bootstrap \
-  ~/.config/opencode/skills/project-bootstrap
-ln -sfn ~/Projects/opencode-skills/skills/vs-architect \
-  ~/.config/opencode/skills/vs-architect
-ln -sfn ~/Projects/opencode-skills/skills/multi-model-orchestration \
-  ~/.config/opencode/skills/multi-model-orchestration
+# symlink the skills you want into opencode
+for skill in project-bootstrap wave-spec multi-model-orchestration vs-architect; do
+  ln -sfn ~/Projects/opencode-skills/skills/$skill ~/.config/opencode/skills/$skill
+done
 ```
 
-### Manual install
+Manual install (no symlinks): `cp -R skills/<name> ~/.config/opencode/skills/<name>`. opencode picks up new skills on the next launch.
 
-```bash
-cp -R skills/project-bootstrap ~/.config/opencode/skills/project-bootstrap
-cp -R skills/vs-architect ~/.config/opencode/skills/vs-architect
-cp -R skills/multi-model-orchestration ~/.config/opencode/skills/multi-model-orchestration
-```
+Several skills also install into **Grok** (`~/.grok/skills/`) and other CLIs that follow the same `SKILL.md` convention.
 
-After copying, opencode picks up the skill on the next launch.
+---
 
-## Repository structure
+## What's actually in a skill
 
 ```
-opencode-skills/
-├── README.md               # English
-├── README.ru.md            # Russian
-├── CHANGELOG.md            # Release history
-├── LICENSE                 # MIT
-├── .gitignore
-└── skills/
-    ├── project-bootstrap/  # Minimal cross-platform agent project setup
-    └── vs-architect/       # Verbalized Sampling prompting
-    └── multi-model-orchestration/  # Multi-model coordination via Orca
+skills/<name>/
+├── SKILL.md                # main instructions + YAML frontmatter (name, description)
+├── README.md / README.ru.md
+├── references/             # reference material, examples, theory
+├── assets/templates/       # generation templates with ${VARIABLE} placeholders
+└── scripts/                # helper shell/Python scripts (lint, verify, classify)
 ```
+
+The frontmatter `description` tells the host agent **when** to load the skill. The body is the workflow. References are loaded on demand. Templates produce the artifacts (`SPEC.xml`, `PLAN.xml`, `AGENTS.md`, briefs, handoffs) the skill generates.
+
+---
 
 ## Creating your own skills
 
-Simple convention:
+Same convention: a directory under `skills/`, a `SKILL.md` with frontmatter (`name`, `description` — describe **when** to use, not only what), optional `references/`, `assets/templates/`, `scripts/`. The `skill-creator` and `skill-audit` skills (in `~/.config/opencode/skills/`) help you write and review them.
 
-1. Directory named after the skill
-2. `SKILL.md` - main instructions with YAML frontmatter (`name`, `description` - describe **when** to use, not only what it does)
-3. Optional `references/` - reference materials, examples, theory
-4. Optional `assets/templates/` - generation templates with `${VARIABLE}` placeholders
-5. Optional `scripts/` - helper shell/Python scripts
+---
+
+## Repository
+
+```
+opencode-skills/
+├── README.md / README.ru.md
+├── CHANGELOG.md
+├── LICENSE                 # MIT
+└── skills/
+    ├── project-bootstrap/
+    ├── wave-spec/
+    ├── multi-model-orchestration/
+    └── vs-architect/
+```
+
+Public, MIT-licensed. Inspired by [PromptPasture/agent.md](https://github.com/PromptPasture/agent.md), [Cursor Rules](https://cursor.com/docs/rules), [OpenCode Rules](https://opencode.ai/docs/rules/), [vv-opencode](https://github.com/osovv/vv-opencode), and the [Agent1st Protocol](https://github.com/dimkurilo/agent1st-protocols).
 
 ## License
 

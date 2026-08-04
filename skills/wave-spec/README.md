@@ -1,11 +1,100 @@
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/hero-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="assets/hero-light.svg">
+  <img alt="wave-spec" src="assets/hero-light.svg" width="100%">
+</picture>
+
 # wave-spec
 
-Portable plan-gate + lifecycle skill (vv-method, multi-CLI): INTENT → SPEC.xml → PLAN.xml → approve → worker briefs → LAUNCH → STATUS/handoff → NEXT_SESSION. Universal: development, content, skill-port, translation, orchestration, site rebuild.
+🇷🇺 [Русская версия](README.ru.md) · **English** · [← all skills](../../README.md)
 
-> **Primary docs (single source of truth):** [README.ru.md](README.ru.md) (Russian, maintained) + [SKILL.md](SKILL.md) (canonical contract). This file is a pointer — do not edit content here (README drift root).
+**A plan-gate skill for sprints that must not skip planning.**
 
-**Router:** новый проект → `project-bootstrap` · план спринта → `wave-spec` · 2+ модели → `multi-model-orchestration`.
+wave-spec forces a short interview before any code/content gets written, turns the answers into a structured `SPEC` + `PLAN`, and walks the agent through dispatch, review, deploy, and handoff with lifecycle gates between every stage. Portable across OpenCode, ZCode, Qwen Code — no runtime dependency.
 
-**Use when** starting a sprint/wave that must not skip planning. **Do NOT use** for trivial edits — use `mode=quick` inside the skill. Works in OpenCode / ZCode / Qwen Code — no vv-opencode runtime.
+---
 
-Current version + changes: see SKILL.md frontmatter and Changelog.
+## When to use
+
+- You're starting a sprint, a wave, or any multi-session work that *must not* skip planning.
+- You said *"spec first"*, *"составь спеку/план"*, *"interview then plan"*.
+- The work is: development, content production, skill porting, translation, orchestration, or a site rebuild.
+
+**Don't use the full pipeline** for trivial edits (≤1 file, ≤30 min, no deploy) — use `mode=quick` inside the skill instead.
+
+## How it works
+
+```
+INTENT → interview (3–7 ?) → SPEC → PLAN → approve → dispatch → lifecycle gates → Done
+```
+
+**Modes:**
+- `mode=quick` — one-file fix, no deploy, single session.
+- `mode=wave` — a sprint (2–7 days), one theme, full lifecycle.
+- `mode=program` — multi-wave portfolio (rare).
+- `mode=task` — atomic task inside a wave.
+
+**Lifecycle gates (8 states, linear):**
+
+```
+Implement → In Review → Commit → PR → Merge → Deploy probe → On prod → Done
+```
+
+No "Done" or "next product" until the deploy probe returns non-404. If there's no live smoke test, the handoff carries an explicit `RESIDUAL-RISK-OWNER-SMOKE` marker instead of pretending certainty.
+
+## What it produces
+
+```
+waves/<date>-<slug>/
+├── INTENT.md              # freeform goal + success criteria + scope
+├── SPEC.xml / SPEC.md     # structured spec (XML or markdown-with-required-sections)
+├── PLAN.xml               # tasks with deps, owners, model hints, artifacts, gates
+├── STATUS.md              # task table + lifecycle state
+├── worker briefs          # per-task ROLE/SCOPE/MODE/DONE/FORBIDDEN
+├── LAUNCH.md              # generated launch commands per model
+├── NEXT_SESSION_I{N}.md   # one file per iteration (never overwritten)
+├── NEXT_SESSION.md        # pointer to the current iteration
+└── iteration-handoff.md   # per-iteration handoff
+```
+
+Closeout runs `scripts/verify-spec.sh` — a portable bash validator (exit 0 = PASS).
+
+## Default model stack
+
+| Role | Model | Why |
+|------|-------|-----|
+| Orchestrator + primary writer | **DeepSeek V4 Flash** | fast, cheap, strong on 0731 benchmarks |
+| Multi-file writer (3+ files) | **GLM 5.2** | 1M state continuity, long-horizon specialty |
+| Reviewer / architect (default) | **Qwen 3.8 Max** | depth, architecture, business analysis |
+| Security / fidelity gate | **GPT-5.5** | behavioral semantics, unique gate role |
+
+Owner can pin any role: *"сейчас writer=GLM"*, *"сейчас orchestrator=Flash"*. **Cross-family rule:** writer.family ≠ reviewer.family — catches blind spots.
+
+## Install
+
+```bash
+ln -sfn ~/Projects/opencode-skills/skills/wave-spec \
+  ~/.config/opencode/skills/wave-spec
+```
+
+## Example session
+
+> **You:** wave-spec — port a skill from Claude Code to opencode + ZCode, 3 tasks.
+>
+> **Agent** *(loads wave-spec)*: interview asks about target hosts, fidelity requirements, test surface → produces `SPEC.xml` (3 tasks, gates) + `PLAN.xml` (writer=Flash, reviewer=Qwen, deploy=skill-load-check) → waits for approve → generates `LAUNCH.md` + worker briefs → dispatch → review → closeout with `verify-spec.sh` PASS → Done.
+
+## What's inside
+
+- **References:** `worked-examples.md` (3 end-to-end examples), `program-maps.md` (4 domain menus), `glossary.md` (15 terms), `vv-portability.md`.
+- **Templates (14):** `INTENT.md.tmpl`, `SPEC.xml.tmpl`, `PLAN.xml.tmpl`, `STATUS.md.tmpl`, `quick-spec.md.tmpl`, `worker-brief.md.tmpl`, `LAUNCH.md.tmpl`, `NEXT_SESSION.md.tmpl`, `NEXT_SESSION_ITER.md.tmpl`, `iteration-handoff.md.tmpl`, `review-synthesis.md.tmpl`, `fix-round-brief.md.tmpl`, `ASSUMPTIONS.md.tmpl`, `linear-workflow.md.tmpl`.
+- **Scripts:** `verify-spec.sh`.
+
+## Router
+
+```
+новый проект → project-bootstrap · план спринта → wave-spec · 2+ модели → multi-model-orchestration
+```
+
+## License
+
+MIT · part of [opencode-skills](../../README.md)

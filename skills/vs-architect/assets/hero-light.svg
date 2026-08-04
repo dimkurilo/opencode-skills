@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 220" width="100%" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="vsBgL" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#fdf2f8"/>
+      <stop offset="1" stop-color="#fce7f3"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="220" fill="url(#vsBgL)" stroke="#e2e8f0" rx="14"/>
+
+  <text x="60" y="70" fill="#be185d" font-size="13" font-weight="600" letter-spacing="2">VS-ARCHITECT · VERBALIZED SAMPLING</text>
+  <text x="60" y="108" fill="#0f172a" font-size="34" font-weight="700">Diverse variants, with probabilities</text>
+  <text x="60" y="138" fill="#475569" font-size="16">arXiv 2510.01171 — break mode collapse</text>
+
+  <g transform="translate(700,110)">
+    <rect x="-20" y="-16" width="80" height="32" fill="#db2777" rx="6"/>
+    <text x="20" y="-1" fill="#ffffff" text-anchor="middle" font-size="11" font-weight="700">prompt</text>
+    <text x="20" y="12" fill="#ffffff" text-anchor="middle" font-size="10">1 answer</text>
+
+    <rect x="90" y="-16" width="80" height="32" fill="#ffffff" stroke="#db2777" stroke-width="2" rx="6"/>
+    <text x="130" y="-1" fill="#be185d" text-anchor="middle" font-size="11" font-weight="700">vs-arch</text>
+    <text x="130" y="12" fill="#be185d" text-anchor="middle" font-size="10">N variants</text>
+
+    <line x1="60" y1="0" x2="90" y2="0" stroke="#db2777" stroke-width="1.5"/>
+
+    <g transform="translate(200,0)" font-size="11" font-weight="600">
+      <line x1="0" y1="0" x2="20" y2="-55" stroke="#db2777" stroke-width="1" opacity="0.6"/>
+      <line x1="0" y1="0" x2="20" y2="-18" stroke="#db2777" stroke-width="1" opacity="0.6"/>
+      <line x1="0" y1="0" x2="20" y2="18" stroke="#db2777" stroke-width="1" opacity="0.6"/>
+      <line x1="0" y1="0" x2="20" y2="55" stroke="#db2777" stroke-width="1" opacity="0.6"/>
+
+      <g transform="translate(28,-60)"><rect x="0" y="0" width="200" height="14" fill="#fce7f3" stroke="#db2777" rx="3"/><rect x="0" y="0" width="90" height="14" fill="#db2777" rx="3"/><text x="210" y="11" fill="#9d174d">A · p=0.45</text></g>
+      <g transform="translate(28,-25)"><rect x="0" y="0" width="200" height="14" fill="#fce7f3" stroke="#db2777" rx="3"/><rect x="0" y="0" width="60" height="14" fill="#db2777" rx="3"/><text x="210" y="11" fill="#9d174d">B · p=0.30</text></g>
+      <g transform="translate(28,11)"><rect x="0" y="0" width="200" height="14" fill="#fce7f3" stroke="#db2777" rx="3"/><rect x="0" y="0" width="36" height="14" fill="#db2777" rx="3"/><text x="210" y="11" fill="#9d174d">C · p=0.18</text></g>
+      <g transform="translate(28,48)"><rect x="0" y="0" width="200" height="14" fill="#fce7f3" stroke="#db2777" rx="3"/><rect x="0" y="0" width="14" height="14" fill="#db2777" rx="3"/><text x="210" y="11" fill="#9d174d">D · p=0.07</text></g>
+    </g>
+  </g>
+</svg>

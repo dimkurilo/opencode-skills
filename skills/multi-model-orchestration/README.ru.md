@@ -1,83 +1,95 @@
-# Multi-Model Orchestration
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/hero-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="assets/hero-light.svg">
+  <img alt="multi-model-orchestration" src="assets/hero-light.svg" width="100%">
+</picture>
 
-🇬🇧 [English version](README.md)
+# multi-model-orchestration
 
-Скилл для [opencode](https://github.com/opencode-ai/opencode): координация 2+ AI-моделей через [Orca](https://onorca.dev) для параллельного ревью, кросс-валидации и массовой работы. Координатор маршрутизирует, диспатчит, ждёт, синтезирует и гейтит — не совмещает оркестрацию с написанием кода в одной задаче.
+🇬🇧 [English version](README.md) · **Русский** · [← все скиллы](../../README.md)
 
-## Когда звать
+**Координация 2+ AI-моделей для ревью, кросс-валидации или массовой работы.**
 
-- «Обсудите этот вопрос с 2 моделями», «multi-model review», «cross-validate with N models»
-- Fidelity-порты (reference→platform): один writer (Flash/GLM) + dual review (Qwen/GLM ∥ GPT-5.5)
-- Ревью безопасности/RLS/auth: параллельный GPT-5.5 + Qwen (никогда не single-model gate)
-- Архитектурные решения, где нужны независимые взгляды
-- Массовая работа, не влезающая в одно контекстное окно
+Dispatch/review движок. Координатор маршрутизирует задачу N воркерам-моделям через [Orca](https://onorca.dev), ждёт результаты и синтезирует — с жёстким правилом: writer и reviewer никогда не из одного семейства моделей.
 
-## Когда не звать
+---
 
-- Одна модель, тривиальные правки или §1 decision tree сказал «solo»
-- Задачи, где независимые перспективы моделей не дают выигрыша
-- Реализация координатором (координатор не совмещает оркестрацию с написанием кода в одной задаче)
+## Когда использовать
 
-## Модели
+- Нужны **независимые перспективы** — «обсудите с 2 моделями», «cross-validate», «parallel review».
+- **Fidelity-порт** (генератор, векторизатор, reference→платформа) — двойной ревью обязателен.
+- **Security / RLS / auth** ревью — никогда одной моделью.
+- **Массовая работа**, выходящая за одно контекстное окно.
 
-| Модель | Family | Лучшая роль | Стоимость |
-|--------|--------|-------------|-----------|
-| DeepSeek V4 Flash | DeepSeek | **Оркестратор (по умолчанию) + основной writer/кодер/тестер** — dispatch, routing, синтез; single-file, bulk code, тесты | Низкая |
-| Qwen 3.8 Max | Alibaba | **Reviewer / архитектор / бизнес-аналитик (default reviewer)** — architecture spec, cross-audit, business analysis, RLS review. НЕ основной кодер (медленная) | Высокая |
-| GLM 5.2 | Zhipu | **Multi-file writer (default для 3+ файлов)** + second-line reviewer (architecture-heavy волны) | Средняя |
-| GPT-5.5 | OpenAI | Ревью безопасности/RLS, behavioral regression gate (уникальная роль) | Высокая |
+**Не используйте** для задач одной модели, тривиальных правок или когда прямого промпта достаточно. Сначала solo, multi — только когда второе семейство реально добавляет сигнал.
 
-Маршрутизация зависит от типа задачи, а не от предпочтений модели. **Cross-family правило:** writer.family ≠ reviewer.family. Полная таблица с evidence-якорями и cross-family парами — в `references/routing.md`.
+## Таблица роутинга
 
-## Orchestration Platform highlights
+| Работа | Куда | Зачем |
+|--------|------|-------|
+| Оркестратор + основной writer | **DeepSeek V4 Flash** | role lock: dispatch → wait → gate → synthesize + основной кодер |
+| Multi-file реализация (3+) | **GLM 5.2** | 1M state continuity, длинные горизонты |
+| Review / архитектура (default reviewer) | **Qwen 3.8 Max** | depth, архитектура, бизнес-анализ |
+| Security / behavioral gate | **GPT-5.5** | уникальная роль — ловил регрессии, которые другие пропускали |
 
-- **DeepSeek V4 Flash = orchestrator (default) + primary writer/coder:** full orchestrator role (dispatch → wait → gate → synthesize) + основной writer/coder (single-file, bulk code, тесты). Не «mechanics only». Fast ($0.14/$0.28 per 1M), strong on 0731 benchmarks
-- **Qwen 3.8 Max = reviewer / архитектор / бизнес-аналитик (default reviewer):** NE основной кодер (медленная). Owner empirical: level ~ Kimi K3, **сильнее GLM 5.2 в architecture и depth of thought**; 2.4T weights; owner subscription confirmed. Public benchmarks: none. Pinned via OpenCode agent `A/agent1st_qwen-3.8` (versionless)
-- **GLM 5.2 = multi-file writer + second-line reviewer:** default writer для 3+ файлов (1M state continuity, ~15 min implement, ~10 min fix-round); second-line reviewer когда Qwen недоступен. `A/agent1st_glm` (v14+). AAII 51, GPQA-D 91.2, LiveBench 73.2 (indep)
-- **GPT-5.5 = behavioral regression gate:** уникальная роль — нашёл abort/cost MAJOR, который GLM пропустил. НЕ «ещё один ревьювер». Security/RLS gate. Запуск через `codex` CLI
-- **Family field + cross-family маршрутизация:** у каждой модели family (Alibaba, Zhipu, DeepSeek, OpenAI). Writer ≠ reviewer на уровне family, не только модели
-- **PRE-DISPATCH GATE (§3):** обязательный 6-пунктный чеклист перед каждым dispatch (model-card, --agent, variant/effort + sleep 3, dispatch --inject, cross-family, полнота брифа)
-- **POST-WORKER_DONE последовательность:** verify files → Linear comment → dispatch reviewer → wait → synthesis → ТОЛЬКО ПОТОМ In Review. Без сокращений
-- **Hard Prohibitions:** 12 запретов с правильными альтернативами в `references/prohibitions.md`
-- **Таблица маршрутизации:** 7+ типов задач → модели с evidence из production waves
-- **Dual review обязателен:** fidelity-порты требуют Qwen 3.8 Max (architect/reviewer) ∥ GPT-5.5 (hosted semantics) — комплементарны, не избыточны
-- **Deploy / smoke gate:** доказать, что поставленная поверхность существует перед handoff (принцип + curl-примеры в `references/routing.md`)
-- **Жизненный цикл:** 8 состояний (см. wave-spec §Lifecycle Gates). Не схлопывать в «writer Done»
-- **Writer replaceable:** фраза владельца «сейчас writer=X» (Flash или GLM) мгновенно назначает писателя — без переписывания скилла. Qwen 3.8 Max = reviewer по умолчанию (NE writer)
+**Cross-family rule:** `writer.family ≠ reviewer.family`. Qwen-writer → reviewer должен быть DeepSeek/Zhipu/OpenAI, не другая модель Alibaba. Разные семейства ловят разные слепые пятна.
+
+## Как идёт волна
+
+```
+1. КЛАССИФИКАЦИЯ  solo или multi? (§1 decision tree)
+2. ВЫБОР моделей   сначала назвать их человеку
+3. СОЗДАНИЕ        один терминал на воркера, тот же worktree
+4. БРИФЫ           модель-специфичные (references/routing.md)
+5. PRE-DISPATCH    проверка model-card → --agent флаг → variant/effort → sleep 3
+6. DISPATCH        task-create → dispatch --inject (НЕ terminal send)
+7. WAIT            check --wait --types worker_done,escalation,decision_gate
+8. SYNTHESIZE      consensus / contradictions / gaps — побеждает строже
+```
+
+Координатор **не пишет код** в той же задаче — это role lock. Review-only `worker_done` сообщает находки; он не даёт координатору права редактировать. Реализация = новая задача.
+
+## Контракт воркера
+
+Каждый бриф воркера несёт `ROLE / SCOPE / MODE / DONE / FORBIDDEN` и заканчивается:
+
+```
+SUMMARY / EVIDENCE / CHANGES / RISKS / BLOCKERS
+```
+
+`worker_done` — это CLI-сигнал с обязательным `--to <coordinator-handle>` — без него сообщение уходит в void (продакшен-инцидент). `heartbeat` = жив, **не** готов. Один таймаут = liveness check, не провал.
 
 ## Установка
 
 ```bash
-# Клонировать репозиторий со скиллами
-git clone git@github.com:dimkurilo/opencode-skills.git ~/Projects/opencode-skills
-
-# Симлинк в конфиг opencode
-ln -sfn ~/Projects/opencode-skills/skills/multi-model-orchestration ~/.config/opencode/skills/multi-model-orchestration
+ln -sfn ~/Projects/opencode-skills/skills/multi-model-orchestration \
+  ~/.config/opencode/skills/multi-model-orchestration
 ```
 
-Или скопировать папку:
+Требует загруженных скиллов `orchestration` и `orca-cli` рядом + запущенный Orca-рантайм (`orca status --json`).
 
-```bash
-cp -r ~/Projects/opencode-skills/skills/multi-model-orchestration ~/.config/opencode/skills/multi-model-orchestration
+## Пример волны
+
+> **Вы:** обсудите эту архитектуру с 2 моделями — нужны независимые взгляды.
+>
+> **Координатор** *(загружает скилл)*: классифицирует multi → маршрутизит архитектурный ревью в Qwen 3.8 (default reviewer) + GPT-5.5 (security/behavioral lens) → строит брифы → dispatch через Orca `--inject` → wait → Qwen находит race condition, GPT-5.5 находит abort-edge-case → синтез: 2 MAJOR находки, обе фиксить перед merge → маршрутизит fix-round в Flash (writer, другое семейство).
+
+## Что внутри
+
+- **References:**
+  - `routing.md` — полная таблица роутинга, шаблоны брифов по моделям, cross-family пары.
+  - `model-card.md` — роли, поле family, launch-пины, заметки «не путать с».
+  - `worker-contract.md` — контракт вывода, inject-preamble, правило доставки `worker_done`.
+  - `failure-handling.md` — политика таймаутов, эскалация, circuit-breaker, writer-swap rule.
+  - `prohibitions.md` — 11 жёстких запретов с правильными альтернативами.
+- **Lifecycle gates, fidelity dual review, deploy probe:** канон в `wave-spec`.
+
+## Роутер
+
 ```
-
-Требует установленных скиллов `orca-cli` и `orchestration`. Воркеры используют терминалы Orca или ручной fallback.
-
-## Структура
-
-```
-multi-model-orchestration/
-├── SKILL.md              # Инструкции для агента (загружает opencode)
-├── README.md             # Английская версия
-├── README.ru.md          # Этот файл — русское описание
-└── references/
-    ├── routing.md         # Таблица маршрутизации, брифы, cross-family pairs, deploy/smoke gate
-    ├── worker-contract.md # Output contract, live worker_done CLI, written≠persisted, парсинг Orca JSON
-    ├── failure-handling.md # Таймауты, эскалация, circuit-breaker, model-specific failure modes
-    ├── model-card.md      # Роли, family field, «не путать с», evidence, owner pin, launch pins, Qwen Code
-    └── prohibitions.md    # 11 жёстких запретов с правильными альтернативами
+новый проект → project-bootstrap · план спринта → wave-spec · 2+ модели → multi-model-orchestration
 ```
 
 ## Лицензия
 
-MIT — часть [opencode-skills](https://github.com/dimkurilo/opencode-skills).
+MIT · часть [opencode-skills](../../README.md)

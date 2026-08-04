@@ -1,76 +1,96 @@
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/hero-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="docs/assets/hero-light.svg">
+  <img alt="opencode-skills" src="docs/assets/hero-light.svg" width="100%">
+</picture>
+
 # opencode-skills
 
-🇬🇧 [English version](README.md)
+🇬🇧 [English version](README.md) · **Русский**
 
-Скиллы для [opencode](https://github.com/opencode-ai/opencode) и совместимых CLI.
+**Скиллы, которые делают из AI-агента специалиста по конкретному делу — а не собеседника.**
 
-В каждом - инструкции, паттерны промптов, скрипты и справка: как агенту сделать конкретную работу. Не привязаны к одной модели; часть ставится и в **Grok** (`~/.grok/skills/`).
+Каждый скилл — это набор инструкций, шаблонов, скриптов и справочных материалов, который кладётся в [opencode](https://github.com/opencode-ai/opencode) (или любой совместимый CLI) и объясняет агенту, как делать одно дело хорошо: развернуть структуру проекта, провести спринт по плану, свести несколько моделей для ревью, разорвать mode-collapse.
 
-## Скиллы
+Никакого рантайма. Никакой привязки. Только файлы, которые агент читает по необходимости.
 
-| Скилл | Описание |
-|-------|----------|
-| [project-bootstrap](skills/project-bootstrap/) | Минимальная кросс-платформенная настройка проекта для Codex, Grok, OpenCode, ZCode и хостов GLM/DeepSeek. Универсальное ядро — короткий `AGENTS.md`; bounded handoff/memory, адаптеры и selective GSD подключаются осознанно. Есть read-only inspection, обратимая миграция и детерминированная проверка. [Подробнее](skills/project-bootstrap/README.ru.md) |
-| [vs-architect](skills/vs-architect/) | Verbalized Sampling (arXiv 2510.01171): несколько вариантов решения с оценками вероятности - архитектура, отладка, стратегия, креатив. |
-| [multi-model-orchestration](skills/multi-model-orchestration/) | Координация 2+ AI-моделей (DeepSeek V4 Flash, Qwen 3.8 Max, GLM 5.2, GPT-5.5) для параллельного ревью, кросс-валидации и массовой работы через Orca. Таблица маршрутизации, правила dual review, deploy gate, жизненный цикл. [Подробнее](skills/multi-model-orchestration/README.ru.md) |
+---
+
+## Четыре скилла
+
+| Скилл | Одной строкой | Когда использовать |
+|-------|---------------|--------------------|
+| [**project-bootstrap**](skills/project-bootstrap/) | За одну сессию генерирует «дом» для агента в проекте — `AGENTS.md`, handoff, memory, правила, с адаптацией под тип проекта и модель. | Начинаете новый проект или вытягиваете существующий — и хотите сразу правильную агентскую инфраструктуру. |
+| [**wave-spec**](skills/wave-spec/) | Plan-gate скилл для спринтов и волн: `INTENT → интервью → SPEC/PLAN → утверждение → dispatch → lifecycle gates`. Портативный между OpenCode, ZCode, Qwen Code. | Запускаете многосессионный спринт, волну контента/перевода или работу, где нельзя пропускать планирование. |
+| [**multi-model-orchestration**](skills/multi-model-orchestration/) | Сводит 2+ AI-модели (DeepSeek V4 Flash, Qwen 3.8 Max, GLM 5.2, GPT-5.5) для параллельного ревью, кросс-валидации или массовой работы через Orca. | Нужны независимые перспективы, fidelity-порт или security/RLS-ревью, который одна модель не закроет. |
+| [**vs-architect**](skills/vs-architect/) | Verbalized Sampling ([arXiv 2510.01171](https://arxiv.org/abs/2510.01171)) — генерирует разнообразные варианты решения с оценками вероятности. | Выбираете между подходами, дебажите неизвестный root cause или выходите из mode-collapse. |
 
 ### Какой скилл когда?
 
-| Нужно… | Скилл |
-|--------|--------|
-| Минимальный агентский контракт проекта или безопасная миграция legacy | **project-bootstrap** |
-| Разные варианты решения с вероятностями | **vs-architect** |
-| Координация 2+ AI-моделей для параллельного ревью, кросс-валидации, массовой работы | **multi-model-orchestration** |
+```
+Новый проект, «настрой структуру агента»           →  project-bootstrap
+Спринт/волна, где нельзя пропускать планирование   →  wave-spec
+2+ модели для ревью, кросс-валидации, массы работы →  multi-model-orchestration
+Разнообразные варианты с вероятностями             →  vs-architect
+```
+
+Три планировочных скилла работают в цепочке: **project-bootstrap** строит «дом» агента → **wave-spec** ведёт спринт внутри него → **multi-model-orchestration** кросс-ревьюит результат. **vs-architect** — отдельный инструмент для размышлений.
+
+---
 
 ## Установка
-
-### Быстрая
 
 ```bash
 git clone git@github.com:dimkurilo/opencode-skills.git ~/Projects/opencode-skills
 
-ln -sfn ~/Projects/opencode-skills/skills/project-bootstrap \
-  ~/.config/opencode/skills/project-bootstrap
-ln -sfn ~/Projects/opencode-skills/skills/vs-architect \
-  ~/.config/opencode/skills/vs-architect
-ln -sfn ~/Projects/opencode-skills/skills/multi-model-orchestration \
-  ~/.config/opencode/skills/multi-model-orchestration
+# симлинк нужных скиллов в opencode
+for skill in project-bootstrap wave-spec multi-model-orchestration vs-architect; do
+  ln -sfn ~/Projects/opencode-skills/skills/$skill ~/.config/opencode/skills/$skill
+done
 ```
 
-### Ручная
+Ручная установка без симлинков: `cp -R skills/<name> ~/.config/opencode/skills/<name>`. opencode подхватывает новые скиллы при следующем запуске.
 
-```bash
-cp -R skills/project-bootstrap ~/.config/opencode/skills/project-bootstrap
-cp -R skills/vs-architect ~/.config/opencode/skills/vs-architect
-cp -R skills/multi-model-orchestration ~/.config/opencode/skills/multi-model-orchestration
+Несколько скиллов также ставятся в **Grok** (`~/.grok/skills/`) и другие CLI, следующие той же конвенции `SKILL.md`.
+
+---
+
+## Что внутри скилла
+
+```
+skills/<name>/
+├── SKILL.md                # главные инструкции + YAML frontmatter (name, description)
+├── README.md / README.ru.md
+├── references/             # справочные материалы, примеры, теория
+├── assets/templates/       # шаблоны генерации с ${VARIABLE} плейсхолдерами
+└── scripts/                # вспомогательные shell/Python скрипты (lint, verify, classify)
 ```
 
-После копирования opencode подхватит скилл при следующем запуске.
+Frontmatter `description` говорит хост-агенту **когда** загружать скилл. Тело — это workflow. References подгружаются по необходимости. Templates генерируют артефакты (`SPEC.xml`, `PLAN.xml`, `AGENTS.md`, брифы, handoff-ы), которые скилл производит.
 
-## Структура репозитория
+---
+
+## Создание своих скиллов
+
+Та же конвенция: директория под `skills/`, `SKILL.md` с frontmatter (`name`, `description` — описывает **когда** использовать, не только что), опционально `references/`, `assets/templates/`, `scripts/`. Скиллы `skill-creator` и `skill-audit` (из `~/.config/opencode/skills/`) помогают писать и ревьюить.
+
+---
+
+## Репозиторий
 
 ```
 opencode-skills/
-├── README.md               # Английская версия
-├── README.ru.md            # Русская версия
-├── CHANGELOG.md            # История релизов
+├── README.md / README.ru.md
+├── CHANGELOG.md
 ├── LICENSE                 # MIT
-├── .gitignore
 └── skills/
-    ├── project-bootstrap/  # Минимальный кросс-платформенный bootstrap
-    └── vs-architect/       # Verbalized Sampling
-    └── multi-model-orchestration/  # Координация нескольких моделей через Orca
+    ├── project-bootstrap/
+    ├── wave-spec/
+    ├── multi-model-orchestration/
+    └── vs-architect/
 ```
 
-## Как создать свой скилл
-
-Простое соглашение:
-
-1. Папка с именем скилла
-2. `SKILL.md` - главный файл с YAML frontmatter (`name`, `description` - пиши, **когда** вызывать)
-3. По желанию `references/` - справка, примеры, теория
-4. По желанию `assets/templates/` - шаблоны с `${VARIABLE}`
-5. По желанию `scripts/` - вспомогательные скрипты
+Публичный, лицензия MIT. Идеи из [PromptPasture/agent.md](https://github.com/PromptPasture/agent.md), [Cursor Rules](https://cursor.com/docs/rules), [OpenCode Rules](https://opencode.ai/docs/rules/), [vv-opencode](https://github.com/osovv/vv-opencode) и [Agent1st Protocol](https://github.com/dimkurilo/agent1st-protocols).
 
 ## Лицензия
 

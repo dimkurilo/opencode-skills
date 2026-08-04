@@ -1,93 +1,76 @@
-# VS Architect - distribution-level prompting for LLMs
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/hero-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="assets/hero-light.svg">
+  <img alt="vs-architect" src="assets/hero-light.svg" width="100%">
+</picture>
 
-🇷🇺 [Русская версия](README.ru.md)
+# vs-architect
 
-A skill for [opencode](https://github.com/opencode-ai/opencode) agents that uses **Verbalized Sampling** (arXiv 2510.01171) so the model does not collapse into one default answer.
+🇷🇺 [Русская версия](README.ru.md) · **English** · [← all skills](../../README.md)
 
-## Verbalized Sampling
+**Generate diverse solution variants with probability estimates — and break out of mode collapse.**
 
-Ask an LLM “do X” and you get the most typical answer (mode prototype). That is **mode collapse**: the same templated solution every time, even when many good alternatives exist.
+Implements Verbalized Sampling ([arXiv 2510.01171](https://arxiv.org/abs/2510.01171)). Instead of asking a model for *the* answer, you ask for *N diverse candidate answers*, each with a self-estimated probability. The spread itself is the signal: a narrow distribution means the model is sure, a wide one means you should investigate before committing.
 
-**Verbalized Sampling (VS)** changes the prompt shape. Instead of “do X”, ask: “give 5 variants for X with success probabilities”. The model stops locking onto one prototype and returns a distribution closer to real diversity of solutions.
-
-Paper: arXiv 2510.01171v3 (ICLR 2026) -
-*Verbalized Sampling: How to Mitigate Mode Collapse and Unlock LLM Diversity.*
-
-## Problems it covers
-
-| Problem | What VS does |
-|---------|--------------|
-| LLM always gives the same answer | Distribution-level prompt opens up diversity |
-| Unsure which approach to pick | Variants with probabilities - easier to see what is promising |
-| Diagnosis with no single hypothesis | VS-CoT builds a hypothesis tree with checks |
-| Architecture choice | VS-Standard compares approaches with pros and cons |
-| Need many ideas or data points | VS-Multi: multiple rounds, 10+ variants |
-
-## What you get
-
-- 3 to 10+ solution variants with success probability estimates
-- Clear task classification a human can read
-- Ready execution prompt for the chosen variant
-- Fewer “ask again and hope it differs” loops
+---
 
 ## When to use
 
-- Choosing architecture or approach among several options
-- Direct prompts produce repetitive, mode-collapsed answers
-- Debugging with unknown root cause
-- Hypotheses, synthetic data, test cases
-- Creative work where diversity matters
+- You're **choosing between multiple approaches** and a direct prompt keeps returning the same one.
+- **Debugging with unknown root cause** — you need hypotheses, not the first guess.
+- **Generating hypotheses or synthetic data** — diversity is the point.
+- A direct prompt produces **repetitive, mode-collapsed** responses.
 
-## When not to use
+**Don't use it for** trivial scripts, factual queries ("what's the capital of France"), or stable production code where one direct answer is more reliable.
 
-- Simple scripts with an obvious answer - write them directly
-- Factual queries (2 plus 2, capital of France)
-- Stable production code - a direct prompt is more reliable
+## How it works
 
-## Installation
+A direct prompt → one answer (whatever the model's prior favors).
+
+**vs-architect** → N variants, each with:
+- a distinct framing or assumption,
+- a self-estimated probability (`p = 0.X`),
+- a one-line reason for that probability.
+
+The variants are sampled to be **meaningfully different** — not paraphrases of the same idea. You read the distribution:
+
+```
+Variant A — p=0.45   "the obvious path, but check X first"
+Variant B — p=0.30   "alternative if A's assumption fails"
+Variant C — p=0.18   "long shot, but cheap to test"
+Variant D — p=0.07   "edge case, ignore unless ..."
+```
+
+If A and B are close, the model isn't sure — investigate. If A dominates, commit.
+
+## When it pays off
+
+- **Architecture decisions** where 2-3 viable designs exist and you want them surfaced explicitly instead of Anchoring on the first.
+- **Root-cause debugging** where the bug has several plausible causes — you want the hypotheses ranked, not a single fix that might miss.
+- **Creative / strategy work** where the value is in the range of options, not the average.
+- **Mode-collapse exit** — when the model is stuck repeating itself, forcing N diverse variants breaks the loop.
+
+## Install
 
 ```bash
-# Clone the skills repo
-git clone git@github.com:dimkurilo/opencode-skills.git ~/Projects/opencode-skills
-
-# Symlink into your opencode config
-ln -sf ~/Projects/opencode-skills/skills/vs-architect ~/.config/opencode/skills/vs-architect
+ln -sfn ~/Projects/opencode-skills/skills/vs-architect \
+  ~/.config/opencode/skills/vs-architect
 ```
 
-Or copy the folder:
+## Example session
 
-```bash
-cp -r ~/Projects/opencode-skills/skills/vs-architect ~/.config/opencode/skills/vs-architect
-```
+> **You:** We're choosing between Redis, Postgres+LISTEN, and a managed queue for a small async-notifications service. vs-architect — 4 variants with probabilities.
+>
+> **Agent** *(loads vs-architect)*: produces 4 distinct framings — (A) Postgres+LISTEN p=0.40 (you already run Postgres, ops cost low), (B) managed queue p=0.30 (less code, recurring cost), (C) Redis Streams p=0.20 (fast, new infra), (D) poll-the-database p=0.10 (ugly, zero new deps). Each with the assumption that flips it. You read the distribution: A and B together = 0.70, so the real decision is "do we want to operate this or pay for it?" — and that's a question for you, not the model.
 
-## Usage
+## What's inside
 
-Once installed, opencode discovers the skill and offers it when the task matches the description.
+- **References:** `vs-theory.md` — the Verbalized Sampling method, why verbalized probabilities work, when they don't. `examples.md` — worked examples across architecture, debugging, strategy.
 
-## Patterns
+## Router
 
-| Pattern | When | What it does |
-|---------|------|--------------|
-| **A** VS-Standard | Moderate complexity, 3-5 variants | One call, k variants with probabilities |
-| **B** Diversity Tuning | Direct prompt yields uniform answers | Filter by probability threshold |
-| **C** VS-CoT | Uncertainty, diagnostics, strategy | Reasoning first, then distribution |
-| **D** VS-Multi | Need 10+ variants | Multiple rounds, each excludes prior ideas |
-| **E** External Collapse | External constraints the LLM does not know | You weight variants by your criteria |
-| **F** VS-Refine | Strong ideas need sharpening | Two passes: variants, then refine the best |
-| **G** VS-Ensemble | Critical decision needs cross-check | Two independent VS prompts, compare results |
-
-## Layout
-
-```
-vs-architect/
-├── SKILL.md           # Agent instructions (loaded by opencode)
-├── README.md          # This file
-├── references/
-│   ├── vs-theory.md   # Decision tree, templates, mode mapping
-│   └── examples.md    # Real-world examples
-└── .gitignore
-```
+Standalone thinking tool — not part of the project-bootstrap/wave-spec/multi-model-orchestration chain. Use it wherever a direct prompt feels stuck or narrow.
 
 ## License
 
-MIT - part of [opencode-skills](https://github.com/dimkurilo/opencode-skills).
+MIT · part of [opencode-skills](../../README.md) · method: [arXiv 2510.01171](https://arxiv.org/abs/2510.01171)
