@@ -4,10 +4,17 @@
 # Usage:
 #   bash skills/wave-spec/scripts/verify-spec.sh <wave-dir>
 #   bash skills/wave-spec/scripts/verify-spec.sh <spec-or-plan-file>
+#   bash skills/wave-spec/scripts/verify-spec.sh [--require-launch] <wave-dir>
 #
 # What it checks (required-sections contract, 2026-08 format triage):
 #   SPEC (.md or .xml): required sections Goal, Done_when, Verifier, Scope, Risks.
 #   PLAN (.md or .xml): file exists + at least one task element + a done_when.
+#
+# --require-launch (opt-in, dir-mode, mode=wave/program):
+#   Requires LAUNCH*.md in the wave dir with BOTH a "## Prohibited" section AND a
+#   cross-family check (writer.family / reviewer.family). Default OFF — existing
+#   waves without LAUNCH.md (e.g. quick-mode spikes, legacy waves) stay green.
+#   Gate contract: wave-spec SKILL.md step 6.0 (LAUNCH.md обязателен до dispatch).
 #
 # Format detection:
 #   .xml extension  → XML mode  (tags <goal>, <done_when>, …; case-insensitive).
@@ -177,12 +184,22 @@ collect_by_prefix() {
 # Main
 # ---------------------------------------------------------------------------
 main() {
-  if [[ $# -lt 1 ]]; then
-    echo "Usage: $0 <wave-dir|spec-file|plan-file>" >&2
+  local require_launch=""
+  local args=()
+  for a in "$@"; do
+    if [[ "$a" == "--require-launch" ]]; then
+      require_launch="1"
+    else
+      args+=("$a")
+    fi
+  done
+
+  if [[ ${#args[@]} -lt 1 ]]; then
+    echo "Usage: $0 [--require-launch] <wave-dir|spec-file|plan-file>" >&2
     exit 2
   fi
 
-  local target="$1"
+  local target="${args[0]}"
   local rc=0
 
   if [[ -d "$target" ]]; then
@@ -206,6 +223,35 @@ main() {
     for f in "${specs[@]}"; do validate_spec "$f" || rc=1; done
     if [[ ${#plans[@]} -gt 0 ]]; then
       for f in "${plans[@]}"; do validate_plan "$f" || rc=1; done
+    fi
+
+    # --require-launch: wave/program gate (SKILL.md step 6.0). Opt-in — legacy/quick waves stay green.
+    if [[ -n "$require_launch" ]]; then
+      local launches=() line
+      while IFS= read -r line; do
+        [[ -n "$line" ]] && launches+=("$line")
+      done < <(collect_by_prefix "$target" launch)
+
+      if [[ ${#launches[@]} -eq 0 ]]; then
+        echo "FAIL: LAUNCH.md not found in $target (--require-launch: wave/program requires LAUNCH.md, see SKILL.md step 6.0)" >&2
+        rc=1
+      else
+        local lf="${launches[0]}"
+        local lf_ok=1
+        if ! grep -qiE "^## Prohibited" "$lf"; then
+          echo "FAIL: $lf — missing '## Prohibited' section (--require-launch)" >&2
+          lf_ok=0
+        fi
+        if ! grep -qiE "cross-family|writer\.family" "$lf"; then
+          echo "FAIL: $lf — missing cross-family check (--require-launch)" >&2
+          lf_ok=0
+        fi
+        if [[ "$lf_ok" -eq 1 ]]; then
+          echo "PASS: LAUNCH $lf — exists with Prohibited + cross-family"
+        else
+          rc=1
+        fi
+      fi
     fi
   elif [[ -f "$target" ]]; then
     # Single-file mode: infer SPEC vs PLAN by filename, then by content.

@@ -57,7 +57,9 @@ waves/<date>-<slug>/
 └── iteration-handoff.md   # per-iteration handoff
 ```
 
-Closeout runs `scripts/verify-spec.sh` — a portable bash validator (exit 0 = PASS).
+Closeout runs `scripts/verify-spec.sh` — a portable bash validator (exit 0 = PASS; opt-in `--require-launch` also requires `LAUNCH.md` with Prohibited + cross-family).
+
+**Hard gate before dispatch:** for `wave`/`program` modes `LAUNCH.md` must exist (cross-family check + Prohibited section) before any worker dispatch — see SKILL.md step 6.0.
 
 ## Default model stack
 

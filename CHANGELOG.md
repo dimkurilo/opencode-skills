@@ -8,6 +8,13 @@
 ## [Unreleased]
 
 ### Changed
+- **wave-spec v1.7.0**:
+  - NEW HARD GATE 6.0 (SKILL.md): для mode=wave/program `LAUNCH.md` обязан существовать (cross-family check + секция «Prohibited») до любого dispatch воркеров; проверка 3 grep-командами; 6.0 = gate, 6b = генерация (без дублирования). TL;DR (строка 29): LAUNCH.md выведен из «по мере возникновения» → обязателен до dispatch.
+  - Строка 230: «print (do not force)» → «Execute the launch cycle per LAUNCH.md (обязательно — gate 6.0)».
+  - LAUNCH.md.tmpl: `terminal send` для variant/effort заменён на задание при запуске; Prohibited + пункт про follow-up (terminal send в работающий opencode TUI → текст уходит в shell «(eval)»; использовать orchestration inbox `send --to dispatch:<id>` или headless `opencode run`).
+  - worker-brief.md.tmpl: Forbidden + «follow-up через terminal send не выполнять — запросить dispatch/inbox или новый brief» (defense-in-depth).
+  - `verify-spec.sh`: opt-in флаг `--require-launch` (default OFF, backward compat с legacy/quick волнами) — требует LAUNCH*.md + «## Prohibited» + cross-family.
+  - README.md / README.ru.md синхронизированы (gate 6.0 + --require-launch).
 - **wave-spec v1.6.0**:
   - Стек: DeepSeek V4 Flash = оркестратор по умолчанию (полная роль) + writer по умолчанию (single-file/bulk/tests); Qwen 3.8 Max = reviewer/архитектор/бизнес-аналитик (default reviewer); GLM 5.2 = multi-file writer (3+) + second-line reviewer; GPT-5.5 = security/fidelity gate (`codex` CLI). Roles XML в шаблонах обновлён.
   - Именование: «Codex 5.5» → «GPT-5.5» (модель) / «codex» (CLI) — 10 файлов (исторические записи не переписывались).

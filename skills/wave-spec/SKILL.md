@@ -1,6 +1,6 @@
 ---
 name: wave-spec
-version: 1.6.0
+version: 1.7.0
 description: >
   Use when starting a sprint/wave that must not skip planning — user says "wave-spec",
   "spec first", "составь спеку/план", "interview then plan", or begins multi-session
@@ -26,7 +26,7 @@ structured XML artifacts in the repo, any orchestrator CLI.
 
 **wave-spec = план-гейт.** Пишет в `waves/<date>-<slug>/`: INTENT → SPEC.xml → PLAN.xml → **approve** → exec → STATUS/handoff. Не для однострочных правок (для них `mode=quick`).
 
-**Прочитай только:** Modes → Hard gate → Pipeline шаги 0–5 → approve. Остальное (LAUNCH/NEXT_SESSION/Linear) — по мере возникновения.
+**Прочитай только:** Modes → Hard gate → Pipeline шаги 0–5 → approve. Остальное (NEXT_SESSION/Linear) — по мере возникновения; **LAUNCH.md обязателен для wave/program до dispatch** (см. Шаг 6.0).
 
 **Лестница обучения:** Волна 1 = `mode=quick` (весь цикл за 1 сессию) → Волна 2 = полный `wave` + 1 review → Волна 3+ = `multi-model-orchestration`. Учись деланием, не чтением.
 
@@ -198,6 +198,25 @@ Present short summary:
 
 On approve: set `<status>approved</status>` in SPEC.xml and PLAN.xml, append line to STATUS.md.
 
+### 6.0 LAUNCH.md gate (после approve, ПЕРЕД dispatch) — HARD GATE
+
+Для mode=wave/program: до любого dispatch воркеров `waves/<date>-<slug>/LAUNCH.md` **обязан существовать** и содержать:
+
+- **Cross-family check** (writer.family ≠ reviewer.family)
+- Секцию **«Prohibited»** (включая запрет terminal send для opencode)
+
+Если LAUNCH.md отсутствует или не содержит оба элемента — **СТОП**: создать/обновить по шагу 6b, затем продолжить. Dispatch без LAUNCH.md = нарушение протокола (как dispatch без approve). mode=quick исключён (см. Modes).
+
+Проверка перед первым dispatch (все три команды должны пройти):
+
+```bash
+ls waves/<date>-<slug>/LAUNCH.md
+grep -qiE "cross-family|writer\.family" waves/<date>-<slug>/LAUNCH.md
+grep -qiE "^## Prohibited" waves/<date>-<slug>/LAUNCH.md
+```
+
+Разграничение с 6b: **6.0 = gate** (проверка существования + валидность), **6b = генерация** (как создавать). Mandatory-секции не дублировать.
+
 ### 6. Dispatch prep (after approve only)
 
 For each ready task (`depends_on` satisfied):
@@ -227,7 +246,7 @@ You are EXECUTOR, not strategist.
 
 Full brief shape — `ROLE / MODE`, Read first, Do only, Write only, Done when, Forbidden, and the worker report contract — lives in `assets/templates/worker-brief.md.tmpl`.
 
-3. If Orca available, print (do not force) commands:
+3. Execute the launch cycle per LAUNCH.md (обязательно — gate 6.0; Orca недоступна → распечатать команды для владельца):
 
 ```bash
 # Full atomic cycle — see LAUNCH.md (step 6b) for per-model commands
@@ -430,6 +449,7 @@ Executors **do not** rewrite SPEC/PLAN. They may append STATUS notes.
 - Assuming domain-specific workstreams without INTENT + evidence.
 - Referencing vv-controller as an agent (default OpenCode agent, not for product work).
 - Generating `terminal send` commands for orchestration (only `dispatch --inject`).
+- `terminal send` follow-up в работающий opencode TUI — текст уходит в shell («(eval)»), инструкция теряется; для диалога с воркером после старта — orchestration inbox (`send --to dispatch:<id>`) или headless `opencode run` (см. LAUNCH.md.tmpl Prohibited).
 - Overwriting SESSION_HANDOFF.md or NEXT_SESSION files (only append pointer / create unique files).
 - Creating LAUNCH.md without cross-family check and "Prohibited" section.
 - Assigning writer and reviewer from the same model family (blind-spot risk).

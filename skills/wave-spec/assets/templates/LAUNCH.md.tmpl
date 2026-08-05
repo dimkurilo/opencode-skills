@@ -29,7 +29,7 @@ Orchestrators read it and build their OWN commands from the orchestration guide 
 Required sequence per worker (list — NOT bash):
 1. `terminal create` — worktree active, command from table above
 2. `terminal wait --for tui-idle` — timeout 60s
-3. `terminal send` — mode command (variant/effort) + `sleep 3`
+3. Mode command (variant/effort) — set at launch where supported (e.g. `codex -c model_reasoning_effort="high"`); `sleep 3` (MANDATORY). **Не** `terminal send` в opencode TUI — текст уходит в shell («(eval)»)
 4. `task-create` — spec = brief file
 5. `dispatch --task --to --inject`
 6. `check --wait --types worker_done,escalation,decision_gate`
@@ -58,6 +58,7 @@ Brief-шаблоны по моделям (DeepSeek V4 Flash, GLM 5.2, GPT-5.5, Q
 
 - `opencode` without `--agent` → vv-controller (default agent, explores project)
 - `terminal send` for task → no lifecycle preamble, worker_done won't arrive
+- `terminal send` follow-up в работающий opencode TUI → текст уходит в shell («(eval)»), инструкция теряется. Follow-up после старта: orchestration inbox (`send --to dispatch:<id>`) или headless `opencode run` (полный brief)
 - Skipping `sleep 3` → race condition (dispatch before variant applied)
 - `result.id` → correct: `result.task.id`
 - Qwen Code without `--approval-mode yolo` → blocks orca commands

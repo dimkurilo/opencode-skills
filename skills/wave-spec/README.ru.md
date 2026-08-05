@@ -57,7 +57,9 @@ waves/<date>-<slug>/
 └── iteration-handoff.md   # handoff на итерацию
 ```
 
-На closeout запускается `scripts/verify-spec.sh` — портативный bash-валидатор (exit 0 = PASS).
+На closeout запускается `scripts/verify-spec.sh` — портативный bash-валидатор (exit 0 = PASS; опция `--require-launch` дополнительно требует `LAUNCH.md` с Prohibited + cross-family).
+
+**Hard gate перед диспатчем:** для mode=wave/program `LAUNCH.md` обязан существовать (cross-family check + секция «Prohibited») до любого диспатча воркеров — см. SKILL.md шаг 6.0.
 
 ## Стек моделей по умолчанию
 
