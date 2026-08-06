@@ -22,6 +22,22 @@ Updated: see CHANGELOG.
 | **GLM 5.2** | Zhipu | OpenCode `A/agent1st_glm` | `opencode --agent A/agent1st_glm` · fallback model: `-m zai-coding-plan/glm-5.2` |
 | **GPT-5.5** | OpenAI | native `codex` CLI (not an OpenCode `A/` agent) | `orca terminal create --command "codex" --json` · or shell `codex` · optional: `codex --model gpt-5.5` / effort flags per host |
 
+**LAUNCH РЕЦЕПТ (SoT — проверено 2026-08-06; `--variant` НЕ существует для TUI-argv opencode, только для `opencode run`):**
+
+Для **OpenCode TUI-воркера через Orca** (dispatch --inject обязателен):
+1. `terminal create` — worktree active, command = `opencode --agent A/<agent>` **БЕЗ `--variant`** (TUI его не принимает — выведет help)
+2. `terminal wait --for tui-idle` — timeout 60s
+3. variant задаётся slash-командой ВНУТРИ TUI: `terminal send --text "/variants <variant>" --enter` + `sleep 3` (MANDATORY, race prevention). **ИСКЛЮЧЕНИЕ из запрета terminal send**: запрет относится к ДОСТАВКЕ ЗАДАЧИ (текст брифа в TUI уходит в shell), установка variant через `/variants` — допустима
+4. `task-create` — spec = brief file → `dispatch --task --to --inject` → `check --wait`
+
+Для **codex-воркера**: effort задаётся флагом при запуске (`codex --model gpt-5.5 -c model_reasoning_effort="high"` / `gpt-5.6-luna ... "max"`), `sleep 3`.
+
+Per-model variant values: GLM `low|medium|high|xhigh|max`; Qwen 3.8 Max `default|low|medium|xhigh`; DeepSeek `default|minimal|high` (проверить актуальный список `/variants` в TUI).
+
+**headless** (`opencode run --agent A/<agent> --variant <v> --auto ...`) — работает, но НЕ даёт lifecycle preamble/worker_done: только для ручного fallback, НЕ для оркестрации.
+
+**SoT-правило:** этот блок — единственный источник launch-рецепта. LAUNCH.md.tmpl шаг 3 и multi-model SKILL.md §10 ссылаются сюда, без дублирования.
+
 **OpenCode agents** live under `~/.config/opencode/agents/` (nested `A/` → launch name **`A/<stem>`**, e.g. `A/agent1st_qwen-3.8`).  
 **Qwen versionless pin:** skills always pin `A/agent1st_qwen-3.8`. Versioned `v5.3` files may remain as history/rollback only. Protocol patches (incl. written≠persisted) live **inside the agent file** — bumping protocol does not require a skill edit.
 

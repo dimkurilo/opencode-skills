@@ -198,7 +198,7 @@ GPT-5.5 is NOT "just another reviewer". Unique role: behavioral regression gate.
 - Fidelity port merge gate (GLM static ∥ GPT-5.5 behavioral)
 - Any task with behavioral semantics (abort, cost, state transitions)
 
-**Launch:** `codex` (native CLI, not OpenCode agent)
+**Launch:** `codex` (native CLI, not OpenCode agent) — effort флагом при запуске: `codex --model gpt-5.5 -c model_reasoning_effort="high"` (или `gpt-5.6-luna ... "max"`). → полный рецепт: `model-card.md` §LAUNCH РЕЦЕПТ (SoT)
 **Family:** OpenAI
 
 ### GPT-5.5 brief template

@@ -286,7 +286,7 @@ Build the exact commands from the orchestration guide. The sequence is:
 
 1. **terminal create** — worktree active, command = launch from model-card.md
 2. **terminal wait --for tui-idle** — timeout 60s (agent must be ready before dispatch)
-3. **terminal send** — variant/effort command + **sleep 3** (race condition prevention). Note: this is `terminal send` for mode-setting, NOT for task delivery — task delivery is step 5 `dispatch --inject` only (see prohibitions.md #3)
+3. **terminal send** — variant/effort command + **sleep 3** (race condition prevention). Note: this is `terminal send` for mode-setting, NOT for task delivery — task delivery is step 5 `dispatch --inject` only (see prohibitions.md #3). opencode TUI: variant через `/variants <X>`; codex: effort флагом при запуске. → полный рецепт: `references/model-card.md` §LAUNCH РЕЦЕПТ (SoT)
 4. **task-create** — spec = brief content or brief file path
 5. **dispatch --task --to --inject** — injects lifecycle preamble
 6. **check --wait --types worker_done,escalation,decision_gate** — rolling wait

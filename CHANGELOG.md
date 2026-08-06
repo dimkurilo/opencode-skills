@@ -8,6 +8,11 @@
 ## [Unreleased]
 
 ### Changed
+- **multi-model-orchestration / wave-spec — launch-рецепт воркеров (CAS-174)**:
+  - model-card.md: добавлен блок «LAUNCH РЕЦЕПТ» (SoT) — `--variant` НЕ существует для opencode TUI-argv (только для `opencode run`); variant задаётся slash-командой `/variants <X>` внутри TUI через `terminal send` (явное исключение из запрета — запрет относится к доставке задачи); codex — effort флагом при запуске; per-model variant values; headless `opencode run` — не для оркестрации.
+  - LAUNCH.md.tmpl шаг 3: убрано противоречие «Не terminal send» → гибридный текст + ссылка на SoT.
+  - multi-model-orchestration SKILL.md §10 и routing.md: согласованы с SoT (без дублирования).
+  - Причина: инцидент — оркестратор запустил `opencode --agent X --variant max`, TUI вывел help; рецепт был только в старой волне, не закреплён канонически.
 - **wave-spec v1.7.0**:
   - NEW HARD GATE 6.0 (SKILL.md): для mode=wave/program `LAUNCH.md` обязан существовать (cross-family check + секция «Prohibited») до любого dispatch воркеров; проверка 3 grep-командами; 6.0 = gate, 6b = генерация (без дублирования). TL;DR (строка 29): LAUNCH.md выведен из «по мере возникновения» → обязателен до dispatch.
   - Строка 230: «print (do not force)» → «Execute the launch cycle per LAUNCH.md (обязательно — gate 6.0)».

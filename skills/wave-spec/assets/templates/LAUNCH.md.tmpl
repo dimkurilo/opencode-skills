@@ -29,7 +29,7 @@ Orchestrators read it and build their OWN commands from the orchestration guide 
 Required sequence per worker (list — NOT bash):
 1. `terminal create` — worktree active, command from table above
 2. `terminal wait --for tui-idle` — timeout 60s
-3. Mode command (variant/effort) — set at launch where supported (e.g. `codex -c model_reasoning_effort="high"`); `sleep 3` (MANDATORY). **Не** `terminal send` в opencode TUI — текст уходит в shell («(eval)»)
+3. Mode command (variant/effort) — **opencode TUI**: `terminal send --text "/variants <variant>" --enter` + `sleep 3` (slash-команда внутри TUI; ИСКЛЮЧЕНИЕ из запрета terminal send — запрет относится к доставке задачи, не к variant); **codex**: effort флагом при запуске (`-c model_reasoning_effort="high"`), `sleep 3` (MANDATORY). → полный рецепт: `multi-model-orchestration/references/model-card.md` §LAUNCH РЕЦЕПТ (SoT)
 4. `task-create` — spec = brief file
 5. `dispatch --task --to --inject`
 6. `check --wait --types worker_done,escalation,decision_gate`
