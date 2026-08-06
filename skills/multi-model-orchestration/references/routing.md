@@ -29,12 +29,12 @@
 
 | Task type | Primary | Review/Gate | Notes |
 |-----------|---------|-------------|-------|
-| **Single-file implement / bulk code / tests** (default) | **DeepSeek V4 Flash** (default writer; fast, cheap, strong 0731) | **Qwen 3.8 Max** (architect/reviewer) ∥ **GPT-5.5** (security) | Writer ≠ reviewer mandatory (cross-family). Flash = primary writer/coder; Qwen = architect/reviewer; GPT-5.5 = security gate. |
+| **Single-file implement / bulk code / tests** (default) | **DeepSeek V4 Flash** (default writer; fast, cheap, strong 0731) | **Qwen 3.8 Max** (architect/reviewer) ∥ **Luna Max** (Strong behavioral lens) | Writer ≠ reviewer required (cross-family). Flash = primary writer/coder; Qwen = architect/reviewer; Luna Max = Strong behavioral lens (GPT-5.5 = optional opt-in security gate). |
 | **Multi-file implement** (3+ files) | **GLM 5.2** (default multi-file writer; 1M state continuity) · DeepSeek V4 Flash (single-file pieces) | **Qwen 3.8 Max** + **GPT-5.5** | Owner phrase «сейчас writer=Flash» pins Flash as writer (Qwen/GPT-5.5 review). GLM multi-file = confirmed in production waves (~15 min implement, ~10 min fix-round, build green). |
-| **Fidelity port** (generator, vectorizer) | **DeepSeek V4 Flash** (default) · **GLM 5.2** (multi-file swap) | **Qwen 3.8 Max** (architect/analyst) ∥ **GPT-5.5** (hosted semantics/merge gate) | Dual review mandatory (cross-family). Qwen = best architect/reviewer (owner empirical); GPT-5.5 = best behavioral regression gate (caught abort/cost MAJOR GLM missed). |
-| **Security / RLS / auth** | **GPT-5.5 + DeepSeek V4 Flash** (parallel) | Qwen 3.8 Max (depth/architecture supplement) | Never single-model security gate. GPT-5.5 = behavioral semantics authority; Flash = fast implementer; Qwen = architecture/depth supplement. |
+| **Fidelity port** (generator, vectorizer) | **DeepSeek V4 Flash** (default) · **GLM 5.2** (multi-file swap) | **Luna Max** (behavioral) ∥ **Qwen 3.8 Max** (architecture) | Dual review mandatory (cross-family). Luna Max = behavioral lens; Qwen = best architect/reviewer (owner empirical). |
+| **Security / RLS / auth** | **Luna Max + DeepSeek V4 Flash** (parallel) | Qwen 3.8 Max (depth/architecture supplement) | Never single-model security gate. Luna Max = behavioral semantics authority (Strong lens); Flash = fast implementer; Qwen = architecture/depth supplement; GPT-5.5 = optional historical security gate (opt-in). |
 | **Architecture / synthesis / business analysis** | **Qwen 3.8 Max** (default reviewer/architect) · GLM 5.2 (second line) | — | Qwen = strongest architecture/depth (owner empirical: level ~ Kimi K3, сильнее GLM). |
-| **Deep race / ordering / ops unblock** | **DeepSeek V4 Flash** (implement) | **Qwen 3.8 Max** (constraint analysis) + **GPT-5.5** (behavioral semantics) | Qwen for deep constraint analysis; GPT-5.5 for hosted semantics — complementary. |
+| **Deep race / ordering / ops unblock** | **DeepSeek V4 Flash** (implement) | **Qwen 3.8 Max** (constraint analysis) + **Luna Max** (behavioral semantics) | Qwen for deep constraint analysis; Luna Max for hosted semantics — complementary. |
 | **Orchestration / dispatch / handoff** | **DeepSeek V4 Flash** (default) · **GLM 5.2** ⚠️ (owner pin, see model-card.md) | — | Role lock: оркестратор не совмещает оркестрацию с написанием кода в одной задаче. Flash = full orchestrator role (dispatch → wait → gate → synthesize). GLM = ⚠️ tool passivity + drift (agent anti-patterns §4.5). |
 | **Implement (default)** | **DeepSeek V4 Flash** | Writer family ≠ reviewer family | Writer ≠ reviewer is mandatory for product code. If owner says "сейчас writer=GLM", pin GLM for multi-file work; "сейчас writer=Flash" — pin Flash for single-file/bulk. |
 
@@ -70,7 +70,7 @@ Standalone routing mirrors the post-worker flow in `skills/multi-model-orchestra
 | **Mechanical** | 0 (gate skipped; lifecycle still enforced) | n/a (no reviewer) | n/a |
 | **Simple** | exactly 1 | **yes** (`writer.family ≠ reviewer.family`) | low — model-specific launch contract (see §Simple effort below) |
 | **Ordinary** | exactly 1 — default **Qwen 3.8 Max** | **yes** (swap family if writer is Alibaba) | default |
-| **Strong** | exactly 2 — **GPT-5.5** (behavioral / security / fidelity lens, mandatory for these categories) + **GLM 5.2** (static / architecture lens; swap to **Qwen 3.8 Max** when writer is GLM) | **yes** for both lines | default |
+| **Strong** | exactly 2 — **Luna Max** (behavioral / security / fidelity lens, mandatory for these categories) + **Qwen 3.8 Max** (static / architecture lens; swap to **GLM 5.2** when writer is Alibaba) | **yes** for both lines | default |
 
 - **Mechanical** — review gate is skipped; orchestrator records skip evidence in STATUS `## Review gate` block + handoff `### Residual risk`. Approve / LAUNCH / checks / written≠persisted / deploy / closeout gates still apply. Mechanical is the only mode without a reviewer.
 - **Simple** — exactly 1 cross-family reviewer at model-specific low effort. The Simple-without-cross-family exception is **cancelled** (low-risk work would get exactly the blind spot cross-family exists to prevent).
@@ -218,16 +218,16 @@ Qwen Code does not require model-specific wrapping — native CoT, understands s
 
 ---
 
-## GPT-5.5 — Behavioral Regression Gate (unique role)
+## GPT-5.5 — Optional Security Gate (historical unique role)
 
-GPT-5.5 is NOT "just another reviewer". Unique role: behavioral regression gate.
+GPT-5.5 is NOT "just another reviewer". Historical unique role, retained as an opt-in security gate (NOT part of the default Strong pair — Luna Max + Qwen 3.8 Max).
 - Production waves: caught abort/cost MAJOR that GLM's static review missed
 - Production waves: caught UNIQUE(user_id,nonce) cross-user MAJOR
 - Hosted-semantics gate: checks what static parity misses
 
 **Mandatory in:**
 - Security / RLS / auth review (parallel with Qwen Max)
-- Fidelity port merge gate (GLM static ∥ GPT-5.5 behavioral)
+- Fidelity port merge gate (Qwen 3.8 Max static ∥ Luna Max behavioral)
 - Any task with behavioral semantics (abort, cost, state transitions)
 
 **Launch:** `codex` (native CLI, not OpenCode agent) — effort флагом при запуске: `codex --model gpt-5.5 -c model_reasoning_effort="high"` (или `gpt-5.6-luna ... "max"`). → полный рецепт: `model-card.md` §LAUNCH РЕЦЕПТ (SoT)

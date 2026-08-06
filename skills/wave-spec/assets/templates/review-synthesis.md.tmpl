@@ -27,7 +27,7 @@
 > **Verdict rule (canonical enum):**
 > - **APPROVED** — no material findings (Mechanical with no reviewer, or clean review).
 > - **NEEDS_CHANGES** — any material finding, including LOW severity when material. Triggers fix-round (see contract below).
-> - **BLOCKED** — security / fidelity / behavioral MAJOR from the GPT-5.5 lens, or any finding the coordinator judges unsafe to defer. Owner decision required before fix-round.
+> - **BLOCKED** — security / fidelity / behavioral MAJOR from the Luna Max (behavioral) lens, or any finding the coordinator judges unsafe to defer. Owner decision required before fix-round.
 
 ## Findings (single-reviewer modes: Simple / Ordinary)
 
@@ -42,8 +42,8 @@
 | <topic> | <call> | <call> | <decision> |
 
 **Lens assignment (Strong, fixed by category — see SKILL.md §Review modes):**
-- **Behavioral / security / fidelity lens → GPT-5.5** — mandatory for security/RLS/auth/fidelity/abort-cost-state categories.
-- **Static / architecture lens → GLM 5.2** (default); swap to **Qwen 3.8 Max** when writer is GLM (cross-family: `writer.family ≠ reviewer.family`).
+- **Behavioral / security / fidelity lens → Luna Max** — mandatory for security/RLS/auth/fidelity/abort-cost-state categories.
+- **Static / architecture lens → Qwen 3.8 Max** (default); swap to **GLM 5.2** when writer is Alibaba (cross-family: `writer.family ≠ reviewer.family`).
 - **Cross-family for BOTH Strong dispatches** (each reviewer family ≠ writer family AND ≠ the other reviewer family).
 
 ## Contradiction resolution (Strong — stricter wins)

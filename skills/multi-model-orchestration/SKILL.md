@@ -80,9 +80,9 @@ Otherwise → solo.
 | **Multi-file implement (3+ files)** | **GLM 5.2** (`A/agent1st_glm`) | Zhipu | 1M state continuity, long-horizon multi-file specialty (~15 min implement, ~10 min fix-round) |
 | **Review / architecture / business analysis (default reviewer)** | **Qwen 3.8 Max** (`A/agent1st_qwen-3.8`) | Alibaba | 2.4T/95B active, native vision, CoT. Vendor benches 2026-08-03 (qwen.ai/blog): GPQA-D 92.6, Terminal-Bench 2.1 86.6 — indep verification pending. Owner empirical: level ~ Kimi K3, **сильнее GLM 5.2 в architecture и depth**. NE основной кодер (slow) |
 | Complex analysis, multimodal, cross-examination | **Qwen 3.8 Max** | Alibaba | 2.4T/95B active, native vision, CoT |
-| Security / RLS / auth / Storage review | **GPT-5.5 + DeepSeek V4 Flash** (parallel) | OpenAI + DeepSeek | Gate + implementer; cross-family mandatory |
-| **Behavioral regression gate** | **GPT-5.5** | OpenAI | Unique role — caught abort/cost MAJOR GLM missed. NOT "just another reviewer" |
-| **Fidelity port** (generator, vectorizer, reference→platform) | **DeepSeek V4 Flash** write (default) / **GLM 5.2** (multi-file) · **Qwen 3.8 Max** ∥ **GPT-5.5** review | DeepSeek/Zhipu · Alibaba ∥ OpenAI | Evidence (production waves): Flash bulk implement; GLM exhaustive static parity; GPT-5.5 behavioral regression gate; Qwen architect/analyst. Dual review mandatory — complementary, not redundant |
+| Security / RLS / auth / Storage review | **Luna Max + DeepSeek V4 Flash** (parallel) | OpenAI + DeepSeek | Gate + implementer; cross-family required (GPT-5.5 = optional opt-in for highly sensitive cases) |
+| **Behavioral regression gate** (optional) | **GPT-5.5** (opt-in security gate; NOT default Strong pair) | OpenAI | Historical unique role — caught abort/cost MAJOR GLM missed. NOT "just another reviewer"; retained as opt-in for highly sensitive cases |
+| **Fidelity port** (generator, vectorizer, reference→platform) | **DeepSeek V4 Flash** write (default) / **GLM 5.2** (multi-file) · **Luna Max** ∥ **Qwen 3.8 Max** review | DeepSeek/Zhipu · OpenAI ∥ Alibaba | Evidence (production waves): Flash bulk implement; GLM exhaustive static parity; Luna Max behavioral regression lens; Qwen architect/analyst. Dual review mandatory — complementary, not redundant |
 | Cross-QA (review someone else's work) | **Different family** | — | Blind-spot detection |
 
 **Cross-family rule:** writer.family ≠ reviewer.family. Qwen Code (Alibaba) writer → reviewer must be DeepSeek/Zhipu/OpenAI, NOT OpenCode Qwen (also Alibaba). Full pairs: `references/routing.md` → Cross-Family Pairs.
@@ -173,7 +173,7 @@ This skill can be used without wave-spec. Inline SUMMARIES in §2b/§2c/§2d cov
       - **Mechanical** → SKIP steps c–e entirely. Record skip evidence in the STATUS `## Review gate` block (`review_dispatches: 0`, `synthesis_path: n/a — Mechanical skip`) and in handoff `### Residual risk`. **Lifecycle gates still enforced** (approve / LAUNCH / checks / written≠persisted / secret-redaction / deploy / closeout). Mechanical is the only mode without a reviewer.
       - **Simple** → dispatch exactly **1 cross-family low-effort reviewer** (model-specific launch contract — see `references/routing.md` §Simple effort). `writer.family ≠ reviewer.family` mandatory (the Simple-without-cross-family exception is cancelled).
       - **Ordinary** → dispatch exactly **1 reviewer** — default **Qwen 3.8 Max**; swap to a different family if writer is Alibaba.
-      - **Strong** → **atomic compare-and-set on `strong_session_used` in STATUS `## Review gate` block BEFORE first dispatch** (double-Strong guard; orchestrator-owned). If `strong_session_used == false` → atomically set to `true`, then dispatch **2 complementary lines**: **GPT-5.5** (behavioral / security / fidelity lens — mandatory for these categories) + **GLM 5.2** (static / architecture lens; swap to **Qwen 3.8 Max** when writer is GLM). Cross-family for **both** lines (each reviewer family ≠ writer family AND ≠ the other reviewer family). If `strong_session_used == true` → **BLOCK**: do NOT dispatch, record `blocked_by: strong_session_used` in the STATUS `## Review gate` block, surface owner/escalation outcome (not a silent skip, not a second Strong dispatch). Flag is not reset within the session. Transport/API failure on the first Strong dispatch = non-counting operational failure (no ledger increment, no automatic second Strong dispatch); retry of the same gate requires explicit owner decision (or a fix-round against existing findings, which does NOT consume the Strong flag). "No retries" = do not re-dispatch the reviewer within the same gate; fix-round (max 2, round 3 escalation) is unchanged.
+      - **Strong** → **atomic compare-and-set on `strong_session_used` in STATUS `## Review gate` block BEFORE first dispatch** (double-Strong guard; orchestrator-owned). If `strong_session_used == false` → atomically set to `true`, then dispatch **2 complementary lines**: **Luna Max** (behavioral / security / fidelity lens — mandatory for these categories) + **Qwen 3.8 Max** (static / architecture lens; swap to **GLM 5.2** when writer is Alibaba). Cross-family for **both** lines (each reviewer family ≠ writer family AND ≠ the other reviewer family). If `strong_session_used == true` → **BLOCK**: do NOT dispatch, record `blocked_by: strong_session_used` in the STATUS `## Review gate` block, surface owner/escalation outcome (not a silent skip, not a second Strong dispatch). Flag is not reset within the session. Transport/API failure on the first Strong dispatch = non-counting operational failure (no ledger increment, no automatic second Strong dispatch); retry of the same gate requires explicit owner decision (or a fix-round against existing findings, which does NOT consume the Strong flag). "No retries" = do not re-dispatch the reviewer within the same gate; fix-round (max 2, round 3 escalation) is unchanged.
    d. Wait reviewer worker_done (skip for Mechanical)
    e. Synthesis — `skills/wave-spec/assets/templates/review-synthesis.md.tmpl` (generic: 0 / 1 / 2 reviewer inputs; verdict enum `APPROVED | NEEDS_CHANGES | BLOCKED`; any material finding including LOW → NEEDS_CHANGES). Stricter wins on contradictions. Follow-up only by user request or unresolved BLOCKER/HIGH.
    f. ONLY THEN: In Review / next step
@@ -214,13 +214,13 @@ After worker_done → idle (end turn).
 ```
 - **NEW worker_done rule**: Brief ALWAYS contains explicit `--to <coordinator-handle>` example. Without `--to`, orca returns msg ID but message goes to void route (production incident: message lost).
 - **NEW writer-swap rule self-protection for implement workers**: Brief contains clause: "On API retry attempt #5+ → terminal read first → git diff --stat → if files modified match expected → idle and signal via heartbeat; if blocked → Ctrl-C and wait for coordinator swap. Do NOT continue retrying."
-- **NEW review_mode field**: every brief carries `REVIEW_MODE` set by the orchestrator from the precedence in `skills/wave-spec/SKILL.md` §Review modes. The reviewer uses it to know its effort/lens context (Simple = model-specific low-effort launch contract; Strong = which complementary lens — GPT-5.5 behavioral or GLM/Qwen static). The reviewer does NOT re-classify the mode; mismatch with the orchestration packet → BLOCKER, not silent reclassification.
+- **NEW review_mode field**: every brief carries `REVIEW_MODE` set by the orchestrator from the precedence in `skills/wave-spec/SKILL.md` §Review modes. The reviewer uses it to know its effort/lens context (Simple = model-specific low-effort launch contract; Strong = which complementary lens — Luna Max behavioral or Qwen 3.8 Max static). The reviewer does NOT re-classify the mode; mismatch with the orchestration packet → BLOCKER, not silent reclassification.
 
 Model-specific wrapping:
 - **GLM 5.2**: Goal → Context → Constraints → Done. No 【】. No "think step by step".
 - **DeepSeek V4 Flash**: Задача → Где → Контекст → Не трогать + 【思维模式要求】 at end.
 - **Qwen 3.8 Max**: Context → Objective → Steps → Examples → Response Format. CoT ok.
-- **GPT-5.5**: Goal → Success → Context → Constraints → Autonomy. Lean contracts, behavioral semantics focus.
+- **GPT-5.5** (optional security gate): Goal → Success → Context → Constraints → Autonomy. Lean contracts, regression-gate focus.
 
 ---
 
@@ -375,7 +375,7 @@ Purpose: post-mortem traceability. Not a journal — one block per wave, 5-8 lin
 | **DeepSeek V4 Flash** | **Low** | **Orchestrator (default) + primary writer/coder** — dispatch, routing, synthesis, bulk code, tests, single-file implement |
 | GLM 5.2 | Medium | Multi-file implement, architecture, static parity review |
 | Qwen 3.8 Max (OpenCode) | High | **Reviewer / архитектор / бизнес-аналитик** — architecture spec, cross-audit, business analysis, deep constraint analysis (NE основной кодер — slow) |
-| GPT-5.5 | High | Security/RLS gate, behavioral regression (unique role) |
+| GPT-5.5 (optional) | High | Security/RLS gate, regression-gate (historical unique role; opt-in) |
 
 Budget rule: use cheapest model that can do the task. Escalate to expensive models only when:
 - Cross-family review on expensive error (justifies 2-3x cost)

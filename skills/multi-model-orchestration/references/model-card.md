@@ -47,6 +47,25 @@ Per-model variant values: GLM `low|medium|high|xhigh|max`; Qwen 3.8 Max `default
 
 ---
 
+## GPT-5.6 family + Qwen pricing (owner-fix CAS-171, 2026-08-07)
+
+Strong-пара (critical tasks) = **Luna Max** (GPT-5.6, OpenAI) + **Qwen 3.8 Max** (Alibaba) — адаптация OFK «Sol High + Kimi K3» под наш стек (Kimi не зарегистрирован). Luna Max = behavioral/security/fidelity lens; Qwen 3.8 Max = static/architecture lens. GPT-5.5 → **опциональный** security-гейт (историческая роль сохранена, NOT часть Strong-пары по умолчанию).
+
+**Luna Max launch:** `codex --model gpt-5.6-luna` (native codex CLI, тот же harness что и GPT-5.5). effort флагом при запуске: `codex --model gpt-5.6-luna -c model_reasoning_effort="max"`.
+
+**Pricing (short context, per 1M tokens, USD):**
+
+| Model | Input | Output | Cached input | Note |
+|-------|-------|--------|--------------|------|
+| `gpt-5.6-luna` (Luna Max) | **$0.20** | **$1.20** | $0.02 | **−80% с 30.07.2026** (openai.com/index/advancing-the-price-performance-frontier-with-gpt-5-6). Long ctx: $0.40 / $1.80 |
+| `gpt-5.6-terra` | $2.00 | $12.00 | $0.20 | mid-tier GPT-5.6 |
+| `gpt-5.6-sol` | $5.00 | $30.00 | $0.50 | top-tier GPT-5.6 |
+| `qwen3.8-max` | $2.00 | $6.00 | $0.25 (cached) | qwencloud.com (mirror, unverified) |
+
+**Вывод:** Luna Max — самый дешёвый фронтир (input в 10× дешевле Qwen 3.8 Max), флагманский reviewer по цене Flash-модели. Цена позволяет ставить Luna Max на behavioral lens каждой Strong-волны без budget-трения.
+
+---
+
 ## 30-Second Role Table
 
 | Model | Role | Не путать с | Evidence 1-liner |
