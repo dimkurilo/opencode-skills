@@ -25,8 +25,10 @@ wave-spec forces a short interview before any code/content gets written, turns t
 ## How it works
 
 ```
-INTENT → interview (3–7 ?) → SPEC → PLAN → approve → dispatch → lifecycle gates → Done
+INTENT → interview (3–7 ?) → [pre-mortem] → SPEC → PLAN → approve → dispatch → lifecycle gates → Done
 ```
+
+**Pre-mortem triage** (step 2.5, between Interview and SPEC): one review-only dispatch per session that catches failure surfaces in the draft design before SPEC. Trigger (OR — any one): migration, prod, data, security, fidelity/reference port, packages ≥ 6, planned duration ≥ 7 days; `quick` always skips. Verdict: PASS → SPEC/PLAN (not implementation), REVISE → one pass to SPEC/PLAN (no second pre-mortem), BLOCK → stop until owner. The planning review dispatch is the one exception allowed before approve/LAUNCH.
 
 **Modes:**
 - `mode=quick` — one-file fix, no deploy, single session.
@@ -88,7 +90,7 @@ ln -sfn ~/Projects/opencode-skills/skills/wave-spec \
 ## What's inside
 
 - **References:** `worked-examples.md` (3 end-to-end examples), `program-maps.md` (4 domain menus), `glossary.md` (15 terms), `vv-portability.md`.
-- **Templates (14):** `INTENT.md.tmpl`, `SPEC.xml.tmpl`, `PLAN.xml.tmpl`, `STATUS.md.tmpl`, `quick-spec.md.tmpl`, `worker-brief.md.tmpl`, `LAUNCH.md.tmpl`, `NEXT_SESSION.md.tmpl`, `NEXT_SESSION_ITER.md.tmpl`, `iteration-handoff.md.tmpl`, `review-synthesis.md.tmpl`, `fix-round-brief.md.tmpl`, `ASSUMPTIONS.md.tmpl`, `linear-workflow.md.tmpl`.
+- **Templates (15):** `INTENT.md.tmpl`, `SPEC.xml.tmpl`, `PLAN.xml.tmpl`, `STATUS.md.tmpl`, `quick-spec.md.tmpl`, `worker-brief.md.tmpl`, `LAUNCH.md.tmpl`, `NEXT_SESSION.md.tmpl`, `NEXT_SESSION_ITER.md.tmpl`, `iteration-handoff.md.tmpl`, `review-synthesis.md.tmpl`, `fix-round-brief.md.tmpl`, `premortem-brief.md.tmpl`, `ASSUMPTIONS.md.tmpl`, `linear-workflow.md.tmpl`.
 - **Scripts:** `verify-spec.sh`, `verify-handoff-payload.sh` (payload gate for the canonical `## Handoff` block — length ≤1500, required headings/labels, semantic values; exit 0–5).
 
 ## Router

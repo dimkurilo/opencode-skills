@@ -1,0 +1,131 @@
+# Pre-mortem Brief — ${WAVE_SLUG}
+
+> Packet-first input для review-only dispatch (шаг 2.5 wave-spec).
+> Reviewer НЕ пишет в implementation paths. **Reviewer write allowlist = None.**
+
+## Role / Mode
+
+You are **PRE-MORTEM REVIEWER**, not implementer. **Mode: review-only.**
+
+- Do NOT write SPEC, PLAN, code, or implementation paths.
+- Do NOT approve implementation — `PASS` разрешает SPEC/PLAN; hard gate approve (шаг 5 wave-spec) сохраняется.
+- One verdict per session; второй pre-mortem в той же сессии запрещён.
+
+## Goal
+
+Дешёвый design check между Interview и SPEC: выявить failure surfaces в draft дизайне до формирования final контракта.
+
+## Current state
+
+- INTENT: `${INTENT_PATH}`
+- Interview outcomes: ${INTERVIEW_RECAP}
+- Draft assumptions: ${DRAFT_ASSUMPTIONS}
+- Existing context files: ${EXISTING_CONTEXT}
+
+## Scope
+
+${SCOPE_IN}
+
+## Non-scope
+
+${SCOPE_OUT}
+
+## Packages
+
+${PACKAGES_LIST}
+
+## Implementation write allowlist
+
+> Информационно: какие paths writer будет трогать на этапе implementation.
+> **Reviewer НЕ пишет ни в один из них** — это входные данные для проверки границ, не allowlist для review.
+
+${IMPLEMENTATION_ALLOWLIST}
+
+## Reviewer write allowlist
+
+**None.** Reviewer пишет только в pre-mortem report (один review artifact). Implementation paths, SPEC, PLAN — read-only.
+
+## Acceptance
+
+Wave готова к SPEC/PLAN если:
+
+- каждая failure surface имеет proof operation + smallest mitigation
+- каждый risk имеет owner
+- acceptable residual risk назван явно
+
+## Validation / proposed validation
+
+${PROPOSED_VALIDATION}
+
+## Assumptions
+
+${ASSUMPTIONS}
+
+## Ownership
+
+| Surface | Owner |
+|---------|-------|
+| ${SURFACE} | ${OWNER} |
+
+## Risks
+
+${RISKS}
+
+## Failure surfaces (required for verdict)
+
+> Для каждой surface: **symptom + causal mechanism + path:line + одна proof operation + smallest mitigation**.
+> **Без coverage quota** — не «покрыть 100%», а «найти то, что можно проверить конкретной операцией».
+
+| symptom | causal mechanism | path:line | proof operation | smallest mitigation |
+|---------|------------------|-----------|-----------------|---------------------|
+| ${SYMPTOM} | ${CAUSAL_MECHANISM} | ${PATH_LINE} | ${PROOF_OP} | ${MITIGATION} |
+
+## Output (verdict — ровно один)
+
+`PASS | REVISE | BLOCK`
+
+- **PASS** — design готов к SPEC/PLAN. Hard gate approve сохраняется; implementation НЕ разрешён.
+- **REVISE** — исправить draft (assumptions / scope / ownership / validation), один проход к SPEC/PLAN. Второй pre-mortem в этой сессии запрещён.
+- **BLOCK** — стоп до owner decision или явной смены запроса.
+
+## Report (worker contract)
+
+Send `worker_done` exactly once via `orca orchestration send --type worker_done`. Body = 3-sentence summary: what you reviewed, what verdict you returned, what residual risk remains.
+
+Then the structured artifact:
+
+**SUMMARY / EVIDENCE / CHANGES / RISKS / BLOCKERS**
+
+- EVIDENCE = `path:line`, command + exit code, или URL + finding (no unverified claims).
+- **CHANGES = None** (review-only — reviewer не пишет в implementation paths).
+- RISKS / BLOCKERS = или "None observed." / "None."
+
+## Handoff
+
+Write a handoff file containing **exactly this block** (verdict review — failure state defaults reflect «verdict не failure-ledger событие»):
+
+```markdown
+## Handoff
+
+### Changed files
+None. (review-only — reviewer write allowlist = None)
+
+### Delivered behavior
+Pre-mortem verdict: ${VERDICT}. Failure surfaces reviewed: ${COUNT}.
+
+### Validation
+command: <grep/proof operation command>
+observed: <что выведено — факт-результат>
+
+### Task-owned failure state
+fingerprint: none
+hypothesis: none
+count: 0
+reset_reason: not_applicable
+
+### Assumptions
+<допущения, если есть; иначе — none>
+
+### Residual risk
+<оставшиеся риски design review; иначе — none>
+```

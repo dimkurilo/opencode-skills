@@ -8,6 +8,10 @@
 ## [Unreleased]
 
 ### Added
+- **wave-spec — pre-mortem gate (CAS-170)**:
+  - Шаг 2.5 Pre-mortem triage в pipeline (после Interview, до SPEC): trigger OR (migration | prod | data | security | fidelity/reference port | packages >= 6 | planned duration >= 7 days; одно условие достаточно), quick всегда skip; verdict contract PASS/REVISE/BLOCK (PASS → SPEC/PLAN, НЕ implementation; REVISE → один проход без второго pre-mortem; BLOCK → стоп до owner); quota 1 dispatch на сессию (wave-level поля trigger/dispatch_used/verdict/brief/report/skip_reason); LAUNCH exception — planning review dispatch до approve/LAUNCH; verdict НЕ failure-ledger событие (fingerprint none, count 0, reset_reason not_applicable).
+  - НОВЫЙ `assets/templates/premortem-brief.md.tmpl` (review-only, Reviewer write allowlist None, failure surfaces таблица: symptom + causal mechanism + path:line + proof operation + smallest mitigation).
+  - README.md / README.ru.md синхронизированы (15 templates).
 - **wave-spec — handoff payload contract (CAS-169)**:
   - Канонический `## Handoff` блок в `assets/templates/worker-brief.md.tmpl` и `iteration-handoff.md.tmpl`: Changed files / Delivered behavior / Validation (command + observed) / Task-owned failure state (fingerprint|none, hypothesis|none, count, reset_reason|not_applicable) / Assumptions / Residual risk; запрет пересказа плана/diff; multi-task failure state — таблица по task id.
   - НОВЫЙ `scripts/verify-handoff-payload.sh` — payload-гейт (`--handoff <file>`): exit 0=PASS, 1=usage/IO, 2=locale unavailable, 3=too long (>1500), 4=sections missing / invalid semantic values, 5=both; UTF-8 locale preflight (включая Darwin bare UTF-8) + python3 len fallback; mode-aware (scalar labels для worker, Markdown-таблица для iteration); семантическая валидация count/reset_reason (закрытый список 8 non_counting категорий CAS-168).

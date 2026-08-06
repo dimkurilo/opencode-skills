@@ -25,8 +25,10 @@ wave-spec проводит короткое интервью перед тем, 
 ## Как работает
 
 ```
-INTENT → интервью (3–7 ?) → SPEC → PLAN → утверждение → dispatch → lifecycle gates → Done
+INTENT → интервью (3–7 ?) → [pre-mortem] → SPEC → PLAN → утверждение → dispatch → lifecycle gates → Done
 ```
+
+**Pre-mortem triage** (шаг 2.5, между интервью и SPEC): один review-only dispatch на сессию — ловит failure surfaces в draft дизайне до формирования SPEC. Trigger (OR — любого одного условия достаточно): migration, prod, data, security, fidelity/reference port, packages ≥ 6, planned duration ≥ 7 days; `quick` всегда skip. Verdict: PASS → SPEC/PLAN (НЕ implementation), REVISE → один проход к SPEC/PLAN (без второго pre-mortem), BLOCK → стоп до owner. Planning review dispatch — единственное исключение, разрешённое до approve/LAUNCH.
 
 **Режимы:**
 - `mode=quick` — однофайловая правка, no deploy, одна сессия.
@@ -88,7 +90,7 @@ ln -sfn ~/Projects/opencode-skills/skills/wave-spec \
 ## Что внутри
 
 - **References:** `worked-examples.md` (3 сквозных примера), `program-maps.md` (4 доменных меню), `glossary.md` (15 терминов), `vv-portability.md`.
-- **Шаблоны (14):** `INTENT.md.tmpl`, `SPEC.xml.tmpl`, `PLAN.xml.tmpl`, `STATUS.md.tmpl`, `quick-spec.md.tmpl`, `worker-brief.md.tmpl`, `LAUNCH.md.tmpl`, `NEXT_SESSION.md.tmpl`, `NEXT_SESSION_ITER.md.tmpl`, `iteration-handoff.md.tmpl`, `review-synthesis.md.tmpl`, `fix-round-brief.md.tmpl`, `ASSUMPTIONS.md.tmpl`, `linear-workflow.md.tmpl`.
+- **Шаблоны (15):** `INTENT.md.tmpl`, `SPEC.xml.tmpl`, `PLAN.xml.tmpl`, `STATUS.md.tmpl`, `quick-spec.md.tmpl`, `worker-brief.md.tmpl`, `LAUNCH.md.tmpl`, `NEXT_SESSION.md.tmpl`, `NEXT_SESSION_ITER.md.tmpl`, `iteration-handoff.md.tmpl`, `review-synthesis.md.tmpl`, `fix-round-brief.md.tmpl`, `premortem-brief.md.tmpl`, `ASSUMPTIONS.md.tmpl`, `linear-workflow.md.tmpl`.
 - **Скрипты:** `verify-spec.sh`, `verify-handoff-payload.sh` (payload-гейт канонического блока `## Handoff` — длина ≤1500, обязательные headings/labels, семантические значения; exit 0–5).
 
 ## Роутер

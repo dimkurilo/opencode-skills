@@ -123,6 +123,54 @@ After INTENT + context read:
 
 If user says «решай сам / use defaults» → mark assumptions explicitly: log them via `assets/templates/ASSUMPTIONS.md.tmpl` and record them in the SPEC `<assumptions>` block.
 
+### 2.5 Pre-mortem triage
+
+Дешёвый design check между Interview и SPEC: один review-only dispatch на сессию, который ловит failure surfaces в draft дизайне до формирования final контракта. **НЕ заменяет post-implementation review** (Fidelity Dual Review остаётся обязательным для fidelity ports) и **НЕ отменяет hard gate approve** (шаг 5).
+
+**Trigger (OR — любое одно условие достаточно, чтобы сделать pre-mortem `required`):**
+
+- `migration` — reference→platform, framework, DB migration, schema change
+- `prod` — deploy to production, prod config change
+- `data` — data migration, persistent data work, schema rewrite
+- `security` — auth, secrets, permissions, RLS, threat model change
+- `fidelity` / `reference port` — behavioral parity wave
+- `packages >= 6` — PLAN планирует 6+ пакетов/задач
+- `planned duration >= 7 days` — плановая длительность волны (не fact elapsed)
+
+**Mode rules:**
+
+1. `quick` — **всегда SKIP**, записать `skip_reason: quick mode` (quick ≤1 файл, ≤30 мин, no deploy — несовместим с pre-mortem dispatch).
+2. `wave` / `program` — `required` если сработал хоть один trigger; иначе `skipped` (`skip_reason: no risk trigger`).
+3. `task` — **всегда SKIP**, `skip_reason: task-level — pre-mortem родительской волны (wave-level) применяется/применён` (атомарная задача ВНУТРИ одобренной волны; gate считается на wave-level, не на task-level).
+4. Если режим не указан — сначала решить режим (Modes), потом pre-mortem triage.
+
+**Quota — ровно 1 dispatch на сессию:**
+
+- Оркестратор выставляет wave-level поля (STATUS.md отдельная секция или wave notes):
+  - `trigger` — какое условие сработало (или `skipped` + `skip_reason`)
+  - `dispatch_used` — **ставится `true` ДО dispatch** (атомарность квоты, не после)
+  - `brief` — path к заполненному `premortem-brief.md.tmpl`
+  - `verdict` — `PASS | REVISE | BLOCK` после ответа
+  - `report` — path к pre-mortem report
+  - `skip_reason` — если `skipped`
+- **Transport/API failure ≠ `REVISE`/`BLOCK`:** если worker/transport не дал verdict, это **non-counting operational failure** по правилам failure ledger (`failure-handling.md`) — не увеличивает failure streak и **НЕ автоматический второй dispatch** в той же сессии без явного owner request.
+
+**Packet:** `assets/templates/premortem-brief.md.tmpl` — packet-first, review-only, **reviewer write allowlist = `None`**.
+
+**Reviewer:** Qwen 3.8 Max medium — `A/agent1st_qwen-3.8`, **review-only**, `dispatch --inject`, `worker_done` exactly once. Pin и brief template — `multi-model-orchestration/references/model-card.md` и `routing.md`.
+
+**Verdict contract (ровно один из трёх):**
+
+- **PASS** — design готов к SPEC/PLAN. Разрешает писать SPEC/PLAN. **НЕ разрешает implementation** — hard gate approve (шаг 5) сохраняется; execution dispatch по-прежнему требует approve + LAUNCH (gate 6.0).
+- **REVISE** — исправить design draft (assumptions / scope / ownership / validation strategy), один проход к SPEC/PLAN. **Второй pre-mortem в той же сессии запрещён.**
+- **BLOCK** — стоп до owner decision или явной смены запроса. SPEC/PLAN и implementation запрещены.
+
+**Verdict НЕ failure-ledger событие:** при нормальном verdict (PASS/REVISE/BLOCK) task-owned failure state = `fingerprint: none, hypothesis: none, count: 0, reset_reason: not_applicable`. Только сбой самого dispatch/worker (timeout, API failure, transport void) идёт через `failure-handling.md` как non-counting event.
+
+**LAUNCH exception (см. gate 6.0):** pre-mortem planning review dispatch — единственный разрешённый до approve/LAUNCH review-only dispatch; **НЕ удовлетворяет gate 6.0** (LAUNCH.md не требуется для pre-mortem). Execution/writer/reviewer dispatch после approve по-прежнему требует `LAUNCH.md` с cross-family check + `## Prohibited`.
+
+**Provenance:** сохранить `brief` и `report` paths в wave metadata. Принятые mitigations перенести в `<risks>`, `<acceptance>`, constraints или PLAN tasks/gates. INTENT остаётся human narrative; pre-mortem report — отдельный review artifact.
+
 ### 3. SPEC.xml (structured — agent-facing)
 
 **Markdown с required-sections достаточен** для SPEC/PLAN (triage finding: свежий агент извлекает required-поля из MD и XML одинаково, 5/5). XML — опционален; портативный валидатор `scripts/verify-spec.sh` уже покрывает оба формата поровну, поэтому MD предпочтительнее (см. `## XML vs Markdown (policy)` ниже). Обязательные секции: Goal, Done_when, Verifier, Scope, Risks.
@@ -216,6 +264,8 @@ grep -qiE "^## Prohibited" waves/<date>-<slug>/LAUNCH.md
 ```
 
 Разграничение с 6b: **6.0 = gate** (проверка существования + валидность), **6b = генерация** (как создавать). Mandatory-секции не дублировать.
+
+**Pre-mortem exception (шаг 2.5):** pre-mortem planning review dispatch — единственный разрешённый до approve/LAUNCH review-only dispatch; **НЕ удовлетворяет gate 6.0** (LAUNCH.md не требуется для pre-mortem). Execution/writer/reviewer dispatch после approve по-прежнему требует `LAUNCH.md` с cross-family + `## Prohibited`.
 
 ### 6. Dispatch prep (after approve only)
 
@@ -483,7 +533,7 @@ Executors **do not** rewrite SPEC/PLAN. They may append STATUS notes.
 
 ## References
 
-- `assets/templates/` — INTENT, SPEC.xml, PLAN.xml, STATUS, worker-brief, review-synthesis, fix-round-brief, ASSUMPTIONS, **quick-spec.md** (mode=quick), **LAUNCH.md**, **iteration-handoff.md**, **NEXT_SESSION.md** (pointer), **NEXT_SESSION_ITER.md** (iteration), **linear-workflow.md**
+- `assets/templates/` — INTENT, SPEC.xml, PLAN.xml, STATUS, worker-brief, review-synthesis, fix-round-brief, **premortem-brief.md.tmpl** (шаг 2.5), ASSUMPTIONS, **quick-spec.md** (mode=quick), **LAUNCH.md**, **iteration-handoff.md**, **NEXT_SESSION.md** (pointer), **NEXT_SESSION_ITER.md** (iteration), **linear-workflow.md**
 - `references/program-maps.md` — domain-specific program maps (4 menus: skill-port, translation, fidelity port, SEO)
 - `references/vv-portability.md` — mapping to vv-opencode tags
 - `references/glossary.md` — 15 терминов (SPEC/PLAN/lifecycle/residual-risk/deploy probe/worker_done/cross-family/…)
