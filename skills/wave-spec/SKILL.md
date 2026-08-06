@@ -349,10 +349,42 @@ Maintain `…/STATUS.md`:
 
 ```markdown
 # STATUS
-| id | owner | state | artifact | notes |
-|----|-------|-------|----------|-------|
-| T01 | qwen | done | research/... | |
+| id | title | owner | state | artifact | fingerprint | hypothesis | count | reset_reason | notes |
+|----|-------|-------|-------|----------|-------------|------------|-------|--------------|-------|
+| T03 | port ledger columns | glm | in_review | skills/wave-spec/SKILL.md | orders-api::pytest::OrderTest.test_order_total::AssertionError::compute_total | discount applied twice (coupon + sale) | 2 | implementation_changed | same fingerprint 2nd fail; orchestrator reset after writer refactored compute_total |
 ```
+
+**Column semantics (10 columns, exact order):**
+
+| Column | Meaning |
+|--------|---------|
+| `id` | task/package identifier |
+| `title` | краткое название задачи |
+| `owner` | agent identifier (исполнитель задачи) |
+| `state` | lifecycle enum: `implement_done \| in_review \| commit \| pr \| merge \| deploy_gate \| on_prod \| done` — НЕ заменяется failure status; lifecycle order и gates НЕ менять |
+| `artifact` | пути артефактов через запятую |
+| `fingerprint` | нормализованный id фейла: package + команда/тест + класс/сообщение + стабильный путь/символ; БЕЗ таймстампов, сгенерённых id, secret values; при отсутствии активного фейла — `—` |
+| `hypothesis` | ровно ОДНА активная причина; при отсутствии — `—` |
+| `count` | целое число consecutive counted failures для текущего task/package + fingerprint + hypothesis; при отсутствии фейла — `0` |
+| `reset_reason` | transition value (см. ниже); при отсутствии активного фейла — `—` |
+| `notes` | свободные заметки |
+
+**reset_reason transition values (полный список, 8 значений):**
+
+`pass` | `fingerprint_changed` | `package/command_changed` | `implementation_changed` | `hypothesis_changed` | `scope_changed` | `non_counting:<category>` | `same_fingerprint_retry`
+
+Правила:
+- `same_fingerprint_retry` — причина обычного инкремента count; НЕ сбрасывает count, НЕ эскалация, НЕ смена модели
+- `implementation_changed` — обязательный (OFK требует reset при material change реализации, даже если гипотеза прежняя)
+- `non_counting:<category>` — закрытый список категорий из CAS-168: `user_cancellation | tool_interruption | timeout | service_unavailable | browser_transport | dependency_environment | pre_existing_unrelated | outside_package_ownership` (эти фейлы не увеличивают count)
+- reset_reason обязателен при reset / non-counting / смене серии
+
+**Ownership:**
+- Ledger-поля (`fingerprint` / `hypothesis` / `count` / `reset_reason`) обновляет ТОЛЬКО оркестратор
+- Workers докладывают evidence/failure tuple в отчётах, но НЕ пишут в ledger
+- Шаблон STATUS: «Updated by orchestrator; Workers may append notes only» + «orchestrator owns ledger fields»
+
+**Legacy:** новые волны — по полной схеме (10 колонок); исторические STATUS в `waves/` НЕ переписывать (ничего не мигрировать).
 
 **Per-iteration handoff:** each iteration creates `iterations/I{N}-<slug>.handoff.md` (unique file).
 Template: `assets/templates/iteration-handoff.md.tmpl`

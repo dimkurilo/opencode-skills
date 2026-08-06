@@ -1,6 +1,6 @@
 # STATUS — ${SLUG}
 
-> Updated by orchestrator. Workers may append notes only.
+> Updated by orchestrator. Workers may append notes only. Orchestrator owns ledger fields (fingerprint / hypothesis / count / reset_reason).
 
 ## Wave state
 
@@ -11,9 +11,9 @@
 
 ## Tasks
 
-| id | title | owner | state | artifact | notes |
-|----|-------|-------|-------|----------|-------|
-| T01 | | | implement_done | | |
+| id | title | owner | state | artifact | fingerprint | hypothesis | count | reset_reason | notes |
+|----|-------|-------|-------|----------|-------------|------------|-------|--------------|-------|
+| T03 | port ledger columns | glm | in_review | skills/wave-spec/SKILL.md | orders-api::pytest::OrderTest.test_order_total::AssertionError::compute_total | discount applied twice (coupon + sale) | 2 | implementation_changed | same fingerprint 2nd fail; orchestrator reset after writer refactored compute_total |
 
 States (lifecycle — aligns with SKILL.md Lifecycle Gates, NOT a parallel pending|ready|running set):
 `implement_done` | `in_review` | `commit` | `pr` | `merge` | `deploy_gate` | `on_prod` | `done`
