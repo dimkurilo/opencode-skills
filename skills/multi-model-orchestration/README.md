@@ -80,7 +80,7 @@ Requires the `orchestration` and `orca-cli` skills loaded alongside, and Orca ru
   - `routing.md` — full routing table, per-model brief templates, cross-family pairs.
   - `model-card.md` — roles, family field, launch pins, "do not confuse with" notes.
   - `worker-contract.md` — output contract, inject preamble, `worker_done` delivery rule.
-  - `failure-handling.md` — timeout policy, escalation, circuit-breaker, writer-swap rule.
+  - `failure-handling.md` — timeout policy, failure ledger (fingerprint / count / 5th-fail rule), non-counting categories, writer-swap rule.
   - `prohibitions.md` — 11 hard prohibitions with correct alternatives.
 - **Lifecycle gates, fidelity dual review, deploy probe:** canonical definitions live in `wave-spec`.
 

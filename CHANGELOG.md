@@ -8,6 +8,16 @@
 ## [Unreleased]
 
 ### Changed
+- **multi-model-orchestration — failure ledger (CAS-168)**:
+  - `references/failure-handling.md`: блоки Worker Self-Correction / Circuit-Breaker заменены на Failure Ledger — fingerprint (нормализация package + command/test + class/message + stable path/symbol, без timestamps/generated ids/secrets), consecutive-count (инкремент только на evidence-bearing reproducible package-owned failure с тем же fingerprint и hypothesis), 8 non-counting категорий (закрытый список), правило 5-го фейла (попытки 1–4 тот же воркер; count=5 → СТОП → material re-plan; нет плана → blocked; смена модели ≠ re-plan).
+  - failure-events.md формат (блоки `## FE-NNNN`, append-only, монотонные ID, sole writer = оркестратор; `STATUS.md` = только active streak; handoff = snapshot + FE-links).
+  - `SKILL.md` §5: порог «3 consecutive failures» → правило 5-го fingerprint (same fingerprint AND same hypothesis); разведены counted серия vs generic operational FAIL; tool-loop «3 identical tool calls» не тронут.
+  - `references/worker-contract.md`: failure-state subsection (ledger_path / event_ids / fingerprint / hypothesis / count / reset_reason / category / ownership / evidence) + mapping Handoff → CHANGES/SUMMARY/EVIDENCE/RISKS.
+  - `wave-spec` `NEXT_SESSION_ITER.md.tmpl`: порог 3→5.
+- **wave-spec — STATUS ledger columns (CAS-167)**:
+  - `SKILL.md` §7: STATUS-таблица расширена до 10 колонок `id|title|owner|state|artifact|fingerprint|hypothesis|count|reset_reason|notes`, семантика каждой колонки, 8 transition values reset_reason, ownership (orchestrator owns ledger fields).
+  - `assets/templates/STATUS.md.tmpl`: 10 колонок + заполненная пример-строка (реалистичный fingerprint/hypothesis/count/reset_reason).
+  - `references/glossary.md`: STATUS-контракт синхронизирован (не дрейфует от §7).
 - **multi-model-orchestration / wave-spec — launch-рецепт воркеров (CAS-174)**:
   - model-card.md: добавлен блок «LAUNCH РЕЦЕПТ» (SoT) — `--variant` НЕ существует для opencode TUI-argv (только для `opencode run`); variant задаётся slash-командой `/variants <X>` внутри TUI через `terminal send` (явное исключение из запрета — запрет относится к доставке задачи); codex — effort флагом при запуске; per-model variant values; headless `opencode run` — не для оркестрации.
   - LAUNCH.md.tmpl шаг 3: убрано противоречие «Не terminal send» → гибридный текст + ссылка на SoT.

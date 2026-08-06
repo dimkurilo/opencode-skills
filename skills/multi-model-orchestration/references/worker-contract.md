@@ -21,6 +21,43 @@ Rules:
 
 ---
 
+## Failure-State Reporting (failure-ledger integration)
+
+When a worker hits a reproducible package-owned validation failure, it reports a failure-state payload so the orchestrator can keep the ledger (vocabulary canon: `skills/wave-spec/references/glossary.md`, CAS-167). Fields:
+
+| Field | What to report |
+|-------|----------------|
+| `ledger_path` | Path to the orchestrator-owned `failure-events.md` (worker references it, does not own it) |
+| `event_ids` | FE-NNNN ids the worker is contributing to (e.g. `FE-0007`); `—` if no active streak |
+| `fingerprint` | Normalized id: `package + command/test + class-or-message + stable path/symbol` (no timestamps / generated ids / secrets); `—` if no active failure |
+| `hypothesis` | One active root-cause hypothesis; `—` if none |
+| `count` | Consecutive same-fingerprint same-hypothesis count the worker observed |
+| `reset_reason` | Last transition of the current series: `same_fingerprint_retry` on a counted retry (series continues), a reset-value (`pass / fingerprint_changed / package/command_changed / implementation_changed / hypothesis_changed / scope_changed`) on an actual reset, `non_counting:<category>` on a non-counting event; `—` only when there is no active failure |
+| `category` | `counted`, or `non_counting:<one of 8>` (`user_cancellation / tool_interruption / timeout / service_unavailable / browser_transport / dependency_environment / pre_existing_unrelated / outside_package_ownership`) |
+| `evidence` | Command + observed output / `file:line` proving the failure |
+| `ownership` | `package-owner | orchestrator | infrastructure | outside_package:<owner>` — **mandatory for every non-counting event** (identifies who owns the failing package/surface) |
+
+**5th-fail rule:** at `count = 5` the worker STOPs, does not self-fix further, and references the full ledger (`ledger_path` + `event_ids` + `fingerprint` + `hypothesis` + `evidence`) in its report so the orchestrator can do a material re-plan. The 3-sentence `worker_done` body limit still holds — failure-state detail goes in the report file / notes, not in `--body`.
+
+**Non-counting:** infrastructure/liveness failures (`timeout`, `service_unavailable`, …) do not increment `count`; still report `category` + `reset_reason: non_counting:<category>` + ownership/evidence.
+
+See `references/failure-handling.md` → Failure Ledger for the entry format and the full reset_reason list.
+
+## Handoff Section → Output Contract Mapping
+
+When a worker's report or an iteration handoff uses prose section headers, map them onto the Output Contract fields when filling `worker_done` / report files:
+
+| Handoff section | Output Contract field |
+|-----------------|----------------------|
+| `### Changed files` | `CHANGES` |
+| `### Delivered behavior` | `SUMMARY` |
+| `### Validation (command + observed)` | `EVIDENCE` |
+| `### Residual risk` | `RISKS` |
+
+`BLOCKERS` has no handoff-section equivalent — report it inline as its own field.
+
+---
+
 ## Inject Preamble (dispatched via `--inject`)
 
 When using `orca orchestration dispatch --inject`, the preamble is auto-generated.

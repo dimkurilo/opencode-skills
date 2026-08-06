@@ -104,7 +104,7 @@ Brief: ревью {{scope_paths}}. Фокус: {{review_focus}}.
 
 ## Failure
 
-- 3 consecutive failures → escalate human
+- 5 consecutive failures, same fingerprint AND same hypothesis → STOP, escalate human (orchestrator does material re-plan first)
 - Пользователь пишет → СТОП → ответь текстом
 - Оркестратор написал код вместо dispatch → violation. UNDO changes, перечитай LAUNCH.md §Prohibited #8, затем dispatch воркеру.
 - Worker напечатал текстом → terminal send: "worker_done = bash-команда. Не текст."

@@ -80,7 +80,7 @@ ln -sfn ~/Projects/opencode-skills/skills/multi-model-orchestration \
   - `routing.md` — полная таблица роутинга, шаблоны брифов по моделям, cross-family пары.
   - `model-card.md` — роли, поле family, launch-пины, заметки «не путать с».
   - `worker-contract.md` — контракт вывода, inject-preamble, правило доставки `worker_done`.
-  - `failure-handling.md` — политика таймаутов, эскалация, circuit-breaker, writer-swap rule.
+  - `failure-handling.md` — политика таймаутов, failure ledger (fingerprint / count / правило 5-го фейла), non-counting категории, writer-swap rule.
   - `prohibitions.md` — 11 жёстких запретов с правильными альтернативами.
 - **Lifecycle gates, fidelity dual review, deploy probe:** канон в `wave-spec`.
 

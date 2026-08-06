@@ -13,18 +13,86 @@
 
 ---
 
-## Worker Self-Correction
+## Failure Ledger (fingerprint / count / 5th-fail rule)
 
-1. Worker encounters error → tries 1 self-correction (re-read → diagnose → fix → re-verify).
-2. If self-correction succeeds → continue normally.
-3. If still failing after 1 correction → report FAIL in worker_done with:
-   - What was tried
-   - Error evidence (command output, stack trace)
-   - Hypothesis on root cause
-4. Coordinator decides:
-   - Re-dispatch to SAME model with fix context ("previous attempt failed: <evidence>. Try different approach.")
-   - OR route to DIFFERENT model (cross-family perspective)
-   - OR escalate to human (if ownership/scope unclear)
+**Vocabulary canon:** `skills/wave-spec/references/glossary.md` (CAS-167). Same terms as wave-spec STATUS.md columns (`fingerprint / hypothesis / count / reset_reason`). The orchestrator owns the ledger; workers report evidence payloads only.
+
+### Fingerprint — normalized failure identity
+
+- **Composition:** `package + command/test + class-or-message + stable path/symbol`.
+- **Exclude from fingerprint:** timestamps, temporary paths, generated ids, secret values.
+- **No active failure:** `fingerprint = —` (with `hypothesis = —`, `count = 0`, `reset_reason = —`).
+
+### Consecutive count (`count`)
+
+- Increments **only** on evidence-bearing, reproducible, **package-owned** validation failures with the **same fingerprint** AND the **same hypothesis**.
+- **Do NOT increment** without a confirmed failure: self-correction, tool retry, API retry, re-dispatch alone do not bump `count`.
+- `reset_reason` stores the **last transition of the current series** (not only resets):
+  - `same_fingerprint_retry` — ordinary counted retry; the series continues and `count` increments (this is NOT a reset, NOT escalation, NOT a model switch).
+  - a reset-value (`pass | fingerprint_changed | package/command_changed | implementation_changed | hypothesis_changed | scope_changed`) — the series actually reset.
+  - `non_counting:<category>` — a non-counting event was recorded.
+  - `—` — no active failure.
+- Closed list of transition values (8): `pass | fingerprint_changed | package/command_changed | implementation_changed | hypothesis_changed | scope_changed | non_counting:<category> | same_fingerprint_retry`.
+- `implementation_changed` forces a reset on any material implementation change, even when the hypothesis is unchanged.
+
+### Non-counting categories (closed list — exactly these 8)
+
+`user_cancellation | tool_interruption | timeout | service_unavailable | browser_transport | dependency_environment | pre_existing_unrelated | outside_package_ownership`
+
+- These failures do **not** increment `count`.
+- Always record `category` + `reset_reason` (`non_counting:<category>`) + ownership/evidence.
+- Classification axis: **infrastructure/liveness** vs **reproducible package-owned**.
+
+### 5th-fail rule (escalation)
+
+- Attempts 1–4: same worker, **no model switch**.
+- On the **5th consecutive failure with the same fingerprint AND same hypothesis** → STOP. Return to the orchestrator: `package + ledger + evidence + hypothesis`.
+- Orchestrator MUST perform a **material re-plan** (hypothesis / boundaries / scope / validation).
+- No new plan → `blocked`, ask the human. (`blocked` is an orthogonal disposition, NOT a lifecycle-enum state.)
+- **Switching the model alone is NOT a re-plan.**
+
+### failure-events.md format (ledger entry)
+
+The ledger lives at `waves/<date>-<slug>/failure-events.md` (wave-level). It is **append-only**: entries are only ever added, never overwritten or deleted; `FE-NNNN` ids are monotonic and never reused. The orchestrator is the **sole writer**; workers only report event payloads. Entry format:
+
+```
+## FE-NNNN
+- package: <package>
+- agent: <agent id>
+- command/test: <команда или тест>
+- fingerprint: <нормализованный id фейла>
+- hypothesis: <одна активная причина>
+- category: <counted | non_counting:<категория>>
+- count: <целое число>
+- reset_reason: <last transition value | —>
+- status: <open | resolved | reset>
+- evidence: <команда + вывод / file:line>
+- ownership: <package-owner | orchestrator | infrastructure | outside_package:<owner>>
+```
+
+`ownership` is **mandatory for every non-counting event** (it identifies who owns the failing package/surface); for `outside_package_ownership` specify the real owner as `outside_package:<owner>`.
+
+`status` shows **only the active streak** (not the full journal). Iteration handoff = compact snapshot + links to FE-IDs (not the full ledger). Root `SESSION_HANDOFF.md` carries a pointer, not a second ledger.
+
+**`STATUS.md` vs lowercase `status`.** The wave-spec `STATUS.md` file (10 columns, CAS-167 canon — incl. `fingerprint / hypothesis / count / reset_reason`) holds **only the active streak / current row** for each open series; it does NOT duplicate the append-only history. The full history lives **only** in the wave-level `failure-events.md`. Lowercase `status` inside an FE-record is the event's own state (`open | resolved | reset`), NOT the `STATUS.md` file.
+
+### Example ledger row
+
+```
+## FE-0007
+- package: orders-api
+- agent: A/agent1st_v37.3-flash
+- command/test: pytest tests/orders/test_total.py::test_order_total
+- fingerprint: orders-api::pytest::OrderTest.test_order_total::AssertionError::compute_total
+- hypothesis: tax-rate rounding drops fractional cents inside compute_total()
+- category: counted
+- count: 5
+- reset_reason: same_fingerprint_retry
+- status: open
+- evidence: pytest tests/orders/test_total.py::test_order_total → AssertionError: assert 19.99 == 20.00 (orders/api/compute_total.py:42)
+```
+
+At `count = 5` the worker STOPs and hands this entry (ledger ref + evidence + hypothesis) back to the orchestrator for a material re-plan. Attempts 1–4 stayed on the same worker with no model switch.
 
 ---
 
@@ -44,16 +112,7 @@ Human escalation when:
 - Destructive actions needed
 - External system writes
 - Budget/cost concerns
-- All models failed (3+ failures across models)
-
----
-
-## Circuit-Breaker
-
-After 3 consecutive failures on one task (any combination of models):
-1. STOP retrying.
-2. Report to human: what was tried, what failed, evidence.
-3. Ask: "Task X failed 3 times. Options: (a) simplify scope, (b) different approach, (c) abandon."
+- 5th-fail rule exhausted (`count = 5` → material re-plan performed and failed again)
 
 ---
 

@@ -226,8 +226,8 @@ Model-specific wrapping:
 | `heartbeat` | Worker alive, **not done**. Keep waiting. Do not restart; do not treat as completion |
 | `escalation` / `decision_gate` | Human or coordinator decision. Not blind re-dispatch |
 | timeout / count:0 | Liveness check (`terminal read`). NOT restart. Wait again |
-| 3 consecutive failures | Circuit-break. Route to different model or escalate to human |
-| Worker reports FAIL | Coordinator decides: re-dispatch with fix context OR route to different model |
+| 5 consecutive failures, same fingerprint AND same hypothesis | STOP. Worker returns `package + ledger + evidence + hypothesis`; orchestrator does material re-plan (hypothesis/scope/validation). No new plan → `blocked` → human. Model switch alone ≠ re-plan |
+| Worker reports FAIL | **Generic operational FAIL** (non-counting operational path — see `failure-handling.md` closed list of 8) → coordinator re-dispatches, may switch model (NOT a 5th-fail-rule violation). **Counted same-fingerprint series** → attempts 1–4 same worker, no model switch; at `count = 5` → STOP + material re-plan (row above) |
 
 | **NEW verify-arrival rule** | After `check --wait`, verify delivery via **GLOBAL inbox** (`orca orchestration inbox --limit 20 --json`, filter by payload taskId), NOT handle-scoped `check`. `check` is handle-scoped → it misses worker_done on **handle drift** (stale recipient handle after terminal restart) or **self-send** (stored from==to); both give `check=0` while `inbox=N`. If inbox has the worker_done but `check --wait` didn't return it → your handle changed (restart): re-resolve via `terminal list` / re-dispatch. If inbox lacks it → real routing miss, recover from terminal output (writer-swap rule) |
 | **NEW writer-swap rule** | On API retry attempt #5+ in worker terminal: `terminal read` first → `git diff --stat` → if files modified match expected scope → dispatch verify+finalize brief to fresh writer terminal (NOT redo from scratch). If files not modified → re-dispatch from scratch or cross-family swap |
