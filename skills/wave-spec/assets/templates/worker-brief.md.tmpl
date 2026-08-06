@@ -54,3 +54,51 @@ Then the structured artifact:
 ### written≠persisted gate (implement/fix mode — MANDATORY before worker_done)
 
 Before sending `worker_done`, run `git status --short` and/or `ls -la` / `wc -l` and confirm **every** path in CHANGES / `--files-modified` exists on disk with expected content. A claimed file missing on disk = **FAIL** — do NOT send success `worker_done`. Report FAIL in `--subject` and list missing paths in `--body`.
+
+## Payload gate (CAS-169)
+
+When work is done, write a handoff file containing **exactly the canonical block below**, then run the payload gate. The gate validates form + ≤1500 chars + semantic values, NOT truthfulness (that stays with coordinator/lifecycle).
+
+**Command:**
+
+```bash
+bash skills/wave-spec/scripts/verify-handoff-payload.sh --handoff <path-to-your-handoff.md>
+```
+
+**Exit codes:** 0 = PASS → send `worker_done`; 3 = too long (>1500); 4 = form issues (sections/labels missing OR invalid semantic values); 5 = both; 2 = locale unavailable (ENV — tell coordinator).
+
+**Defaults** for a successful handoff (anti-bureaucracy): `fingerprint: none`, `hypothesis: none`, `count: 0`, `reset_reason: not_applicable` — **handoff-specific sentinels** (ledger/STATUS использует канонический `—` CAS-167/168; см. SKILL.md §7).
+
+**Boundary:** the gate validates only the `## Handoff` block (from `## Handoff` to EOF or the next `## ` heading), not the whole artifact. It does NOT replace `verify-handoff-gate.sh` (project-bootstrap destination gate — 4/4 PASS) or `verify-spec.sh` (SPEC/PLAN required-sections).
+
+**Vocabulary:** `fingerprint` / `hypothesis` / `count` / `reset_reason` — канон CAS-167/168 (`skills/wave-spec/references/glossary.md` + `skills/multi-model-orchestration/references/failure-handling.md`).
+
+## Handoff
+
+Write a handoff file containing **exactly this block** (scalar format — single-task worker handoff). Defaults shown are for a successful task; replace `none` / `0` / `not_applicable` with real failure data if your task had failures.
+
+```markdown
+## Handoff
+
+### Changed files
+<пути файлов, по одному на строку>
+
+### Delivered behavior
+<факты: что реально доставлено; запрещено: пересказ плана, пересказ diff, общие фразы, «всё готово» без фактов>
+
+### Validation
+command: <точная команда, которую вы запускали>
+observed: <факт-результат — что выведено>
+
+### Task-owned failure state
+fingerprint: none
+hypothesis: none
+count: 0
+reset_reason: not_applicable
+
+### Assumptions
+<допущения, если есть; иначе — none>
+
+### Residual risk
+<оставшиеся риски, если есть; иначе — none>
+```

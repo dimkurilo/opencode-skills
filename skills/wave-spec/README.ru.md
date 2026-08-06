@@ -57,7 +57,7 @@ waves/<date>-<slug>/
 └── iteration-handoff.md   # handoff на итерацию
 ```
 
-На closeout запускается `scripts/verify-spec.sh` — портативный bash-валидатор (exit 0 = PASS; опция `--require-launch` дополнительно требует `LAUNCH.md` с Prohibited + cross-family).
+На closeout запускается `scripts/verify-spec.sh` — портативный bash-валидатор (exit 0 = PASS; опция `--require-launch` дополнительно требует `LAUNCH.md` с Prohibited + cross-family). Worker-handoff'ы и iteration closeout запускают `scripts/verify-handoff-payload.sh --handoff <file>` — payload-гейт канонического блока `## Handoff` (≤1500 символов, обязательные секции, семантические failure-state значения; exit 0–5).
 
 **Hard gate перед диспатчем:** для mode=wave/program `LAUNCH.md` обязан существовать (cross-family check + секция «Prohibited») до любого диспатча воркеров — см. SKILL.md шаг 6.0.
 
@@ -89,7 +89,7 @@ ln -sfn ~/Projects/opencode-skills/skills/wave-spec \
 
 - **References:** `worked-examples.md` (3 сквозных примера), `program-maps.md` (4 доменных меню), `glossary.md` (15 терминов), `vv-portability.md`.
 - **Шаблоны (14):** `INTENT.md.tmpl`, `SPEC.xml.tmpl`, `PLAN.xml.tmpl`, `STATUS.md.tmpl`, `quick-spec.md.tmpl`, `worker-brief.md.tmpl`, `LAUNCH.md.tmpl`, `NEXT_SESSION.md.tmpl`, `NEXT_SESSION_ITER.md.tmpl`, `iteration-handoff.md.tmpl`, `review-synthesis.md.tmpl`, `fix-round-brief.md.tmpl`, `ASSUMPTIONS.md.tmpl`, `linear-workflow.md.tmpl`.
-- **Скрипты:** `verify-spec.sh`.
+- **Скрипты:** `verify-spec.sh`, `verify-handoff-payload.sh` (payload-гейт канонического блока `## Handoff` — длина ≤1500, обязательные headings/labels, семантические значения; exit 0–5).
 
 ## Роутер
 

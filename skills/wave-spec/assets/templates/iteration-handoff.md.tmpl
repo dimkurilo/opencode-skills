@@ -27,3 +27,34 @@
 ## Next iteration
 
 {{next}} → NEXT_SESSION_I{{next_id}}.md
+
+## Handoff
+
+Canonical block (CAS-169). The payload gate validates form + ≤1500 chars of this block only (not the narrative sections above). Defaults for a successful task: `fingerprint: none`, `hypothesis: none`, `count: 0`, `reset_reason: not_applicable` — **handoff-specific sentinels** (compact payload format; ledger/STATUS использует канонический `—` CAS-167/168, см. SKILL.md §7).
+
+### Changed files
+{{changed_files}}
+
+### Delivered behavior
+
+Только наблюдённые факты; запрещены пересказ плана, пересказ diff, общие фразы, «всё готово» без evidence.
+
+{{delivered_behavior}}
+
+### Validation
+command: {{validation_command}}
+observed: {{validation_observed}}
+
+### Task-owned failure state
+
+For multi-task iterations — one row per task id. Defaults per successful task: `fingerprint: none`, `hypothesis: none`, `count: 0`, `reset_reason: not_applicable`. Replace the sample row below with real task ids; add one row per task.
+
+| task | fingerprint | hypothesis | count | reset_reason |
+|------|-------------|------------|-------|--------------|
+| {{task_id}} | none | none | 0 | not_applicable |
+
+### Assumptions
+{{assumptions}}
+
+### Residual risk
+{{residual_risk}}

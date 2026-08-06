@@ -7,6 +7,13 @@
 
 ## [Unreleased]
 
+### Added
+- **wave-spec — handoff payload contract (CAS-169)**:
+  - Канонический `## Handoff` блок в `assets/templates/worker-brief.md.tmpl` и `iteration-handoff.md.tmpl`: Changed files / Delivered behavior / Validation (command + observed) / Task-owned failure state (fingerprint|none, hypothesis|none, count, reset_reason|not_applicable) / Assumptions / Residual risk; запрет пересказа плана/diff; multi-task failure state — таблица по task id.
+  - НОВЫЙ `scripts/verify-handoff-payload.sh` — payload-гейт (`--handoff <file>`): exit 0=PASS, 1=usage/IO, 2=locale unavailable, 3=too long (>1500), 4=sections missing / invalid semantic values, 5=both; UTF-8 locale preflight (включая Darwin bare UTF-8) + python3 len fallback; mode-aware (scalar labels для worker, Markdown-таблица для iteration); семантическая валидация count/reset_reason (закрытый список 8 non_counting категорий CAS-168).
+  - `SKILL.md`: payload-гейт в lifecycle (worker hard gate до worker_done, iteration closeout до pointer в SESSION_HANDOFF, quick mode исключён); handoff-specific sentinel'ы none/not_applicable/0 объявлены, канон ledger `—` сохранён.
+  - README.md / README.ru.md синхронизированы.
+
 ### Changed
 - **multi-model-orchestration — failure ledger (CAS-168)**:
   - `references/failure-handling.md`: блоки Worker Self-Correction / Circuit-Breaker заменены на Failure Ledger — fingerprint (нормализация package + command/test + class/message + stable path/symbol, без timestamps/generated ids/secrets), consecutive-count (инкремент только на evidence-bearing reproducible package-owned failure с тем же fingerprint и hypothesis), 8 non-counting категорий (закрытый список), правило 5-го фейла (попытки 1–4 тот же воркер; count=5 → СТОП → material re-plan; нет плана → blocked; смена модели ≠ re-plan).

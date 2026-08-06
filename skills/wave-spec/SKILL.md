@@ -398,6 +398,25 @@ Current iteration: **I{N}** → iterations/I{N}-<slug>.handoff.md
 
 End of session: append pointer to `SESSION_HANDOFF.md`. Facts → MEMORY.md.
 
+### Handoff payload gate (CAS-169)
+
+The canonical `## Handoff` block (6 headings + required labels) lives in `assets/templates/worker-brief.md.tmpl` and `assets/templates/iteration-handoff.md.tmpl`. After writing a handoff and **before** transitioning lifecycle state, run the payload gate:
+
+```bash
+bash skills/wave-spec/scripts/verify-handoff-payload.sh --handoff <path-to-handoff.md>
+```
+
+The gate extracts the first `## Handoff` block (from `## Handoff` to EOF or the next `## ` heading) and checks: 6 canonical headings (`### Changed files` / `### Delivered behavior` / `### Validation` / `### Task-owned failure state` / `### Assumptions` / `### Residual risk`), required labels (`command:` + `observed:` in Validation), **Task-owned failure state is mode-aware** [F1] — scalar labels (`fingerprint:` + `hypothesis:` + `count:` + `reset_reason:`) for single-task worker handoffs OR a Markdown table (`| task | fingerprint | hypothesis | count | reset_reason |` + separator + ≥1 data row) for multi-task iteration handoffs, **semantic value validation** [M2] (`count` = non-negative integer; `reset_reason` ∈ 8 canonical transition values / `non_counting:<cat>` / sentinel `not_applicable`/`none`/`—`), and payload ≤1500 UTF-8 chars.
+
+- **Worker handoff (before `worker_done`):** exit 3/4/5 → handoff не принимается; worker правит блок и повторяет gate. exit 0 → send `worker_done`. (Hard gate — worker must not bypass.)
+- **Iteration closeout (before pointer в `SESSION_HANDOFF.md`):** exit 3/4/5 → WARNING с N/1500 в STATUS notes (soft, не жёсткий блок) — оркестратор принимает handoff и помечает превышение. exit 0 → pointer в `SESSION_HANDOFF.md`.
+- **mode=quick НЕ вызывает payload-gate** (SPEC guard: новые гейты только на выходе, не на входе dispatch).
+- Defaults для успешного handoff (anti-bureaucracy): `fingerprint: none`, `hypothesis: none`, `count: 0`, `reset_reason: not_applicable`.
+- **Sentinel scope (M1, CAS-169 fix-round):** `none` / `not_applicable` / `0` — **handoff-specific sentinels** (compact payload format). Канонический `—` (CAS-167/168) остаётся sentinel'ом для ledger/STATUS (см. §7 column semantics). Это НЕ переопределение канона — компактный alias только для handoff-payload.
+- Словарь `fingerprint` / `hypothesis` / `count` / `reset_reason` — канон CAS-167/168 (`references/glossary.md` + `skills/multi-model-orchestration/references/failure-handling.md`).
+- Для iteration-handoff (multi-task): `### Task-owned failure state` — таблица по task id (`| task | fingerprint | hypothesis | count | reset_reason |`), не единственный набор полей.
+- **Boundary:** этот gate НЕ заменяет `verify-handoff-gate.sh` (project-bootstrap destination gate — 4/4 PASS, unchanged) и НЕ заменяет `verify-spec.sh` (SPEC/PLAN required-sections). Truthfulness of `command:`/`observed:` evidence остаётся обязанностью coordinator/lifecycle gates, не статического гейта.
+
 > **Lifecycle gates:** before closing wave as Done, verify all gates passed — see [Lifecycle Gates](#lifecycle-gates-production-lessons).
 
 ---

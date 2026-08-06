@@ -57,7 +57,7 @@ waves/<date>-<slug>/
 └── iteration-handoff.md   # per-iteration handoff
 ```
 
-Closeout runs `scripts/verify-spec.sh` — a portable bash validator (exit 0 = PASS; opt-in `--require-launch` also requires `LAUNCH.md` with Prohibited + cross-family).
+Closeout runs `scripts/verify-spec.sh` — a portable bash validator (exit 0 = PASS; opt-in `--require-launch` also requires `LAUNCH.md` with Prohibited + cross-family). Worker handoffs and iteration closeouts run `scripts/verify-handoff-payload.sh --handoff <file>` — the payload gate enforcing the canonical `## Handoff` block (≤1500 chars, required sections, semantic failure-state values; exit 0–5).
 
 **Hard gate before dispatch:** for `wave`/`program` modes `LAUNCH.md` must exist (cross-family check + Prohibited section) before any worker dispatch — see SKILL.md step 6.0.
 
@@ -89,7 +89,7 @@ ln -sfn ~/Projects/opencode-skills/skills/wave-spec \
 
 - **References:** `worked-examples.md` (3 end-to-end examples), `program-maps.md` (4 domain menus), `glossary.md` (15 terms), `vv-portability.md`.
 - **Templates (14):** `INTENT.md.tmpl`, `SPEC.xml.tmpl`, `PLAN.xml.tmpl`, `STATUS.md.tmpl`, `quick-spec.md.tmpl`, `worker-brief.md.tmpl`, `LAUNCH.md.tmpl`, `NEXT_SESSION.md.tmpl`, `NEXT_SESSION_ITER.md.tmpl`, `iteration-handoff.md.tmpl`, `review-synthesis.md.tmpl`, `fix-round-brief.md.tmpl`, `ASSUMPTIONS.md.tmpl`, `linear-workflow.md.tmpl`.
-- **Scripts:** `verify-spec.sh`.
+- **Scripts:** `verify-spec.sh`, `verify-handoff-payload.sh` (payload gate for the canonical `## Handoff` block — length ≤1500, required headings/labels, semantic values; exit 0–5).
 
 ## Router
 
