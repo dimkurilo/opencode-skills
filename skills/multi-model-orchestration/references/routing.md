@@ -61,6 +61,35 @@ Evidence: production waves — untracked route files, deployed without tracking 
 **Writer Flash ↔ GLM replaceable:**
 Owner phrase «сейчас writer=X» (X = Flash or GLM) instantly pins the writer model for the current wave. No skill rewrite needed. Default writer: DeepSeek V4 Flash (fast, cheap, strong 0731). GLM = swap для multi-file implement (1M state continuity, ~15 min implement + ~10 min fix-round, build green). Qwen 3.8 Max = default reviewer/architect (NE writer — slow). See `references/model-card.md` for current roles + launch pins.
 
+## Review mode branching
+
+Standalone routing mirrors the post-worker flow in `skills/multi-model-orchestration/SKILL.md` §3 step 8c. The orchestrator selects `review_mode` from `skills/wave-spec/SKILL.md` §Review modes precedence and writes it into the worker brief (reviewers do NOT compute mode post-factum).
+
+| review_mode | Reviewer dispatches | Cross-family | Effort |
+|-------------|---------------------|--------------|--------|
+| **Mechanical** | 0 (gate skipped; lifecycle still enforced) | n/a (no reviewer) | n/a |
+| **Simple** | exactly 1 | **yes** (`writer.family ≠ reviewer.family`) | low — model-specific launch contract (see §Simple effort below) |
+| **Ordinary** | exactly 1 — default **Qwen 3.8 Max** | **yes** (swap family if writer is Alibaba) | default |
+| **Strong** | exactly 2 — **GPT-5.5** (behavioral / security / fidelity lens, mandatory for these categories) + **GLM 5.2** (static / architecture lens; swap to **Qwen 3.8 Max** when writer is GLM) | **yes** for both lines | default |
+
+- **Mechanical** — review gate is skipped; orchestrator records skip evidence in STATUS `## Review gate` block + handoff `### Residual risk`. Approve / LAUNCH / checks / written≠persisted / deploy / closeout gates still apply. Mechanical is the only mode without a reviewer.
+- **Simple** — exactly 1 cross-family reviewer at model-specific low effort. The Simple-without-cross-family exception is **cancelled** (low-risk work would get exactly the blind spot cross-family exists to prevent).
+- **Ordinary** — exactly 1 reviewer (Qwen 3.8 Max default; swap family if writer is Alibaba).
+- **Strong** — exactly 2 complementary lines. `strong_session_used` is an **atomic compare-and-set** in the STATUS `## Review gate` block BEFORE first dispatch (double-Strong guard; orchestrator-owned): `strong_session_used == false` → atomically set `true` → dispatch 2 complementary lines; `strong_session_used == true` → **BLOCK** the Strong dispatch, record `blocked_by: strong_session_used` in the STATUS `## Review gate` block, surface owner/escalation outcome (not a silent skip, not a second Strong dispatch). Flag is not reset within the session. Transport/API failure on the first Strong dispatch = non-counting operational failure (no ledger increment, no automatic second Strong dispatch); retry requires explicit owner decision (or a fix-round against existing findings, which does NOT consume the Strong flag). "No reviewer retries" = no re-dispatch within the same gate; fix-round (max 2, round 3 escalation) is unchanged. Follow-up review only by user request or unresolved BLOCKER/HIGH.
+
+### Simple effort — model-specific launch contract
+
+"Low effort" is **not** an abstract string. Use the model-specific launch command:
+
+| Reviewer model | Simple low-effort launch contract |
+|----------------|-----------------------------------|
+| **GLM 5.2** (OpenCode) | `opencode --agent A/agent1st_glm` → `/variants low` in TUI + sleep 3 (or the current low-variant equivalent — see `model-card.md` §LAUNCH РЕЦЕПТ) |
+| **Qwen 3.8 Max** (OpenCode) | `opencode --agent A/agent1st_qwen-3.8` → `/variants low` + sleep 3 |
+| **Qwen Code** | `qwen --approval-mode yolo` → `/effort medium` (минимальный поддерживаемый effort для Qwen Code — `low` не поддерживается: `/effort medium\|high\|xhigh\|max`) |
+| **GPT-5.5** (codex CLI) | `codex --model gpt-5.5 -c model_reasoning_effort="low"` |
+
+Simple reviewer family must differ from writer family (cross-family rule above). Full launch cycle (terminal create → wait tui-idle → variant + sleep 3 → task-create → dispatch --inject → check --wait): see `model-card.md` §LAUNCH РЕЦЕПТ.
+
 ## Solo Defaults (when NOT multi)
 
 Use **one** model only. Skip Orca multi-dispatch.
@@ -78,6 +107,8 @@ Use **one** model only. Skip Orca multi-dispatch.
 | Security/RLS alone | Prefer dual later; if solo, GPT-5.5 + explicit residual note |
 
 If §1 later says multi (expensive error, parallel pieces) — stop solo and open multi with writer ≠ reviewer.
+
+**Solo-default does NOT cancel a selected `review_mode`.** If the orchestrator classified the task as Mechanical / Simple / Ordinary / Strong via `skills/wave-spec/SKILL.md` §Review modes, that classification applies to the **review gate** even when execution is solo. A solo-written security change is still Strong; a solo-written low-risk change can still be Mechanical; a solo-written small feature can still be Simple. Solo defaults govern the **execution** dispatch path (one model, no Orca multi-dispatch), not the review gate.
 
 ---
 

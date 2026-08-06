@@ -434,6 +434,27 @@ Maintain `…/STATUS.md`:
 - Workers докладывают evidence/failure tuple в отчётах, но НЕ пишут в ledger
 - Шаблон STATUS: «Updated by orchestrator; Workers may append notes only» + «orchestrator owns ledger fields»
 
+**Review gate block — orchestrator-owned, separate from ledger:**
+
+В дополнение к ledger-колонкам оркестратор поддерживает отдельный `## Review gate` блок в STATUS для метаданных Review mode. Блок **НЕ добавляется** в ledger-колонки (10-колоночная схема CAS-167 неизменна) и **НЕ добавляется** в canonical Handoff 6 headings (компактный snapshot или path-link может появиться в `### Residual risk`).
+
+```markdown
+## Review gate
+
+- review_mode: Mechanical | Simple | Ordinary | Strong
+- selection_basis: <precedence rule that fired — see §Review modes>
+- review_dispatches: 0 | 1 | 2  <!-- per-dispatch reviewer name + family -->
+- strong_session_used: true | false | n/a  <!-- set BEFORE first Strong dispatch; atomic double-Strong guard -->
+- follow_up_reason: none | user-requested | unresolved-blocker-high
+- synthesis_path: <path to review-synthesis.md, or "n/a — Mechanical skip">
+```
+
+Правила владения:
+- Только оркестратор пишет этот блок.
+- `strong_session_used` — **atomic compare-and-set** непосредственно перед первым Strong dispatch: если `strong_session_used == false` → атомарно set `true` → dispatch 2 complementary reviewers; если `strong_session_used == true` → **BLOCK**: Strong dispatch НЕ выполняется, оркестратор фиксирует `blocked_by: strong_session_used` в STATUS `## Review gate` блоке и выдаёт owner/escalation outcome (не тихий пропуск, не повторный dispatch). Флаг НЕ сбрасывается внутри сессии. **Recovery:** transport/API failure при первом Strong dispatch — non-counting operational failure (не инкремент ledger, не автоматический второй Strong dispatch); retry того же gate возможен только после явного owner-решения (или как fix-round против существующих findings — он Strong flag не потребляет).
+- Для Mechanical блок фиксирует skip evidence (`review_dispatches: 0`, `synthesis_path: n/a — Mechanical skip`); synthesis-артефакт может не создаваться.
+- Workers сообщают reviewer findings через стандартный output contract; они НЕ пишут этот блок.
+
 **Legacy:** новые волны — по полной схеме (10 колонок); исторические STATUS в `waves/` НЕ переписывать (ничего не мигрировать).
 
 **Per-iteration handoff:** each iteration creates `iterations/I{N}-<slug>.handoff.md` (unique file).
@@ -569,7 +590,7 @@ Executors **do not** rewrite SPEC/PLAN. They may append STATUS notes.
 | State | Definition | Gate |
 |-------|-----------|------|
 | **Implement done** | Writer finished, own verification green (build/lint/tests per project), implement notes written. **Every claimed path exists on disk** — before `worker_done`: `git status --short` and/or `ls`/`wc -l` prove each CHANGES path. Claimed-but-missing = FAIL (written≠persisted). | `worker_done` or executor signals completion + disk proof |
-| **In Review** | Dual review passed: static-parity reviewer ∥ behavioral-semantics reviewer (example pair GLM ∥ Codex). 0 MAJOR or all MAJOR fixed. Writer ≠ reviewer | Synthesis: stricter wins, all MAJOR closed (template: `review-synthesis.md.tmpl`; action via `fix-round-brief.md.tmpl`) |
+| **In Review** | Review per selected **Review mode** passed (see §Review modes): Mechanical = no reviewer (gate skipped, lifecycle still enforced); Simple / Ordinary = 1 cross-family reviewer; Strong = 2 complementary lines (GPT-5.5 ∥ GLM/Qwen); fidelity → Strong (§Fidelity Dual Review). 0 material findings (or all closed); writer ≠ reviewer (cross-family) | Synthesis: stricter wins, all material findings closed (template: `review-synthesis.md.tmpl`; action via `fix-round-brief.md.tmpl`) |
 | **Commit** | Public paths committed to branch. Only project-tracked files staged — no dev files (AGENTS.md, SESSION_HANDOFF, .agents/) | `git status` clean of dev files. No merge yet |
 | **PR** | Pull request opened, reviewable by orchestrator/team. All gates below merge verified independently | PR gate: description complete, reviewers assigned |
 | **Merge** | PR approved, merged to main. CI green, no unresolved review threads | Merge gate: CI green |
@@ -598,6 +619,65 @@ Gate before lifecycle-**Done** — tie the contract to concrete folder artifacts
 - **Post-mortem → skill update:** if the wave revealed new operational errors (launch, routing, orchestration), create INTENT.md in `opencode-skills/waves/<date>-skill-improvements/` describing the problems. **Reflect-вопрос:** «какой один урок из этой волны обобщается в правило/ранбук?» → запись в MEMORY.md или `operational-rules.md`.
 
 No probe and no named residual = not Done.
+
+---
+
+## Review modes
+
+**Context:** review depth must be proportional to blast radius. A mechanical rename should not pay for a 2-reviewer dual review; a security / RLS change must not skip one. This section is the **single source of truth for non-fidelity review depth** — it resolves the ambiguity between the In Review lifecycle row (which describes gate wording) and Fidelity Dual Review (which overrides for fidelity ports).
+
+> **Scope:** Review modes qualify the **review gate only**. They do NOT replace execution Modes (`quick` / `wave` / `task` / `program`), do NOT skip approve / LAUNCH / checks / written≠persisted / secret-redaction / deploy / closeout gates, and do NOT cancel `mode=quick` semantics. `Mechanical` = review gate skipped, **NOT** "task done without lifecycle".
+
+### The four modes
+
+| Mode | Reviewer count | Cross-family | Effort | When |
+|------|----------------|--------------|--------|------|
+| **Mechanical** | 0 (no reviewer) | n/a (no reviewer) | n/a | Review gate skipped — see precedence rule 3 |
+| **Simple** | 1 | **yes** (`writer.family ≠ reviewer.family`) | low — model-specific launch contract (see `multi-model-orchestration/references/routing.md`) | Low-risk change that still warrants one independent look |
+| **Ordinary** | 1 — default reviewer **Qwen 3.8 Max** | **yes** (swap reviewer family if writer is Alibaba) | default | Default — anything not classified as Mechanical / Simple / Strong |
+| **Strong** | 2 complementary lines: **GPT-5.5** (behavioral / security / fidelity lens, mandatory) + **GLM 5.2** (static / architecture lens; swap to **Qwen 3.8 Max** when writer is GLM) | **yes** — both lines must differ from writer **and** from each other | default | High-risk — see precedence rule 2 |
+
+**Cross-family for every mode with a reviewer.** `Mechanical` is the only mode without a reviewer; the Simple-without-cross-family exception is **cancelled** — low-risk work would get exactly the blind spot cross-family exists to prevent.
+
+**Strong lens assignment is fixed by category, not by preference:**
+- Security / RLS / auth / secrets / permissions / fidelity / abort-cost-state transitions → **GPT-5.5 mandatory** on the behavioral lens.
+- Static parity / architecture / file:line matrix → **GLM 5.2** (default) or **Qwen 3.8 Max** (when writer is GLM).
+
+**Strong "no retries" = do not re-dispatch the reviewer within the same review gate.** It does NOT cancel the existing fix-round contract (max 2 fix-rounds; round 3 → owner escalation — see §Fidelity Dual Review and `fix-round-brief.md.tmpl`). Reviewer dispatch retry / API failure / transport void = non-counting operational failure (`multi-model-orchestration/references/failure-handling.md`); it does not increment task-owned failure count and does not consume the Strong session flag.
+
+### Precedence (floor + stricter-of; NOT first-applicable-wins)
+
+**Algorithm:** a user/repo review requirement sets a **floor** (minimum mode); risk triggers then apply **unconditionally** on top of the floor; the final mode is the **stricter of (floor, risk result)**. Severity order for "stricter": **Strong > Ordinary > Simple > Mechanical**. A low floor NEVER suppresses a Strong risk trigger.
+
+1. **Floor — explicit user or repo review requirement.** `Mechanical` is forbidden whenever a floor exists; the floor is the required mode (at least `Simple`; `Strong` if explicitly requested). Repo review requirements = project-level review policies recorded in AGENTS.md / SPEC (e.g. «all security changes Strong», «fidelity ports Strong»). **NOT review requirements (lifecycle / dispatch gates, observed at any mode and therefore NOT a floor):** `LAUNCH.md` cross-family mandates, `verify-spec.sh` dispatch gate, approve / handoff / closeout gates — these are satisfied regardless of mode and do NOT raise the floor.
+2. **Risk trigger (any one) → Strong unconditionally** (even if the floor is lower):
+   - security / RLS / auth / secrets / permissions
+   - prod deploy / prod config / persistent data / schema migration
+   - fidelity port / behavioral parity / reference→platform migration
+   - abort / cost / state-transition semantics
+   - unknown or unbounded blast radius
+3. **Mechanical candidate** — only when: no runtime / control-flow / contract impact AND all applicable checks green AND no floor. Typical: rename, formatting, one-line constant fix without flow change, doc-only edit, type-narrowing annotation.
+4. **Simple candidate** — low-risk change that does not meet rule 3 (and the floor is not above Simple). Typical: small refactor with tests, additive non-security config, single-file feature with green tests.
+5. **Ordinary** — anything not classified above (default reviewer Qwen 3.8 Max; cross-family swap if writer is Alibaba).
+
+**Selection basis — record ALL applicable inputs, not the first one.** When more than one rule applies, the orchestrator records every applicable basis input in `selection_basis` (STATUS `## Review gate` block + synthesis). Examples: `selection_basis: repo-floor=Ordinary + risk=prod → stricter=Strong`, `selection_basis: user-request=Strong + risk=security → stricter=Strong`, `selection_basis: no-floor + no-risk → Mechanical`. The final mode is the stricter of the floor and the risk result; a low floor NEVER suppresses a Strong risk trigger.
+
+### Selection ownership and persistence
+
+- **Orchestrator selects the mode** from the precedence above and records it in the STATUS `## Review gate` block (see §7) **before** the first reviewer dispatch.
+- `review_mode` is part of the worker brief / orchestration packet — the reviewer does NOT compute it post-factum.
+- **Solo-default does NOT cancel a selected `review_mode`.** If §1 of `multi-model-orchestration` routes the task solo for execution, the orchestrator still applies the selected Review mode to the review gate (a solo-written low-risk change can still be Mechanical; a solo-written security change is still Strong).
+- **`strong_session_used` flag** — **atomic compare-and-set** by the orchestrator in STATUS **immediately before** the first Strong dispatch: `strong_session_used == false` → atomically set `true` → dispatch 2 complementary reviewers; `strong_session_used == true` → **BLOCK** the Strong dispatch, record `blocked_by: strong_session_used` in the STATUS `## Review gate` block, and surface an owner/escalation outcome (not a silent skip, not a second Strong dispatch). The flag is not reset within the same session. Transport/API failure on the first Strong dispatch is a non-counting operational failure (no ledger increment, no automatic second Strong dispatch); retry of the same gate requires an explicit owner decision (or a fix-round against existing findings, which does NOT consume the Strong flag).
+
+### Follow-up review
+
+- **Automatic follow-up: none.** A follow-up review is dispatched ONLY by (a) explicit user request, OR (b) unresolved BLOCKER / HIGH finding from the prior review.
+- A follow-up is a NEW review gate with its own mode selection — do not assume the prior mode carries over.
+- Follow-up is distinct from fix-round (writer action on existing findings) and from reviewer retry (transport / API recovery).
+
+### Relationship to Fidelity Dual Review
+
+For **fidelity ports, reference→platform migrations, behavioral parity waves**: precedence rule 2 forces **Strong**, which satisfies the Fidelity Dual Review contract (GPT-5.5 ∥ GLM/Qwen as two complementary lenses from different model families). For non-fidelity waves, this section is the single authority — dual review is no longer implied by the In Review row alone.
 
 ---
 

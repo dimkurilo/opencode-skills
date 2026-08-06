@@ -169,9 +169,13 @@ This skill can be used without wave-spec. Inline SUMMARIES in §2b/§2c/§2d cov
 8. POST-WORKER_DONE SEQUENCE (do not skip):
    a. git status --short → verify claimed files exist (written≠persisted)
    b. Linear comment (project protocol, if applicable)
-   c. Dispatch reviewer (model-specific brief INLINE, not lazy prompt)
-   d. Wait reviewer worker_done
-   e. Synthesis (stricter wins)
+   c. **Branch by `review_mode`** (set in the worker brief/packet — see §4; the reviewer does NOT compute mode post-factum). Canonical contract: `skills/wave-spec/SKILL.md` §Review modes.
+      - **Mechanical** → SKIP steps c–e entirely. Record skip evidence in the STATUS `## Review gate` block (`review_dispatches: 0`, `synthesis_path: n/a — Mechanical skip`) and in handoff `### Residual risk`. **Lifecycle gates still enforced** (approve / LAUNCH / checks / written≠persisted / secret-redaction / deploy / closeout). Mechanical is the only mode without a reviewer.
+      - **Simple** → dispatch exactly **1 cross-family low-effort reviewer** (model-specific launch contract — see `references/routing.md` §Simple effort). `writer.family ≠ reviewer.family` mandatory (the Simple-without-cross-family exception is cancelled).
+      - **Ordinary** → dispatch exactly **1 reviewer** — default **Qwen 3.8 Max**; swap to a different family if writer is Alibaba.
+      - **Strong** → **atomic compare-and-set on `strong_session_used` in STATUS `## Review gate` block BEFORE first dispatch** (double-Strong guard; orchestrator-owned). If `strong_session_used == false` → atomically set to `true`, then dispatch **2 complementary lines**: **GPT-5.5** (behavioral / security / fidelity lens — mandatory for these categories) + **GLM 5.2** (static / architecture lens; swap to **Qwen 3.8 Max** when writer is GLM). Cross-family for **both** lines (each reviewer family ≠ writer family AND ≠ the other reviewer family). If `strong_session_used == true` → **BLOCK**: do NOT dispatch, record `blocked_by: strong_session_used` in the STATUS `## Review gate` block, surface owner/escalation outcome (not a silent skip, not a second Strong dispatch). Flag is not reset within the session. Transport/API failure on the first Strong dispatch = non-counting operational failure (no ledger increment, no automatic second Strong dispatch); retry of the same gate requires explicit owner decision (or a fix-round against existing findings, which does NOT consume the Strong flag). "No retries" = do not re-dispatch the reviewer within the same gate; fix-round (max 2, round 3 escalation) is unchanged.
+   d. Wait reviewer worker_done (skip for Mechanical)
+   e. Synthesis — `skills/wave-spec/assets/templates/review-synthesis.md.tmpl` (generic: 0 / 1 / 2 reviewer inputs; verdict enum `APPROVED | NEEDS_CHANGES | BLOCKED`; any material finding including LOW → NEEDS_CHANGES). Stricter wins on contradictions. Follow-up only by user request or unresolved BLOCKER/HIGH.
    f. ONLY THEN: In Review / next step
 9. GATE: read artifacts → synthesize → decide next
 10. REPORT to human: consensus / contradictions / gaps
@@ -200,6 +204,7 @@ Every brief MUST contain (adapt format to model — see `references/routing.md`)
 ```
 ROLE: worker (not coordinator). Scope: <paths>.
 MODE: review-only | implement.
+REVIEW_MODE: Mechanical | Simple | Ordinary | Strong  <!-- orchestrator-set; reviewer does NOT compute post-factum; carries gate context (effort, lens, dispatch count) -->
 TASK: <what to do — 1-3 sentences>.
 DONE: <acceptance criterion>.
 OUTPUT: SUMMARY / EVIDENCE / CHANGES / RISKS / BLOCKERS.
@@ -209,6 +214,7 @@ After worker_done → idle (end turn).
 ```
 - **NEW worker_done rule**: Brief ALWAYS contains explicit `--to <coordinator-handle>` example. Without `--to`, orca returns msg ID but message goes to void route (production incident: message lost).
 - **NEW writer-swap rule self-protection for implement workers**: Brief contains clause: "On API retry attempt #5+ → terminal read first → git diff --stat → if files modified match expected → idle and signal via heartbeat; if blocked → Ctrl-C and wait for coordinator swap. Do NOT continue retrying."
+- **NEW review_mode field**: every brief carries `REVIEW_MODE` set by the orchestrator from the precedence in `skills/wave-spec/SKILL.md` §Review modes. The reviewer uses it to know its effort/lens context (Simple = model-specific low-effort launch contract; Strong = which complementary lens — GPT-5.5 behavioral or GLM/Qwen static). The reviewer does NOT re-classify the mode; mismatch with the orchestration packet → BLOCKER, not silent reclassification.
 
 Model-specific wrapping:
 - **GLM 5.2**: Goal → Context → Constraints → Done. No 【】. No "think step by step".
