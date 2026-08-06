@@ -85,8 +85,9 @@ Standalone routing mirrors the post-worker flow in `skills/multi-model-orchestra
 |----------------|-----------------------------------|
 | **GLM 5.2** (OpenCode) | `opencode --agent A/agent1st_glm` → `/variants low` in TUI + sleep 3 (or the current low-variant equivalent — see `model-card.md` §LAUNCH РЕЦЕПТ) |
 | **Qwen 3.8 Max** (OpenCode) | `opencode --agent A/agent1st_qwen-3.8` → `/variants low` + sleep 3 |
-| **Qwen Code** | `qwen --approval-mode yolo` → `/effort medium` (минимальный поддерживаемый effort для Qwen Code — `low` не поддерживается: `/effort medium\|high\|xhigh\|max`) |
 | **GPT-5.5** (codex CLI) | `codex --model gpt-5.5 -c model_reasoning_effort="low"` |
+
+> **Qwen Code не используется в ките** — все Qwen-роли (reviewer/architect, Simple low-effort) выполняются через Qwen 3.8 Max в OpenCode (`A/agent1st_qwen-3.8`). Qwen Code-строка из launch-таблицы удалена намеренно (CAS-171 follow-up, owner-факт 2026-08-07).
 
 Simple reviewer family must differ from writer family (cross-family rule above). Full launch cycle (terminal create → wait tui-idle → variant + sleep 3 → task-create → dispatch --inject → check --wait): see `model-card.md` §LAUNCH РЕЦЕПТ.
 
