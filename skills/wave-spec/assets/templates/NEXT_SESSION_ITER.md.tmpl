@@ -10,6 +10,7 @@
 Previous: {{prev_iteration}} done ({{prev_commit}}).
 Changes vs {{prev_iteration}}: {{changes_vs_prev}}
 <!-- spec-delta: пусто для I1. Ревьюер/длинная сессия смотрит дельту, не весь SPEC заново (экономит контекст). SKILL.md §6c обязывает эту строку. -->
+<!-- retry-delta: тот же паттерн обязателен и для worker re-dispatch — ретрай воркера ссылается на retry-delta path (заполненный re-dispatch-brief.md.tmpl tail + BASE_PACKET_PATH), а НЕ на полный предыдущий brief. См. SKILL.md §6e Context placement. -->
 
 ---
 

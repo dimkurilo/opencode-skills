@@ -46,6 +46,8 @@ Implement → In Review → Commit → PR → Merge → Deploy probe → On prod
 
 No "Done" or "next product" until the deploy probe returns non-404. If there's no live smoke test, the handoff carries an explicit `RESIDUAL-RISK-OWNER-SMOKE` marker instead of pretending certainty.
 
+**Context placement (worker packets — see SKILL.md §6e):** stable prefix = links to policy/schema/worker-contract/model-card/Prohibited (not copies — sources are authoritative); task tail = base packet reference (`BASE_PACKET_PATH`) + current delta + exact evidence + iteration delta. Retry = delta-only tail over an immutable base. Precedence: injected preamble (always fresh via `dispatch --inject`; `TASK_ID`/`DISPATCH_ID` change on retry) → immutable base brief + sources → retry delta (evidence/hypothesis/diff/next action only). Delta cannot change scope / write allowlist / acceptance / output contract / Prohibited (material change → reset/re-plan, not delta). Base unreadable → escalation, not guessing.
+
 ## What it produces
 
 ```
@@ -93,7 +95,7 @@ ln -sfn ~/Projects/opencode-skills/skills/wave-spec \
 ## What's inside
 
 - **References:** `worked-examples.md` (3 end-to-end examples), `program-maps.md` (4 domain menus), `glossary.md` (15 terms), `vv-portability.md`.
-- **Templates (15):** `INTENT.md.tmpl`, `SPEC.xml.tmpl`, `PLAN.xml.tmpl`, `STATUS.md.tmpl`, `quick-spec.md.tmpl`, `worker-brief.md.tmpl`, `LAUNCH.md.tmpl`, `NEXT_SESSION.md.tmpl`, `NEXT_SESSION_ITER.md.tmpl`, `iteration-handoff.md.tmpl`, `review-synthesis.md.tmpl`, `fix-round-brief.md.tmpl`, `premortem-brief.md.tmpl`, `ASSUMPTIONS.md.tmpl`, `linear-workflow.md.tmpl`.
+- **Templates (16):** `INTENT.md.tmpl`, `SPEC.xml.tmpl`, `PLAN.xml.tmpl`, `STATUS.md.tmpl`, `quick-spec.md.tmpl`, `worker-brief.md.tmpl`, `LAUNCH.md.tmpl`, `NEXT_SESSION.md.tmpl`, `NEXT_SESSION_ITER.md.tmpl`, `iteration-handoff.md.tmpl`, `review-synthesis.md.tmpl`, `fix-round-brief.md.tmpl`, `premortem-brief.md.tmpl`, `re-dispatch-brief.md.tmpl`, `ASSUMPTIONS.md.tmpl`, `linear-workflow.md.tmpl`.
 - **Scripts:** `verify-spec.sh`, `verify-handoff-payload.sh` (payload gate for the canonical `## Handoff` block — length ≤1500, required headings/labels, semantic values; exit 0–5), `update_review_packet.py` (deterministic review-synthesis packet updater — the packet is assembled by script, not a model: `PACKET --updates-json UPDATES` applies coordinator JSON / `--create` instantiates from template; fence-safe, atomic, no-LLM) + `test_update_review_packet.py` (33-test unittest suite).
 
 ## Router

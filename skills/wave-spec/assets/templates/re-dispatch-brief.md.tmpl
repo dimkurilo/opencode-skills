@@ -1,0 +1,61 @@
+# Re-dispatch tail ${TASK_ID} — attempt ${ATTEMPT}
+
+> **Delta-only packet.** This tail is sent to a worker ONLY on retry (ATTEMPT > 1).
+> The immutable base brief at `BASE_PACKET_PATH` stays authoritative; it is NOT
+> copied into this tail. The worker reads scope / Do only / Write only / Done when /
+> Forbidden / output contract from the base by path, and reads only the delta below
+> from this tail. See `skills/wave-spec/SKILL.md` §6e Context placement.
+
+## Role / Mode
+
+You are **EXECUTOR**, not strategist. **Mode: ${MODE}**  <!-- implement | review-only | research -->
+This is a **retry** of an earlier dispatch. The base contract is unchanged; only the delta below is new. Do not rewrite SPEC/PLAN. Do not expand scope.
+
+## Dispatch fields
+
+- **BASE_PACKET_PATH:** ${BASE_PACKET_PATH}  <!-- MANDATORY. Path to immutable base brief. Missing/unreadable → escalation, NOT guessing. -->
+- **ATTEMPT:** ${ATTEMPT}  <!-- MANDATORY. 1-based; this is a retry so ATTEMPT > 1. -->
+- **FAILURE_EVENT_PATH:** ${FAILURE_EVENT_PATH}  <!-- MANDATORY. Path to failure-events.md and/or the FE-NNNN entry this retry resolves. -->
+- **FINGERPRINT:** ${FINGERPRINT}  <!-- MANDATORY. From the failure ledger (vocabulary canon); do NOT redefine. `—` only if no active failure. -->
+- **HYPOTHESIS:** ${HYPOTHESIS}  <!-- MANDATORY. One active root-cause hypothesis; `—` only if none. -->
+- **COUNT:** ${COUNT}  <!-- MANDATORY. Consecutive same-fingerprint same-hypothesis count from the ledger. The worker does NOT self-increment; the orchestrator owns the ledger. -->
+- **RESET_REASON:** ${RESET_REASON}  <!-- MANDATORY. Last transition of the current series (closed transition list): pass | fingerprint_changed | package/command_changed | implementation_changed | hypothesis_changed | scope_changed | non_counting:<category> | same_fingerprint_retry. -->
+- **PREVIOUS_EVIDENCE:** ${PREVIOUS_EVIDENCE}  <!-- MANDATORY. Exact: the command run + observed output / file:line (NOT a summary). -->
+- **CHANGED_DIFF_REF:** ${CHANGED_DIFF_REF}  <!-- MANDATORY. Reference to diff/changes vs base: commit sha, patch path, or file:line range. -->
+- **NEXT_ACTION:** ${NEXT_ACTION}  <!-- MANDATORY. What THIS attempt does differently (concrete, not "try harder"). -->
+- **REVIEW_MODE:** ${REVIEW_MODE}  <!-- If applicable: Mechanical | Simple | Ordinary | Strong (review-mode vocabulary). Omit for non-review retries. -->
+
+## Read first
+
+1. `BASE_PACKET_PATH` (field above) — the immutable base brief: scope, Do only, Write only, Done when, Forbidden, output contract. **Authoritative; do NOT redefine it here.**
+2. `FAILURE_EVENT_PATH` (field above) — the failure ledger entry/entries this retry is resolving.
+3. `CHANGED_DIFF_REF` (field above) — what already changed vs the base.
+
+## Delta (what is new vs base)
+
+The four fields below are the delta — they are the ONLY thing this retry changes relative to the base. Everything else comes from the base by path.
+
+- **PREVIOUS_EVIDENCE** (exact, not summary): see field above.
+- **HYPOTHESIS** (one active cause): see field above.
+- **NEXT_ACTION** (this attempt): see field above.
+- **CHANGED_DIFF_REF** (diff vs base): see field above.
+
+## Retry delta only
+
+- This tail carries **only** the delta + `BASE_PACKET_PATH`. Base scope / acceptance / output contract / write allowlist / Prohibited are read from the base by path and **CANNOT** be changed by this delta.
+- **Delta cannot override** base scope, write allowlist, acceptance, output contract, or Prohibited. A material scope/implementation/hypothesis change is a reset/re-plan (see `failure-handling.md` → Failure Ledger), NOT a delta.
+- **Base unavailable** (`BASE_PACKET_PATH` missing/unreadable) → send `escalation` to the coordinator. Do NOT guess scope from the delta.
+- On `COUNT = 5` with the **same fingerprint AND same hypothesis** → STOP; the orchestrator does a material re-plan (5th-fail rule). This tail does NOT create a second ledger and does NOT self-increment `COUNT`.
+
+## Forbidden
+
+- Redefine ledger vocabulary (`fingerprint` / `hypothesis` / `count` / `reset_reason` — failure-ledger vocabulary canon) or invent a second counter.
+- Change base scope / write allowlist / acceptance / output contract / Prohibited via this delta.
+- Guess scope if `BASE_PACKET_PATH` is unreadable (escalate instead).
+- Reconstruct `orca orchestration send` from memory — copy the exact flags from the base brief or `orca skills get orchestration`.
+- "While I'm here" refactors outside the base `Write only`.
+- Paste secret VALUES (API keys, Bearer tokens) into SUMMARY/EVIDENCE/CHANGES — use `[REDACTED]`.
+
+## Report (worker contract)
+
+Send `worker_done` exactly once via `orca orchestration send --type worker_done` — with **NEW** `--task-id` and `--dispatch-id` for THIS retry, and an explicit `--to <coordinator-handle>`. Body = 3-sentence summary. Then the structured artifact: SUMMARY / EVIDENCE / CHANGES / RISKS / BLOCKERS (same contract as the base brief). `--files-modified` lists every path touched this attempt.

@@ -384,6 +384,20 @@ Template: `assets/templates/linear-workflow.md.tmpl`
 
 **On new wave in same project:** APPEND to §11 (wave history), do NOT overwrite the file.
 
+### 6e. Context placement (prefix vs tail; retry delta)
+
+Cache-aware placement — что пересылать повторно, что нет. Применяется к worker packet'ам и iteration handoff'ам; НЕ меняет Orca/LAUNCH lifecycle или `dispatch --inject` механику.
+
+1. **Stable prefix (НЕ пересылать повторно):** роли, политики, схемы, контракты вывода, `model-card.md`, Prohibited. В task передаются **ссылки** (paths) на эти источники, НЕ копии содержимого. Источники authoritative; retry их не дублирует и не заменяет.
+2. **Task tail (task-local):** base packet reference (`BASE_PACKET_PATH`) + current delta + exact evidence + iteration delta (`Changes vs I{N-1}`, §6c step 9).
+3. **Retry = delta-only поверх immutable base:** начальный packet + контракты авторитетны, не пересылаются и не заменяются. Retry task = заполненный `assets/templates/re-dispatch-brief.md.tmpl` (delta-only tail) + `BASE_PACKET_PATH`.
+4. **Precedence (fixed):** (а) **injected preamble** — runtime identity (ROLE/SCOPE/MODE/COORDINATOR_HANDLE/TASK_ID/DISPATCH_ID), ВСЕГДА свежий через `dispatch --inject` (на retry TASK_ID/DISPATCH_ID меняются — preamble нельзя выкинуть); (б) **immutable base brief + sources** (SPEC/PLAN/worker-contract/model-card); (в) **retry delta** — только evidence/hypothesis/diff/next action. **Delta НЕ может менять scope / write allowlist / acceptance / output contract / Prohibited.** Material scope/implementation/hypothesis change → reset/re-plan (см. `failure-handling.md` → Failure Ledger), НЕ delta.
+5. **Base недоступен → escalation, не угадывание.** Worker читает base по `BASE_PACKET_PATH`; если path не существует/нечитаем → `escalation` к координатору, не попытка восстановить scope из delta.
+
+Дельта-строка NEXT_SESSION (`Changes vs I{N-1}`, §6c step 9) — обязательный паттерн и для worker re-dispatch: ретрай воркера ссылается на retry-delta path, не на полный предыдущий brief.
+
+Templates: `assets/templates/worker-brief.md.tmpl` (поля `BASE_PACKET_PATH` / `ATTEMPT` / `RETRY_DELTA_PATH|none` + блок «Retry delta only»), `assets/templates/re-dispatch-brief.md.tmpl` (delta-only packet). Reference: `skills/multi-model-orchestration/references/failure-handling.md` → Recovery After Worker Crash (re-dispatch packet flow); `skills/multi-model-orchestration/references/worker-contract.md` → preamble/base/delta cross-reference.
+
 ### Linear validation (if project uses Linear)
 
 - [ ] Task created in correct project (default from AGENTS.md / linear-workflow.md)

@@ -1,5 +1,23 @@
 # Task ${TASK_ID} — ${TITLE}
 
+## Dispatch fields
+
+- **BASE_PACKET_PATH:** ${BASE_PACKET_PATH}  <!-- path to immutable base brief. For initial dispatch = this brief's own path. For retry = path to the original brief that stays authoritative. Missing/unreadable on retry → escalation, NOT guessing. -->
+- **ATTEMPT:** ${ATTEMPT}  <!-- 1 for initial dispatch; N (1-based) for retry. -->
+- **RETRY_DELTA_PATH:** ${RETRY_DELTA_PATH}  <!-- `none` for initial dispatch; path to a filled re-dispatch-brief.md.tmpl tail for retry. -->
+
+## Retry delta only
+
+For **initial dispatch** (ATTEMPT 1): `RETRY_DELTA_PATH = none`. This brief IS the base; the worker reads scope / Do only / Write only / Done when / Forbidden from here.
+
+For **retry** (ATTEMPT > 1): the task payload carries **only** the delta (a filled `assets/templates/re-dispatch-brief.md.tmpl` tail) + `BASE_PACKET_PATH`. The base brief is **NOT** copied into the task text — it stays authoritative at `BASE_PACKET_PATH` and the worker reads it by path.
+
+- **Delta cannot override** base scope, write allowlist, acceptance, output contract, or Prohibited. A material scope/implementation/hypothesis change is a reset/re-plan (see `failure-handling.md` → Failure Ledger), NOT a delta.
+- **Base unavailable** (`BASE_PACKET_PATH` missing/unreadable on retry) → send `escalation` to the coordinator. Do NOT guess scope from the delta alone.
+- Stable prefix (policies, schemas, model-card, worker-contract, Prohibited) is referenced by path, never copied into the task payload.
+
+See `skills/wave-spec/SKILL.md` §6e Context placement for the full prefix/tail/precedence contract.
+
 ## Role / Mode
 
 You are **EXECUTOR**, not strategist. **Mode: ${MODE}**  <!-- implement | review-only | research -->

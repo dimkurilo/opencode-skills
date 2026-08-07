@@ -143,11 +143,23 @@ orca terminal wait --terminal <new_handle> --for tui-idle --timeout-ms 60000 --j
 orca terminal send --terminal <new_handle> --text "<variant_or_effort>" --enter --json
 sleep 3
 
-# 4. Re-dispatch with context about previous failure
-TASK_ID=$(orca orchestration task-create --spec "<brief + 'Previous attempt failed: <evidence>. Try different approach.'>" --json | \
+# 4. Re-dispatch with a delta-only packet (NOT brief concatenation)
+#    Fill skills/wave-spec/assets/templates/re-dispatch-brief.md.tmpl as the tail:
+#      BASE_PACKET_PATH (immutable base brief, authoritative), ATTEMPT, FAILURE_EVENT_PATH,
+#      FINGERPRINT, HYPOTHESIS, COUNT, RESET_REASON, PREVIOUS_EVIDENCE, CHANGED_DIFF_REF,
+#      NEXT_ACTION, REVIEW_MODE (if applicable).
+#    The base brief is NOT copied into the task text — the worker reads it by path.
+#    Delta cannot override base scope/write-allowlist/acceptance/output-contract/Prohibited.
+#    If BASE_PACKET_PATH is missing/unreadable → the worker sends escalation (not guessing).
+#    Build the exact task-create / dispatch flags from `orca skills get orchestration`.
+TASK_ID=$(orca orchestration task-create --spec "$(cat <path-to-filled-re-dispatch-tail.md>)" --json | \
   python3 -c "import json,sys; print(json.load(sys.stdin)['result']['task']['id'])")
 orca orchestration dispatch --task $TASK_ID --to <new_handle> --inject --json
 ```
+
+**Same-worker / re-plan rules (preserved):** attempts 1–4 stay on the same worker with no model switch; on the 5th consecutive failure with the same fingerprint AND same hypothesis → STOP and the orchestrator performs a material re-plan (hypothesis / boundaries / scope / validation). Switching the model alone is NOT a re-plan. The retry delta references the ledger (`FAILURE_EVENT_PATH` + `FINGERPRINT` + `COUNT`) — it does NOT create a second ledger and does NOT replace the same-worker/re-plan contract above. See `skills/wave-spec/SKILL.md` §6e Context placement for the prefix/tail/precedence contract and `references/worker-contract.md` for the preamble/base/delta cross-reference.
+
+**Not a `terminal send` follow-up:** retry delivery stays on `dispatch --inject` (the only path that injects the lifecycle preamble with fresh TASK_ID/DISPATCH_ID). `terminal send` does not inject the preamble and is not a retry channel.
 
 ## Message Routing Void (verify-arrival rule)
 

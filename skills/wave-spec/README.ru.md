@@ -46,6 +46,8 @@ Implement → In Review → Commit → PR → Merge → Deploy probe → On prod
 
 Никаких «Done» или «next product», пока deploy probe не вернёт не-404. Если live smoke нет — handoff несёт явный маркер `RESIDUAL-RISK-OWNER-SMOKE` вместо иллюзии определённости.
 
+**Context placement (воркер-пакеты — см. SKILL.md §6e):** стабильный prefix = ссылки на policy/schema/worker-contract/model-card/Prohibited (не копии — источники авторитетны); task tail = ссылка на base packet (`BASE_PACKET_PATH`) + текущая delta + exact evidence + iteration delta. Retry = delta-only tail поверх immutable base. Precedence: injected preamble (всегда свежий через `dispatch --inject`; `TASK_ID`/`DISPATCH_ID` меняются на retry) → immutable base brief + sources → retry delta (только evidence/hypothesis/diff/next action). Delta не может менять scope / write allowlist / acceptance / output contract / Prohibited (material change → reset/re-plan, не delta). Base недоступен → escalation, не угадывание.
+
 ## Что производит
 
 ```
@@ -93,7 +95,7 @@ ln -sfn ~/Projects/opencode-skills/skills/wave-spec \
 ## Что внутри
 
 - **References:** `worked-examples.md` (3 сквозных примера), `program-maps.md` (4 доменных меню), `glossary.md` (15 терминов), `vv-portability.md`.
-- **Шаблоны (15):** `INTENT.md.tmpl`, `SPEC.xml.tmpl`, `PLAN.xml.tmpl`, `STATUS.md.tmpl`, `quick-spec.md.tmpl`, `worker-brief.md.tmpl`, `LAUNCH.md.tmpl`, `NEXT_SESSION.md.tmpl`, `NEXT_SESSION_ITER.md.tmpl`, `iteration-handoff.md.tmpl`, `review-synthesis.md.tmpl`, `fix-round-brief.md.tmpl`, `premortem-brief.md.tmpl`, `ASSUMPTIONS.md.tmpl`, `linear-workflow.md.tmpl`.
+- **Шаблоны (16):** `INTENT.md.tmpl`, `SPEC.xml.tmpl`, `PLAN.xml.tmpl`, `STATUS.md.tmpl`, `quick-spec.md.tmpl`, `worker-brief.md.tmpl`, `LAUNCH.md.tmpl`, `NEXT_SESSION.md.tmpl`, `NEXT_SESSION_ITER.md.tmpl`, `iteration-handoff.md.tmpl`, `review-synthesis.md.tmpl`, `fix-round-brief.md.tmpl`, `premortem-brief.md.tmpl`, `re-dispatch-brief.md.tmpl`, `ASSUMPTIONS.md.tmpl`, `linear-workflow.md.tmpl`.
 - **Скрипты:** `verify-spec.sh`, `verify-handoff-payload.sh` (payload-гейт канонического блока `## Handoff` — длина ≤1500, обязательные headings/labels, семантические значения; exit 0–5), `update_review_packet.py` (детерминированный сборщик review-synthesis пакета — пакет собирается скриптом, а не моделью: `PACKET --updates-json UPDATES` применяет JSON координатора / `--create` создаёт из шаблона; fence-safe, атомарно, no-LLM) + `test_update_review_packet.py` (33 unittest).
 
 ## Роутер

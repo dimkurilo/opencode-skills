@@ -97,6 +97,17 @@ LIFECYCLE:
 
 ---
 
+## Re-dispatch cross-reference (preamble / base / delta)
+
+When a worker is re-dispatched after a failure, three layers combine — keep them straight (see `skills/wave-spec/SKILL.md` §6e Context placement):
+
+- **Injected preamble — always fresh.** Every `dispatch --inject` regenerates the runtime identity (ROLE/SCOPE/MODE/COORDINATOR_HANDLE/TASK_ID/DISPATCH_ID). On retry the `TASK_ID` and `DISPATCH_ID` are NEW; the preamble is never reused and never copied into a delta. `terminal send` does not inject this preamble and is not a retry channel.
+- **Base contract — authoritative.** The immutable base brief (`BASE_PACKET_PATH`) carries scope / Do only / Write only / Done when / Forbidden / output contract. It stays authoritative on retry; the worker reads it by path. `model-card.md` is a stable source — reference it, do not duplicate or edit it for a retry (a model/role change goes through LAUNCH regeneration, not a delta).
+- **Retry delta — cannot override.** The re-dispatch tail (`assets/templates/re-dispatch-brief.md.tmpl`) carries only `BASE_PACKET_PATH` + attempt/failure/diff/next-action fields. The delta **cannot** change base scope, write allowlist, acceptance, output contract, or Prohibited. A material scope/implementation/hypothesis change is a reset/re-plan (failure ledger), not a delta. If `BASE_PACKET_PATH` is missing/unreadable → the worker sends `escalation`, never guesses scope from the delta.
+- **`worker_done` on retry** uses the NEW `--task-id` and `--dispatch-id` for this retry and an explicit `--to <coordinator-handle>` (the verify-arrival rule still applies — confirm via global `inbox` filtered by `taskId`, not handle-scoped `check`).
+
+---
+
 ## worker_done field map (logical → live CLI)
 
 | Logical field | Live CLI flag / channel | Notes |
