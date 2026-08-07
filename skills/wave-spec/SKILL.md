@@ -488,6 +488,20 @@ The gate extracts the first `## Handoff` block (from `## Handoff` to EOF or the 
 - Для iteration-handoff (multi-task): `### Task-owned failure state` — таблица по task id (`| task | fingerprint | hypothesis | count | reset_reason |`), не единственный набор полей.
 - **Boundary:** этот gate НЕ заменяет `verify-handoff-gate.sh` (project-bootstrap destination gate — 4/4 PASS, unchanged) и НЕ заменяет `verify-spec.sh` (SPEC/PLAN required-sections). Truthfulness of `command:`/`observed:` evidence остаётся обязанностью coordinator/lifecycle gates, не статического гейта.
 
+### Scripted packet update (review synthesis)
+
+The review-synthesis packet (`assets/templates/review-synthesis.md.tmpl`) is a coordinator artifact assembled **deterministically by script**, not stitched by a model from handoff/diff fragments. The script is a helper: it validates structure and writes atomically. It never chooses the review mode or verdict, never closes material findings, and never substitutes for the approve / LAUNCH / In Review gate.
+
+**Sequence (review flow):**
+
+1. **Worker findings** — reviewer(s) report findings per the selected Review mode contract (§Review modes).
+2. **Coordinator decisions** — the orchestrator prepares a JSON updates payload (`{"section_id": operation}`) mapping each targeted section to a `string` (replace body), `{"append": "..."}` (append to body), or `{"file": "..."}` (replace body with file content) operation. Allowlisted section IDs: `review_mode`, `verdict`, `findings`, `complementary_lenses`, `contradiction_resolution`, `closure_list`, `owner_decision`, `residual`. Constant sections (`Fix-round contract`, `Follow-up review`) are NOT updateable via the script.
+3. **Script update** — `scripts/update_review_packet.py PACKET --updates-json UPDATES` applies the payload atomically (parse + validate in memory → `mkstemp(dir=packet.parent)` → UTF-8 write → `flush`/`fsync` → `os.replace`; on any error the source file is byte-identical). `scripts/update_review_packet.py PACKET --create` instantiates the packet from `review-synthesis.md.tmpl` with canonical defaults. The parser is fence-safe (headings inside code fences are not parsed as sections) and preserves unknown/foreign sections byte-for-byte. No model calls, no shell invocation.
+4. **Read/verify packet** — the orchestrator reads the updated packet and confirms the review mode, verdict, material-finding closure list, and residual before transitioning.
+5. **In Review** — only after the packet is consistent and all material findings closed (or named residual) does the task move to In Review (see §Lifecycle Gates).
+
+The script refuses legacy packets (old `APPROVE` / `APPROVE_WITH_CHANGES` / `CHANGES_REQUESTED` verdict markers) and validates canonical enums (`review_mode` ∈ Mechanical/Simple/Ordinary/Strong; `verdict` ∈ APPROVED/NEEDS_CHANGES/BLOCKED). Errors name the section and violation type; they never print the JSON payload or file contents (secret hygiene). The packet is updated via the script — a model does NOT stitch sections by hand.
+
 > **Lifecycle gates:** before closing wave as Done, verify all gates passed — see [Lifecycle Gates](#lifecycle-gates-production-lessons).
 
 ---

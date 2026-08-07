@@ -94,7 +94,7 @@ ln -sfn ~/Projects/opencode-skills/skills/wave-spec \
 
 - **References:** `worked-examples.md` (3 end-to-end examples), `program-maps.md` (4 domain menus), `glossary.md` (15 terms), `vv-portability.md`.
 - **Templates (15):** `INTENT.md.tmpl`, `SPEC.xml.tmpl`, `PLAN.xml.tmpl`, `STATUS.md.tmpl`, `quick-spec.md.tmpl`, `worker-brief.md.tmpl`, `LAUNCH.md.tmpl`, `NEXT_SESSION.md.tmpl`, `NEXT_SESSION_ITER.md.tmpl`, `iteration-handoff.md.tmpl`, `review-synthesis.md.tmpl`, `fix-round-brief.md.tmpl`, `premortem-brief.md.tmpl`, `ASSUMPTIONS.md.tmpl`, `linear-workflow.md.tmpl`.
-- **Scripts:** `verify-spec.sh`, `verify-handoff-payload.sh` (payload gate for the canonical `## Handoff` block — length ≤1500, required headings/labels, semantic values; exit 0–5).
+- **Scripts:** `verify-spec.sh`, `verify-handoff-payload.sh` (payload gate for the canonical `## Handoff` block — length ≤1500, required headings/labels, semantic values; exit 0–5), `update_review_packet.py` (deterministic review-synthesis packet updater — the packet is assembled by script, not a model: `PACKET --updates-json UPDATES` applies coordinator JSON / `--create` instantiates from template; fence-safe, atomic, no-LLM) + `test_update_review_packet.py` (33-test unittest suite).
 
 ## Router
 

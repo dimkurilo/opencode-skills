@@ -94,7 +94,7 @@ ln -sfn ~/Projects/opencode-skills/skills/wave-spec \
 
 - **References:** `worked-examples.md` (3 сквозных примера), `program-maps.md` (4 доменных меню), `glossary.md` (15 терминов), `vv-portability.md`.
 - **Шаблоны (15):** `INTENT.md.tmpl`, `SPEC.xml.tmpl`, `PLAN.xml.tmpl`, `STATUS.md.tmpl`, `quick-spec.md.tmpl`, `worker-brief.md.tmpl`, `LAUNCH.md.tmpl`, `NEXT_SESSION.md.tmpl`, `NEXT_SESSION_ITER.md.tmpl`, `iteration-handoff.md.tmpl`, `review-synthesis.md.tmpl`, `fix-round-brief.md.tmpl`, `premortem-brief.md.tmpl`, `ASSUMPTIONS.md.tmpl`, `linear-workflow.md.tmpl`.
-- **Скрипты:** `verify-spec.sh`, `verify-handoff-payload.sh` (payload-гейт канонического блока `## Handoff` — длина ≤1500, обязательные headings/labels, семантические значения; exit 0–5).
+- **Скрипты:** `verify-spec.sh`, `verify-handoff-payload.sh` (payload-гейт канонического блока `## Handoff` — длина ≤1500, обязательные headings/labels, семантические значения; exit 0–5), `update_review_packet.py` (детерминированный сборщик review-synthesis пакета — пакет собирается скриптом, а не моделью: `PACKET --updates-json UPDATES` применяет JSON координатора / `--create` создаёт из шаблона; fence-safe, атомарно, no-LLM) + `test_update_review_packet.py` (33 unittest).
 
 ## Роутер
 
